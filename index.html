@@ -3,62 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Agendamento Profissional</title>
+    <title>Sistema de Agendamento Pro</title>
     <style>
-        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 26px; text-transform: uppercase; }
-        .card { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
-        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; font-weight: bold; }
-        input, select { width: 100%; padding: 14px; margin-bottom: 20px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; outline: none; }
-        button { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 16px; }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-admin { background: transparent; color: #64748b; margin-top: 20px; font-size: 12px; border: 1px solid #334155; }
-        .agendamento-item { background: #1a2233; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 5px solid var(--primary); }
-        .controles { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-zap { background: #25d366; color: white; flex: 2; text-decoration: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .btn-delete { background: #ef4444; color: white; flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; }
-        .hidden { display: none; }
+        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --green: #25d366; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; color: #64748b; border: 1px solid #334155; margin-top: 10px; }
+        .hidden { display: none !important; }
+        
+        /* Estilo da Lista ADM */
+        .item-lista { background: #1a2233; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
+        .controles { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-zap { background: var(--green); color: white; flex: 2; text-align: center; text-decoration: none; border-radius: 8px; padding: 8px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .btn-del { background: #ef4444; color: white; flex: 1; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>Agendamento Online</h1>
-        <p style="color: #94a3b8;">Reserve seu horário agora</p>
+<div class="container" id="view-cliente">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: var(--primary); margin: 0;">Agendamento Online</h1>
+        <p style="color: #94a3b8;">Rápido, fácil e seguro</p>
     </div>
 
     <div class="card">
-        <label>Nome Completo</label>
-        <input type="text" id="nome" placeholder="Digite seu nome">
-        
+        <label>Seu Nome</label>
+        <input type="text" id="nome_cli" placeholder="Nome completo">
         <label>WhatsApp</label>
-        <input type="tel" id="whatsapp" placeholder="Ex: 11999999999">
-
-        <label>Serviço Desejado</label>
-        <select id="servico">
-            <option value="Serviço não selecionado">Selecione o serviço...</option>
-            <option value="Serviço 01">Serviço Profissional 01</option>
-            <option value="Serviço 02">Serviço Profissional 02</option>
-            <option value="Serviço 03">Serviço Profissional 03</option>
-            <option value="Outros">Outros atendimentos</option>
+        <input type="tel" id="zap_cli" placeholder="Ex: 11999999999">
+        <label>Escolha o Serviço</label>
+        <select id="select_servicos">
+            <option value="">Carregando serviços...</option>
         </select>
-        
-        <label>Data e Horário</label>
-        <input type="datetime-local" id="data">
-        
-        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agora</button>
+        <label>Data e Hora</label>
+        <input type="datetime-local" id="data_cli">
+        <button class="btn-primary" onclick="fazerAgendamento()">Confirmar Agendamento</button>
+    </div>
+    <button class="btn-outline" onclick="entrarNoPainel()">Acesso Administrativo</button>
+</div>
+
+<div class="container hidden" id="view-adm">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: var(--primary); margin: 0;">Painel ADM</h2>
+        <button onclick="sairDoPainel()" style="width: auto; padding: 8px 15px; background: #334155; color: white;">Sair</button>
     </div>
 
-    <button class="btn-admin" onclick="toggleAdmin()">Painel do Dono</button>
-    
-    <div id="painel-dono" class="card hidden">
-        <h3 style="margin: 0 0 20px 0; color: var(--primary);">Agendamentos Recebidos</h3>
-        <div id="lista-agendamentos">Carregando...</div>
+    <div class="card">
+        <h4 style="margin: 0 0 15px 0;">Cadastrar Serviço e Valor</h4>
+        <input type="text" id="novo_serv_nome" placeholder="Ex: Corte de Cabelo">
+        <input type="text" id="novo_serv_preco" placeholder="Ex: R$ 50,00">
+        <button class="btn-primary" style="background: #10b981;" onclick="cadastrarServico()">Adicionar Serviço</button>
     </div>
+
+    <h3>Agendamentos</h3>
+    <div id="lista-agendamentos"></div>
 </div>
 
 <script type="module">
@@ -78,64 +80,75 @@ const firebaseConfig = {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.fazerAgendamento = async function() {
-        const nome = document.getElementById('nome').value;
-        const zap = document.getElementById('whatsapp').value;
-        const data = document.getElementById('data').value;
-        const servico = document.getElementById('servico').value;
-
-        if(!nome || !zap || !data) return alert("Preencha tudo!");
-
-        try {
-            await addDoc(collection(db, "agendamentos"), {
-                cliente_nome: nome,
-                whatsapp: zap,
-                data_hora: new Date(data),
-                servico: servico
-            });
-            
-            const dataF = new Date(data).toLocaleString('pt-BR');
-            const msg = `Olá! Fiz um agendamento para o serviço: *${servico}* no dia *${dataF}*. Nome: ${nome}`;
-            
-            alert("Agendado com sucesso!");
-            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=${encodeURIComponent(msg)}`, '_blank');
-        } catch (e) { alert("Erro ao salvar."); }
-    };
-
-    window.toggleAdmin = function() {
+    // NAVEGAÇÃO
+    window.entrarNoPainel = function() {
         if(prompt("Senha:") === "1234") {
-            document.getElementById('painel-dono').classList.toggle('hidden');
-        } else { alert("Acesso negado."); }
+            document.getElementById('view-cliente').classList.add('hidden');
+            document.getElementById('view-adm').classList.remove('hidden');
+        } else { alert("Senha incorreta!"); }
+    };
+    window.sairDoPainel = function() {
+        document.getElementById('view-adm').classList.add('hidden');
+        document.getElementById('view-cliente').classList.remove('hidden');
     };
 
-    window.excluirAgendamento = async function(id) {
-        if(confirm("Marcar como concluído?")) {
-            await deleteDoc(doc(db, "agendamentos", id));
-        }
+    // GESTÃO DE SERVIÇOS (SALVAR)
+    window.cadastrarServico = async function() {
+        const nome = document.getElementById('novo_serv_nome').value;
+        const preco = document.getElementById('novo_serv_preco').value;
+        if(!nome || !preco) return alert("Preencha o serviço e o valor!");
+        await addDoc(collection(db, "servicos"), { nome, preco });
+        document.getElementById('novo_serv_nome').value = "";
+        document.getElementById('novo_serv_preco').value = "";
+        alert("Serviço cadastrado!");
     };
 
-    const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
-    onSnapshot(q, (snapshot) => {
+    // CARREGAR SERVIÇOS NO SELECT DO CLIENTE
+    onSnapshot(collection(db, "servicos"), (snap) => {
+        const select = document.getElementById('select_servicos');
+        select.innerHTML = '<option value="">Selecione o serviço...</option>';
+        snap.forEach(d => {
+            const s = d.data();
+            select.innerHTML += `<option value="${s.nome} (${s.preco})">${s.nome} - ${s.preco}</option>`;
+        });
+    });
+
+    // FAZER AGENDAMENTO
+    window.fazerAgendamento = async function() {
+        const nome = document.getElementById('nome_cli').value;
+        const zap = document.getElementById('zap_cli').value;
+        const serv = document.getElementById('select_servicos').value;
+        const data = document.getElementById('data_cli').value;
+
+        if(!nome || !zap || !serv || !data) return alert("Preencha tudo!");
+        await addDoc(collection(db, "agendamentos"), { nome, zap, serv, data: new Date(data) });
+        alert("Agendado!");
+        window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Agendamento: ${serv}`, '_blank');
+    };
+
+    // LISTAR AGENDAMENTOS NO ADM
+    onSnapshot(query(collection(db, "agendamentos"), orderBy("data", "asc")), (snap) => {
         const lista = document.getElementById('lista-agendamentos');
         lista.innerHTML = "";
-        snapshot.forEach((sDoc) => {
-            const item = sDoc.data();
-            const id = sDoc.id;
-            const dataF = new Date(item.data_hora.seconds * 1000).toLocaleString('pt-BR');
+        snap.forEach(d => {
+            const ag = d.data();
+            const id = d.id;
             lista.innerHTML += `
-                <div class="agendamento-item">
-                    <div>
-                        <strong>👤 ${item.cliente_nome}</strong><br>
-                        <span style="color:var(--primary); font-size:12px;">🛠️ ${item.servico}</span><br>
-                        <small style="color:#94a3b8;">📅 ${dataF}</small>
-                    </div>
+                <div class="item-lista">
+                    <strong>👤 ${ag.nome}</strong><br>
+                    <span style="color:var(--primary); font-size:13px;">🛠️ ${ag.serv}</span><br>
+                    <small>📅 ${new Date(ag.data.seconds*1000).toLocaleString()}</small>
                     <div class="controles">
-                        <a href="https://api.whatsapp.com/send?phone=55${item.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-zap">Zap</a>
-                        <button class="btn-delete" onclick="excluirAgendamento('${id}')">Ok</button>
+                        <a href="https://api.whatsapp.com/send?phone=55${ag.zap.replace(/\D/g,'')}" target="_blank" class="btn-zap">Zap</a>
+                        <button class="btn-del" onclick="excluirAg('${id}')">Ok</button>
                     </div>
                 </div>`;
         });
     });
+
+    window.excluirAg = async function(id) {
+        if(confirm("Remover da lista?")) await deleteDoc(doc(db, "agendamentos", id));
+    };
 </script>
 </body>
 </html>
