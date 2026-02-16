@@ -1,33 +1,36 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Agendamento Pro</title>
+    <title>Sistema de Agendamento Profissional</title>
     <style>
-        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --green: #25d366; }
+        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --green: #25d366; --red: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 20px; }
+        .logo { display: block; max-width: 150px; margin: 0 auto 20px; } /* Estilo para sua futura logo */
         input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: transparent; color: #64748b; border: 1px solid #334155; margin-top: 10px; }
         .hidden { display: none !important; }
         
-        /* Estilo da Lista ADM */
+        /* Itens da Lista */
         .item-lista { background: #1a2233; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
+        .servico-item { background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
         .controles { display: flex; gap: 8px; margin-top: 10px; }
         .btn-zap { background: var(--green); color: white; flex: 2; text-align: center; text-decoration: none; border-radius: 8px; padding: 8px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .btn-del { background: #ef4444; color: white; flex: 1; border-radius: 8px; font-size: 14px; }
+        .btn-del { background: var(--red); color: white; border-radius: 8px; padding: 8px; font-size: 12px; width: auto; }
     </style>
 </head>
 <body>
 
 <div class="container" id="view-cliente">
     <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: var(--primary); margin: 0;">Agendamento Online</h1>
-        <p style="color: #94a3b8;">Rápido, fácil e seguro</p>
+        <img src="https://via.placeholder.com/150x50?text=Sua+Logo" alt="Logo" class="logo" id="img-logo">
+        <h1 style="color: var(--primary); margin: 0; font-size: 24px;">Agendamento Online</h1>
     </div>
 
     <div class="card">
@@ -35,15 +38,13 @@
         <input type="text" id="nome_cli" placeholder="Nome completo">
         <label>WhatsApp</label>
         <input type="tel" id="zap_cli" placeholder="Ex: 11999999999">
-        <label>Escolha o Serviço</label>
-        <select id="select_servicos">
-            <option value="">Carregando serviços...</option>
-        </select>
+        <label>Serviço</label>
+        <select id="select_servicos"><option value="">Carregando...</option></select>
         <label>Data e Hora</label>
         <input type="datetime-local" id="data_cli">
         <button class="btn-primary" onclick="fazerAgendamento()">Confirmar Agendamento</button>
     </div>
-    <button class="btn-outline" onclick="entrarNoPainel()">Acesso Administrativo</button>
+    <button class="btn-outline" onclick="entrarNoPainel()">Painel Administrativo</button>
 </div>
 
 <div class="container hidden" id="view-adm">
@@ -53,13 +54,16 @@
     </div>
 
     <div class="card">
-        <h4 style="margin: 0 0 15px 0;">Cadastrar Serviço e Valor</h4>
-        <input type="text" id="novo_serv_nome" placeholder="Ex: Corte de Cabelo">
-        <input type="text" id="novo_serv_preco" placeholder="Ex: R$ 50,00">
-        <button class="btn-primary" style="background: #10b981;" onclick="cadastrarServico()">Adicionar Serviço</button>
+        <h4 style="margin: 0 0 15px 0;">Novo Serviço</h4>
+        <input type="text" id="novo_serv_nome" placeholder="Nome do Serviço">
+        <input type="text" id="novo_serv_preco" placeholder="Valor (Ex: R$ 50)">
+        <button class="btn-primary" style="background: #10b981;" onclick="cadastrarServico()">Salvar Serviço</button>
+        
+        <h4 style="margin: 20px 0 10px 0; font-size: 14px; color: #94a3b8;">Serviços Ativos:</h4>
+        <div id="lista-servicos-adm"></div>
     </div>
 
-    <h3>Agendamentos</h3>
+    <h3>Agendamentos do Dia</h3>
     <div id="lista-agendamentos"></div>
 </div>
 
@@ -85,69 +89,77 @@ const firebaseConfig = {
         if(prompt("Senha:") === "1234") {
             document.getElementById('view-cliente').classList.add('hidden');
             document.getElementById('view-adm').classList.remove('hidden');
-        } else { alert("Senha incorreta!"); }
+        } else { alert("Acesso negado"); }
     };
     window.sairDoPainel = function() {
         document.getElementById('view-adm').classList.add('hidden');
         document.getElementById('view-cliente').classList.remove('hidden');
     };
 
-    // GESTÃO DE SERVIÇOS (SALVAR)
+    // SERVIÇOS
     window.cadastrarServico = async function() {
         const nome = document.getElementById('novo_serv_nome').value;
         const preco = document.getElementById('novo_serv_preco').value;
-        if(!nome || !preco) return alert("Preencha o serviço e o valor!");
+        if(!nome || !preco) return alert("Preencha os campos!");
         await addDoc(collection(db, "servicos"), { nome, preco });
         document.getElementById('novo_serv_nome').value = "";
         document.getElementById('novo_serv_preco').value = "";
-        alert("Serviço cadastrado!");
     };
 
-    // CARREGAR SERVIÇOS NO SELECT DO CLIENTE
+    window.excluirServico = async function(id) {
+        if(confirm("Excluir este serviço?")) await deleteDoc(doc(db, "servicos", id));
+    };
+
+    // LISTAR SERVIÇOS (ADM E CLIENTE)
     onSnapshot(collection(db, "servicos"), (snap) => {
         const select = document.getElementById('select_servicos');
-        select.innerHTML = '<option value="">Selecione o serviço...</option>';
+        const listaAdm = document.getElementById('lista-servicos-adm');
+        select.innerHTML = '<option value="">Selecione...</option>';
+        listaAdm.innerHTML = "";
+        
         snap.forEach(d => {
             const s = d.data();
             select.innerHTML += `<option value="${s.nome} (${s.preco})">${s.nome} - ${s.preco}</option>`;
+            listaAdm.innerHTML += `
+                <div class="servico-item">
+                    <span>${s.nome} (${s.preco})</span>
+                    <button class="btn-del" onclick="excluirServico('${d.id}')">X</button>
+                </div>`;
         });
     });
 
-    // FAZER AGENDAMENTO
+    // AGENDAMENTOS
     window.fazerAgendamento = async function() {
         const nome = document.getElementById('nome_cli').value;
         const zap = document.getElementById('zap_cli').value;
         const serv = document.getElementById('select_servicos').value;
         const data = document.getElementById('data_cli').value;
-
         if(!nome || !zap || !serv || !data) return alert("Preencha tudo!");
         await addDoc(collection(db, "agendamentos"), { nome, zap, serv, data: new Date(data) });
         alert("Agendado!");
-        window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Agendamento: ${serv}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Confirmado: ${serv}`, '_blank');
     };
 
-    // LISTAR AGENDAMENTOS NO ADM
     onSnapshot(query(collection(db, "agendamentos"), orderBy("data", "asc")), (snap) => {
         const lista = document.getElementById('lista-agendamentos');
         lista.innerHTML = "";
         snap.forEach(d => {
             const ag = d.data();
-            const id = d.id;
             lista.innerHTML += `
                 <div class="item-lista">
                     <strong>👤 ${ag.nome}</strong><br>
                     <span style="color:var(--primary); font-size:13px;">🛠️ ${ag.serv}</span><br>
                     <small>📅 ${new Date(ag.data.seconds*1000).toLocaleString()}</small>
                     <div class="controles">
-                        <a href="https://api.whatsapp.com/send?phone=55${ag.zap.replace(/\D/g,'')}" target="_blank" class="btn-zap">Zap</a>
-                        <button class="btn-del" onclick="excluirAg('${id}')">Ok</button>
+                        <a href="https://api.whatsapp.com/send?phone=55${ag.zap.replace(/\D/g,'')}" target="_blank" class="btn-zap">WhatsApp</a>
+                        <button class="btn-del" style="flex:1" onclick="excluirAg('${d.id}')">Ok</button>
                     </div>
                 </div>`;
         });
     });
 
     window.excluirAg = async function(id) {
-        if(confirm("Remover da lista?")) await deleteDoc(doc(db, "agendamentos", id));
+        if(confirm("Concluído?")) await deleteDoc(doc(db, "agendamentos", id));
     };
 </script>
 </body>
