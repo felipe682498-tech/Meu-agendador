@@ -3,30 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Gestor de Agendamentos</title>
+    <title>Agendamento | fulllaycs oficial</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 10px; shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0056b3; }
+        :root { --primary: #0047ff; --bg: #f0f2f5; --text: #1c1e21; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 450px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--primary); margin: 0; font-size: 28px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-admin { background: transparent; color: #888; margin-top: 20px; font-size: 12px; text-decoration: underline; }
+        .agendamento-item { border-left: 4px solid var(--primary); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Agendar Horário</h2>
-    <input type="text" id="nome" placeholder="Seu Nome">
-    <input type="text" id="whatsapp" placeholder="Seu WhatsApp">
-    <input type="datetime-local" id="data">
-    <button onclick="fazerAgendamento()">Confirmar Agendamento</button>
+<div class="container">
+    <div class="header">
+        <h1>fulllaycs oficial</h1>
+        <p>Agende seu horário rapidamente</p>
+    </div>
+
+    <div class="card">
+        <label>Seu Nome</label>
+        <input type="text" id="nome" placeholder="Nome completo">
+        
+        <label>WhatsApp</label>
+        <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
+        
+        <label>Data e Hora</label>
+        <input type="datetime-local" id="data">
+        
+        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agora</button>
+    </div>
+
+    <button class="btn-admin" onclick="toggleAdmin()">Acesso Administrativo</button>
+    
+    <div id="painel-dono" class="card hidden">
+        <h3 style="margin-top:0">Lista de Agendamentos</h3>
+        <div id="lista-agendamentos">Carregando...</div>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyBtBX8l_7Z9uGPA_8cdEuvV44Ns30Tgt7c",
   authDomain: "meu-agendador-7a8ed.firebaseapp.com",
   projectId: "meu-agendador-7a8ed",
@@ -39,26 +66,54 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Função para Salvar Agendamento
     window.fazerAgendamento = async function() {
         const nome = document.getElementById('nome').value;
         const zap = document.getElementById('whatsapp').value;
         const data = document.getElementById('data').value;
 
-        if(!nome || !zap || !data) return alert("Preencha tudo!");
+        if(!nome || !zap || !data) return alert("Por favor, preencha tudo!");
 
         try {
             await addDoc(collection(db, "agendamentos"), {
                 cliente_nome: nome,
                 whatsapp: zap,
-                data_hora: new Date(data),
-                status: "pendente"
+                data_hora: new Date(data)
             });
-            alert("Sucesso! Verifique seu Firebase agora!");
+            alert("Sucesso! Vamos confirmar no WhatsApp?");
+            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Agendamento confirmado!`, '_blank');
         } catch (e) {
-            console.error("Erro: ", e);
-            alert("Erro ao agendar.");
+            alert("Erro ao salvar.");
         }
     }
+
+    // Função de Senha do Dono
+    window.toggleAdmin = function() {
+        const senha = prompt("Digite a senha do administrador:");
+        if(senha === "1234") { // <--- PODE MUDAR SUA SENHA AQUI
+            document.getElementById('painel-dono').classList.toggle('hidden');
+        } else {
+            alert("Senha incorreta!");
+        }
+    }
+
+    // Carregar Lista em Tempo Real
+    const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
+    onSnapshot(q, (snapshot) => {
+        const lista = document.getElementById('lista-agendamentos');
+        lista.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const item = doc.data();
+            const dataF = new Date(item.data_hora.seconds * 1000).toLocaleString('pt-BR');
+            lista.innerHTML += `
+                <div class="agendamento-item">
+                    <strong>${item.cliente_nome}</strong><br>
+                    <small>Data: ${dataF}</small><br>
+                    <small>Zap: ${item.whatsapp}</small>
+                </div>`;
+        });
+    });
 </script>
 </body>
 </html>
+
