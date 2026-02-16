@@ -1,22 +1,26 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento | fulllaycs oficial</title>
+    <title>fulllaycs oficial | Agendamentos</title>
     <style>
-        :root { --primary: #0047ff; --bg: #f0f2f5; --text: #1c1e21; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 450px; }
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 28px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
-        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-admin { background: transparent; color: #888; margin-top: 20px; font-size: 12px; text-decoration: underline; }
-        .agendamento-item { border-left: 4px solid var(--primary); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .header h1 { color: var(--primary); margin: 0; font-size: 28px; letter-spacing: 1px; }
+        .card { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; }
+        input { width: 100%; padding: 14px; margin-bottom: 20px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-confirm { background: var(--primary); color: white; font-size: 16px; }
+        .btn-confirm:active { transform: scale(0.98); }
+        .btn-admin { background: transparent; color: #64748b; margin-top: 20px; font-size: 12px; border: 1px solid #334155; }
+        .agendamento-item { background: #1a2233; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 5px solid var(--primary); }
+        .controles { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-zap { background: #25d366; color: white; flex: 2; text-decoration: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .btn-delete { background: #ef4444; color: white; flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; }
         .hidden { display: none; }
     </style>
 </head>
@@ -25,33 +29,33 @@
 <div class="container">
     <div class="header">
         <h1>fulllaycs oficial</h1>
-        <p>Agende seu horário rapidamente</p>
+        <p style="color: #94a3b8;">Sistema de Agendamento Profissional</p>
     </div>
 
     <div class="card">
-        <label>Seu Nome</label>
-        <input type="text" id="nome" placeholder="Nome completo">
+        <label>Nome do Cliente</label>
+        <input type="text" id="nome" placeholder="Digite seu nome">
         
         <label>WhatsApp</label>
-        <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
+        <input type="tel" id="whatsapp" placeholder="Ex: 66999999999">
         
-        <label>Data e Hora</label>
+        <label>Data e Horário</label>
         <input type="datetime-local" id="data">
         
-        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agora</button>
+        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agendamento</button>
     </div>
 
-    <button class="btn-admin" onclick="toggleAdmin()">Acesso Administrativo</button>
+    <button class="btn-admin" onclick="window.toggleAdmin()">Painel de Controle</button>
     
     <div id="painel-dono" class="card hidden">
-        <h3 style="margin-top:0">Lista de Agendamentos</h3>
+        <h3 style="margin: 0 0 20px 0; color: var(--primary);">Gerenciar Clientes</h3>
         <div id="lista-agendamentos">Carregando...</div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBtBX8l_7Z9uGPA_8cdEuvV44Ns30Tgt7c",
@@ -61,18 +65,17 @@ const firebaseConfig = {
   messagingSenderId: "562762127881",
   appId: "1:562762127881:web:e809db03e93a0f25bf76d8",
   measurementId: "G-JX9F3KGP90"
-    };
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Função para Salvar Agendamento
     window.fazerAgendamento = async function() {
         const nome = document.getElementById('nome').value;
         const zap = document.getElementById('whatsapp').value;
         const data = document.getElementById('data').value;
 
-        if(!nome || !zap || !data) return alert("Por favor, preencha tudo!");
+        if(!nome || !zap || !data) return alert("Por favor, preencha todos os campos.");
 
         try {
             await addDoc(collection(db, "agendamentos"), {
@@ -80,49 +83,45 @@ const firebaseConfig = {
                 whatsapp: zap,
                 data_hora: new Date(data)
             });
-            alert("Sucesso! Vamos confirmar no WhatsApp?");
-            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Agendamento confirmado!`, '_blank');
-        } catch (e) {
-            alert("Erro ao salvar.");
-        }
-    }
+            alert("Agendamento salvo com sucesso!");
+            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Olá! Acabei de fazer meu agendamento no site fulllaycs oficial.`, '_blank');
+        } catch (e) { alert("Erro ao conectar com o banco de dados."); }
+    };
 
-    // Função de Senha do Dono
     window.toggleAdmin = function() {
-        const senha = prompt("Digite a senha do administrador:");
-        if(senha === "1234") { // <--- PODE MUDAR SUA SENHA AQUI
+        const senha = prompt("Senha do administrador:");
+        if(senha === "1234") {
             document.getElementById('painel-dono').classList.toggle('hidden');
-        } else {
-            alert("Senha incorreta!");
-        }
-    }
+        } else if(senha !== null) { alert("Acesso negado."); }
+    };
 
-    // Carregar Lista em Tempo Real
-    const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
-    onSnapshot(q, (snapshot) => {
-        // Carregar Lista em Tempo Real com Botão de WhatsApp
+    window.excluirAgendamento = async function(id) {
+        if(confirm("Deseja remover este agendamento da lista?")) {
+            await deleteDoc(doc(db, "agendamentos", id));
+        }
+    };
+
     const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
     onSnapshot(q, (snapshot) => {
         const lista = document.getElementById('lista-agendamentos');
         lista.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const item = doc.data();
+        snapshot.forEach((snapshotDoc) => {
+            const item = snapshotDoc.data();
+            const id = snapshotDoc.id;
             const dataF = new Date(item.data_hora.seconds * 1000).toLocaleString('pt-BR');
-            
-            // Limpa o número para o link do zap
             const zapLimpo = item.whatsapp.replace(/\D/g,'');
-            const linkZap = `https://api.whatsapp.com/send?phone=55${zapLimpo}&text=Olá ${item.cliente_nome}, estou confirmando seu agendamento para o dia ${dataF}.`;
 
             lista.innerHTML += `
-                <div class="agendamento-item" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>👤 ${item.cliente_nome}</strong><br>
-                        <small>⏰ ${dataF}</small><br>
-                        <small>📱 ${item.whatsapp}</small>
+                <div class="agendamento-item">
+                    <strong>👤 ${item.cliente_nome}</strong><br>
+                    <small style="color: #94a3b8;">📅 ${dataF}</small>
+                    <div class="controles">
+                        <a href="https://api.whatsapp.com/send?phone=55${zapLimpo}&text=Olá ${item.cliente_nome}, estou confirmando seu horário." target="_blank" class="btn-zap">WhatsApp</a>
+                        <button class="btn-delete" onclick="excluirAgendamento('${id}')">Excluir</button>
                     </div>
-                    <a href="${linkZap}" target="_blank" style="background: #25d366; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold;">
-                        Chamar no Zap
-                    </a>
                 </div>`;
         });
     });
+</script>
+</body>
+</html>
