@@ -1,25 +1,24 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fulllaycs oficial | Agendamentos</title>
+    <title>Sistema de Agendamento Profissional</title>
     <style>
         :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 450px; }
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 28px; letter-spacing: 1px; }
+        .header h1 { color: var(--primary); margin: 0; font-size: 26px; text-transform: uppercase; }
         .card { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
-        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; }
-        input { width: 100%; padding: 14px; margin-bottom: 20px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-confirm { background: var(--primary); color: white; font-size: 16px; }
-        .btn-confirm:active { transform: scale(0.98); }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; font-weight: bold; }
+        input, select { width: 100%; padding: 14px; margin-bottom: 20px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; outline: none; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 16px; }
+        .btn-confirm { background: var(--primary); color: white; }
         .btn-admin { background: transparent; color: #64748b; margin-top: 20px; font-size: 12px; border: 1px solid #334155; }
         .agendamento-item { background: #1a2233; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 5px solid var(--primary); }
         .controles { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-zap { background: #25d366; color: white; flex: 2; text-decoration: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .btn-zap { background: #25d366; color: white; flex: 2; text-decoration: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .btn-delete { background: #ef4444; color: white; flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; }
         .hidden { display: none; }
     </style>
@@ -28,27 +27,36 @@
 
 <div class="container">
     <div class="header">
-        <h1>fulllaycs oficial</h1>
-        <p style="color: #94a3b8;">Sistema de Agendamento Profissional</p>
+        <h1>Agendamento Online</h1>
+        <p style="color: #94a3b8;">Reserve seu horário agora</p>
     </div>
 
     <div class="card">
-        <label>Nome do Cliente</label>
+        <label>Nome Completo</label>
         <input type="text" id="nome" placeholder="Digite seu nome">
         
         <label>WhatsApp</label>
-        <input type="tel" id="whatsapp" placeholder="Ex: 66999999999">
+        <input type="tel" id="whatsapp" placeholder="Ex: 11999999999">
+
+        <label>Serviço Desejado</label>
+        <select id="servico">
+            <option value="Serviço não selecionado">Selecione o serviço...</option>
+            <option value="Serviço 01">Serviço Profissional 01</option>
+            <option value="Serviço 02">Serviço Profissional 02</option>
+            <option value="Serviço 03">Serviço Profissional 03</option>
+            <option value="Outros">Outros atendimentos</option>
+        </select>
         
         <label>Data e Horário</label>
         <input type="datetime-local" id="data">
         
-        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agendamento</button>
+        <button class="btn-confirm" onclick="fazerAgendamento()">Confirmar Agora</button>
     </div>
 
-    <button class="btn-admin" onclick="window.toggleAdmin()">Painel de Controle</button>
+    <button class="btn-admin" onclick="toggleAdmin()">Painel do Dono</button>
     
     <div id="painel-dono" class="card hidden">
-        <h3 style="margin: 0 0 20px 0; color: var(--primary);">Gerenciar Clientes</h3>
+        <h3 style="margin: 0 0 20px 0; color: var(--primary);">Agendamentos Recebidos</h3>
         <div id="lista-agendamentos">Carregando...</div>
     </div>
 </div>
@@ -74,29 +82,34 @@ const firebaseConfig = {
         const nome = document.getElementById('nome').value;
         const zap = document.getElementById('whatsapp').value;
         const data = document.getElementById('data').value;
+        const servico = document.getElementById('servico').value;
 
-        if(!nome || !zap || !data) return alert("Por favor, preencha todos os campos.");
+        if(!nome || !zap || !data) return alert("Preencha tudo!");
 
         try {
             await addDoc(collection(db, "agendamentos"), {
                 cliente_nome: nome,
                 whatsapp: zap,
-                data_hora: new Date(data)
+                data_hora: new Date(data),
+                servico: servico
             });
-            alert("Agendamento salvo com sucesso!");
-            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Olá! Acabei de fazer meu agendamento no site fulllaycs oficial.`, '_blank');
-        } catch (e) { alert("Erro ao conectar com o banco de dados."); }
+            
+            const dataF = new Date(data).toLocaleString('pt-BR');
+            const msg = `Olá! Fiz um agendamento para o serviço: *${servico}* no dia *${dataF}*. Nome: ${nome}`;
+            
+            alert("Agendado com sucesso!");
+            window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=${encodeURIComponent(msg)}`, '_blank');
+        } catch (e) { alert("Erro ao salvar."); }
     };
 
     window.toggleAdmin = function() {
-        const senha = prompt("Senha do administrador:");
-        if(senha === "1234") {
+        if(prompt("Senha:") === "1234") {
             document.getElementById('painel-dono').classList.toggle('hidden');
-        } else if(senha !== null) { alert("Acesso negado."); }
+        } else { alert("Acesso negado."); }
     };
 
     window.excluirAgendamento = async function(id) {
-        if(confirm("Deseja remover este agendamento da lista?")) {
+        if(confirm("Marcar como concluído?")) {
             await deleteDoc(doc(db, "agendamentos", id));
         }
     };
@@ -105,19 +118,20 @@ const firebaseConfig = {
     onSnapshot(q, (snapshot) => {
         const lista = document.getElementById('lista-agendamentos');
         lista.innerHTML = "";
-        snapshot.forEach((snapshotDoc) => {
-            const item = snapshotDoc.data();
-            const id = snapshotDoc.id;
+        snapshot.forEach((sDoc) => {
+            const item = sDoc.data();
+            const id = sDoc.id;
             const dataF = new Date(item.data_hora.seconds * 1000).toLocaleString('pt-BR');
-            const zapLimpo = item.whatsapp.replace(/\D/g,'');
-
             lista.innerHTML += `
                 <div class="agendamento-item">
-                    <strong>👤 ${item.cliente_nome}</strong><br>
-                    <small style="color: #94a3b8;">📅 ${dataF}</small>
+                    <div>
+                        <strong>👤 ${item.cliente_nome}</strong><br>
+                        <span style="color:var(--primary); font-size:12px;">🛠️ ${item.servico}</span><br>
+                        <small style="color:#94a3b8;">📅 ${dataF}</small>
+                    </div>
                     <div class="controles">
-                        <a href="https://api.whatsapp.com/send?phone=55${zapLimpo}&text=Olá ${item.cliente_nome}, estou confirmando seu horário." target="_blank" class="btn-zap">WhatsApp</a>
-                        <button class="btn-delete" onclick="excluirAgendamento('${id}')">Excluir</button>
+                        <a href="https://api.whatsapp.com/send?phone=55${item.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-zap">Zap</a>
+                        <button class="btn-delete" onclick="excluirAgendamento('${id}')">Ok</button>
                     </div>
                 </div>`;
         });
