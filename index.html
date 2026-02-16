@@ -100,20 +100,29 @@ const firebaseConfig = {
     // Carregar Lista em Tempo Real
     const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
     onSnapshot(q, (snapshot) => {
+        // Carregar Lista em Tempo Real com Botão de WhatsApp
+    const q = query(collection(db, "agendamentos"), orderBy("data_hora", "asc"));
+    onSnapshot(q, (snapshot) => {
         const lista = document.getElementById('lista-agendamentos');
         lista.innerHTML = "";
         snapshot.forEach((doc) => {
             const item = doc.data();
             const dataF = new Date(item.data_hora.seconds * 1000).toLocaleString('pt-BR');
+            
+            // Limpa o número para o link do zap
+            const zapLimpo = item.whatsapp.replace(/\D/g,'');
+            const linkZap = `https://api.whatsapp.com/send?phone=55${zapLimpo}&text=Olá ${item.cliente_nome}, estou confirmando seu agendamento para o dia ${dataF}.`;
+
             lista.innerHTML += `
-                <div class="agendamento-item">
-                    <strong>${item.cliente_nome}</strong><br>
-                    <small>Data: ${dataF}</small><br>
-                    <small>Zap: ${item.whatsapp}</small>
+                <div class="agendamento-item" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>👤 ${item.cliente_nome}</strong><br>
+                        <small>⏰ ${dataF}</small><br>
+                        <small>📱 ${item.whatsapp}</small>
+                    </div>
+                    <a href="${linkZap}" target="_blank" style="background: #25d366; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold;">
+                        Chamar no Zap
+                    </a>
                 </div>`;
         });
     });
-</script>
-</body>
-</html>
-
