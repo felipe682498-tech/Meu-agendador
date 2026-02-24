@@ -3,1245 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MR Barbearia - Sistema de Gestão Premium</title>
+    <title>MR Barbearia - Sistema Premium</title>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <style>
         :root{--gold:#d4a937;--gold-l:#f0d078;--gold-d:#b8912e;--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a25;--bg4:#22222e;--sidebar:#0e0e16;--text:#f0f0f0;--muted:#7a7a8a;--dim:#44445a;--border:#2a2a3a;--success:#2ecc71;--warn:#f39c12;--danger:#e74c3c;--info:#3498db;--purple:#6c5ce7;--r:14px;--rs:10px;--rx:6px;--shadow:0 8px 32px rgba(0,0,0,.5);--shadow-g:0 4px 24px rgba(212,169,55,.2);--tr:.3s ease;--sw:250px}
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
         ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-        .hidden{display:none!important}
-        button{font-family:inherit}
-
+        .hidden{display:none!important}button{font-family:inherit}
         .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a0a0f,#1a1020);padding:20px}
         .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:40px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
-        .login-card .logo{font-size:3.5rem;margin-bottom:8px;display:block}
-        .login-card h1{font-size:1.8rem;font-weight:800;color:var(--gold);margin-bottom:4px}
-        .login-card .sub{color:var(--muted);font-size:.85rem;margin-bottom:28px}
-        .login-card .error-msg{color:var(--danger);font-size:.82rem;margin-top:10px;min-height:20px}
+        .login-card .logo{font-size:3.5rem;margin-bottom:8px;display:block}.login-card h1{font-size:1.8rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+        .login-card .sub{color:var(--muted);font-size:.85rem;margin-bottom:28px}.login-card .error-msg{color:var(--danger);font-size:.82rem;margin-top:10px;min-height:20px}
         .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
         .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .loading-text{color:var(--gold);font-weight:600;font-size:.9rem}
-
-        .fg{margin-bottom:14px;text-align:left}
-        .fg label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+        @keyframes spin{to{transform:rotate(360deg)}}.lt{color:var(--gold);font-weight:600;font-size:.9rem}
+        .fg{margin-bottom:14px;text-align:left}.fg label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
         .fc{width:100%;padding:12px 14px;background:var(--bg4);border:1.5px solid var(--border);border-radius:var(--rx);color:var(--text);font-size:.92rem;outline:none;transition:var(--tr)}
-        .fc:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,55,.08)}
-        .fc::placeholder{color:var(--dim)}
+        .fc:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,55,.08)}.fc::placeholder{color:var(--dim)}
         select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7a8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
-        textarea.fc{resize:vertical;min-height:70px;font-family:inherit}
         .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
         .btn{padding:11px 20px;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;justify-content:center;font-family:inherit}
-        .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}
-        .btn-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow-g)}
-        .btn-gold.full{width:100%;padding:14px;font-size:1rem}
-        .btn-gold:disabled{opacity:.5;transform:none;cursor:not-allowed}
-        .btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text)}
-        .btn-out:hover{border-color:var(--gold);color:var(--gold)}
-        .btn-sm{padding:7px 13px;font-size:.78rem}
-        .btn-xs{padding:5px 10px;font-size:.72rem}
-        .btn-danger{background:var(--danger);color:#fff}
-        .btn-success{background:var(--success);color:#fff}
-        .btn-info{background:var(--info);color:#fff}
-        .btn-warn{background:var(--warn);color:#000}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}.btn-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow-g)}
+        .btn-gold.full{width:100%;padding:14px;font-size:1rem}.btn-gold:disabled{opacity:.5;transform:none;cursor:not-allowed}
+        .btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text)}.btn-out:hover{border-color:var(--gold);color:var(--gold)}
+        .btn-sm{padding:7px 13px;font-size:.78rem}.btn-xs{padding:5px 10px;font-size:.72rem}
+        .btn-danger{background:var(--danger);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-info{background:var(--info);color:#fff}.btn-warn{background:var(--warn);color:#000}
         .btn-i{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--rx);background:var(--bg4);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:var(--tr);font-size:.95rem}
         .btn-i:hover{color:var(--gold);border-color:var(--gold)}
-
-        .app{display:none;min-height:100vh}
-        .app.active{display:flex}
+        .app{display:none;min-height:100vh}.app.active{display:flex}
         .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform var(--tr)}
-        .sb-brand{padding:18px 16px 16px;border-bottom:1px solid var(--border)}
-        .sb-brand h1{font-size:1.15rem;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:8px}
+        .sb-brand{padding:18px 16px 16px;border-bottom:1px solid var(--border)}.sb-brand h1{font-size:1.15rem;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:8px}
         .sb-brand p{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:3px}
         .sb-nav{flex:1;padding:6px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
         .nav-sec{font-size:.63rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);padding:12px 12px 5px;font-weight:700}
         .nav-it{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rx);cursor:pointer;font-size:.83rem;font-weight:500;color:var(--muted);transition:var(--tr);border:none;background:none;width:100%;text-align:left}
-        .nav-it:hover{background:var(--bg2);color:var(--text)}
-        .nav-it.act{background:rgba(212,169,55,.1);color:var(--gold);font-weight:600}
-        .nav-ic{font-size:1.05rem;width:20px;text-align:center}
-        .nav-bg{margin-left:auto;background:var(--danger);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center}
+        .nav-it:hover{background:var(--bg2);color:var(--text)}.nav-it.act{background:rgba(212,169,55,.1);color:var(--gold);font-weight:600}
+        .nav-ic{font-size:1.05rem;width:20px;text-align:center}.nav-bg{margin-left:auto;background:var(--danger);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:20px}
         .sb-foot{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
-        .u-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-d));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#000;flex-shrink:0}
-        .u-info{flex:1;min-width:0}
-        .u-info .n{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .u-info .r{font-size:.68rem;color:var(--muted)}
-        .lo-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:1rem;padding:4px;transition:var(--tr)}
-        .lo-btn:hover{color:var(--danger)}
-
+        .u-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-d));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#000;flex-shrink:0;overflow:hidden}
+        .u-av img{width:100%;height:100%;object-fit:cover}
+        .u-info{flex:1;min-width:0}.u-info .n{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.u-info .r{font-size:.68rem;color:var(--muted)}
+        .lo-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:1rem;padding:4px;transition:var(--tr)}.lo-btn:hover{color:var(--danger)}
         .main{margin-left:var(--sw);flex:1;min-height:100vh;padding:24px}
-        .page{display:none;animation:fadeIn .25s ease}
-        .page.active{display:block}
+        .page{display:none;animation:fadeIn .25s ease}.page.active{display:block}
         @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
         .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
-        .ph h2{font-size:1.5rem;font-weight:800}
-        .ph h2 span{color:var(--gold)}
-        .ph-sub{color:var(--muted);font-size:.83rem;margin-top:3px}
+        .ph h2{font-size:1.5rem;font-weight:800}.ph h2 span{color:var(--gold)}.ph-sub{color:var(--muted);font-size:.83rem;margin-top:3px}
         .ph-acts{display:flex;gap:8px;flex-wrap:wrap}
-
         .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:22px}
         .sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:var(--tr);position:relative;overflow:hidden}
         .sc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
-        .sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:var(--tr)}
-        .sc:hover::after{opacity:1}
         .si{width:40px;height:40px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
         .si.gd{background:rgba(212,169,55,.1)}.si.gr{background:rgba(46,204,113,.1)}.si.bl{background:rgba(52,152,219,.1)}.si.rd{background:rgba(231,76,60,.1)}.si.pr{background:rgba(108,92,231,.1)}
-        .sv{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
-        .sl{color:var(--muted);font-size:.75rem;margin-top:2px}
-
+        .sv{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}.sl{color:var(--muted);font-size:.75rem;margin-top:2px}
         .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
         .ch{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-        .ch h3{font-size:.92rem;font-weight:700;display:flex;align-items:center;gap:8px}
-        .cb{padding:18px}
-        .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-        .g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-
-        .tw{overflow-x:auto}
-        table{width:100%;border-collapse:collapse}
+        .ch h3{font-size:.92rem;font-weight:700;display:flex;align-items:center;gap:8px}.cb{padding:18px}
+        .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+        .tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
         th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:.82rem}
         th{color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,.01)}
         tr:hover td{background:rgba(255,255,255,.015)}
-
         .badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap;display:inline-block}
-        .b-suc{background:rgba(46,204,113,.15);color:var(--success)}
-        .b-warn{background:rgba(243,156,18,.15);color:var(--warn)}
-        .b-dan{background:rgba(231,76,60,.15);color:var(--danger)}
-        .b-inf{background:rgba(52,152,219,.15);color:var(--info)}
-        .b-gld{background:rgba(212,169,55,.15);color:var(--gold)}
-        .b-pur{background:rgba(108,92,231,.15);color:var(--purple)}
-
+        .b-suc{background:rgba(46,204,113,.15);color:var(--success)}.b-warn{background:rgba(243,156,18,.15);color:var(--warn)}
+        .b-dan{background:rgba(231,76,60,.15);color:var(--danger)}.b-inf{background:rgba(52,152,219,.15);color:var(--info)}
+        .b-gld{background:rgba(212,169,55,.15);color:var(--gold)}.b-pur{background:rgba(108,92,231,.15);color:var(--purple)}
         .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:30px 20px 10px;margin-bottom:20px}
-        .pod-it{text-align:center;transition:var(--tr)}
-        .pod-it:hover{transform:translateY(-4px)}
-        .pod-av{width:60px;height:60px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;position:relative}
+        .pod-it{text-align:center;transition:var(--tr)}.pod-it:hover{transform:translateY(-4px)}
+        .pod-av{width:60px;height:60px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;position:relative;overflow:hidden}
+        .pod-av img{width:100%;height:100%;object-fit:cover}
         .pod-av.p1{width:76px;height:76px;font-size:1.6rem;background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000;box-shadow:0 0 25px rgba(212,169,55,.35);animation:glow 2s ease-in-out infinite}
         @keyframes glow{0%,100%{box-shadow:0 0 25px rgba(212,169,55,.35)}50%{box-shadow:0 0 40px rgba(212,169,55,.5)}}
-        .pod-av.p2{background:linear-gradient(135deg,#bdc3c7,#95a5a6);color:#fff}
-        .pod-av.p3{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff}
-        .pod-trophy{position:absolute;top:-10px;right:-5px;font-size:1.1rem}
-        .pod-name{font-weight:700;font-size:.85rem}
-        .pod-val{color:var(--gold);font-weight:700;font-size:.88rem}
-        .pod-svc{font-size:.75rem;color:var(--muted)}
-        .pod-prize{font-size:.75rem;color:var(--success);font-weight:600;margin-top:2px}
+        .pod-av.p2{background:linear-gradient(135deg,#bdc3c7,#95a5a6);color:#fff}.pod-av.p3{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff}
+        .pod-trophy{position:absolute;top:-10px;right:-5px;font-size:1.1rem;z-index:2}
+        .pod-name{font-weight:700;font-size:.85rem}.pod-svc{font-size:.75rem;color:var(--muted)}.pod-prize{font-size:.75rem;color:var(--success);font-weight:600;margin-top:2px}
         .pod-bar{width:85px;margin:10px auto 0;border-radius:8px 8px 0 0}
         .pod-bar.b1{height:110px;background:linear-gradient(to top,rgba(212,169,55,.2),rgba(212,169,55,.05));border:1px solid rgba(212,169,55,.3);border-bottom:none}
         .pod-bar.b2{height:80px;background:linear-gradient(to top,rgba(189,195,199,.15),transparent);border:1px solid rgba(189,195,199,.2);border-bottom:none}
         .pod-bar.b3{height:55px;background:linear-gradient(to top,rgba(230,126,34,.15),transparent);border:1px solid rgba(230,126,34,.2);border-bottom:none}
-        .hidden-val{background:var(--bg4);color:var(--bg4);border-radius:4px;padding:2px 14px;user-select:none;letter-spacing:2px;font-size:.82rem}
-        .rank-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--rs);margin-bottom:5px;transition:var(--tr)}
-        .rank-row:hover{background:var(--bg4)}
+        .hidden-val{background:var(--bg4);color:var(--bg4);border-radius:4px;padding:2px 14px;user-select:none}
+        .rank-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--rs);margin-bottom:5px;transition:var(--tr)}.rank-row:hover{background:var(--bg4)}
         .rank-pos{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;background:var(--bg4);flex-shrink:0}
         .rp1{background:rgba(212,169,55,.2);color:var(--gold)}.rp2{background:rgba(189,195,199,.2);color:#bdc3c7}.rp3{background:rgba(230,126,34,.2);color:#e67e22}
-        .rank-info{flex:1}
-        .rank-nm{font-weight:600;font-size:.85rem}
-        .rank-sub{font-size:.7rem;color:var(--muted)}
-        .rank-bar{height:4px;background:var(--bg4);border-radius:4px;margin-top:3px;overflow:hidden}
-        .rank-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .5s ease}
-        .rank-v{font-weight:700;color:var(--gold);font-size:.88rem}
-        .wins-b{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;color:var(--gold);background:rgba(212,169,55,.1);padding:2px 6px;border-radius:10px;margin-left:4px}
-
-        .bc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;transition:var(--tr)}
-        .bc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
-        .b-av{width:65px;height:65px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;position:relative}
-        .av1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}.av2{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}.av3{background:linear-gradient(135deg,#00cec9,#0984e3)}.av4{background:linear-gradient(135deg,#e17055,#d63031)}.av5{background:linear-gradient(135deg,#2ecc71,#27ae60)}
-        .st-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--bg2);position:absolute;bottom:0;right:0}
+        .rank-info{flex:1}.rank-nm{font-weight:600;font-size:.85rem}.rank-sub{font-size:.7rem;color:var(--muted)}
+        .rank-bar{height:4px;background:var(--bg4);border-radius:4px;margin-top:3px;overflow:hidden}.rank-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .5s ease}
+        .rank-v{font-weight:700;color:var(--gold);font-size:.88rem}.wins-b{font-size:.65rem;color:var(--gold);background:rgba(212,169,55,.1);padding:2px 6px;border-radius:10px;margin-left:4px}
+        .bc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;transition:var(--tr)}.bc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
+        .b-av{width:65px;height:65px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;position:relative;overflow:hidden}
+        .b-av img{width:100%;height:100%;object-fit:cover}
+        .av1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}.av2{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}
+        .av3{background:linear-gradient(135deg,#00cec9,#0984e3)}.av4{background:linear-gradient(135deg,#e17055,#d63031)}.av5{background:linear-gradient(135deg,#2ecc71,#27ae60)}
+        .st-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--bg2);position:absolute;bottom:0;right:0;z-index:2}
         .d-on{background:var(--success)}.d-off{background:var(--dim)}.d-busy{background:var(--warn)}.d-lunch{background:var(--info)}
-        .bc h4{font-size:.95rem;margin-bottom:3px}
-        .bc .spec{color:var(--muted);font-size:.76rem;margin-bottom:8px}
+        .bc h4{font-size:.95rem;margin-bottom:3px}.bc .spec{color:var(--muted);font-size:.76rem;margin-bottom:8px}
         .bms{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
-        .bm{background:var(--bg4);border-radius:var(--rx);padding:7px 5px}
-        .bm .v{font-weight:700;font-size:.9rem}.bm .l{font-size:.65rem;color:var(--muted)}
-
-        .svc{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg4);border-radius:var(--rs);margin-bottom:7px;transition:var(--tr)}
-        .svc:hover{background:var(--bg3)}
+        .bm{background:var(--bg4);border-radius:var(--rx);padding:7px 5px}.bm .v{font-weight:700;font-size:.9rem}.bm .l{font-size:.65rem;color:var(--muted)}
+        .svc{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg4);border-radius:var(--rs);margin-bottom:7px;transition:var(--tr)}.svc:hover{background:var(--bg3)}
         .svc-ic{width:38px;height:38px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(212,169,55,.1);flex-shrink:0}
-        .svc-i{flex:1;min-width:0}
-        .svc-i .sn{font-weight:600;font-size:.85rem}
-        .svc-i .sd{font-size:.72rem;color:var(--muted)}
-        .svc-p{font-weight:700;color:var(--gold);white-space:nowrap}
-
+        .svc-i{flex:1;min-width:0}.svc-i .sn{font-weight:600;font-size:.85rem}.svc-i .sd{font-size:.72rem;color:var(--muted)}.svc-p{font-weight:700;color:var(--gold);white-space:nowrap}
         .cx-st{padding:18px;border-radius:var(--r);text-align:center;margin-bottom:14px}
-        .cx-st.cx-o{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2)}
-        .cx-st.cx-c{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2)}
-        .cx-big{font-size:1.8rem;font-weight:800;margin:6px 0 3px}
-        .cx-lbl{font-size:.8rem;color:var(--muted)}
-
-        .chat-list{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
-        .chat-contact{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);cursor:pointer;transition:var(--tr);border:1px solid transparent}
-        .chat-contact:hover{background:var(--bg4)}
-        .chat-contact.active{background:rgba(212,169,55,.08);border-color:rgba(212,169,55,.2)}
-        .cc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;flex-shrink:0}
-        .cc-info{flex:1;min-width:0}
-        .cc-name{font-weight:600;font-size:.85rem}
-        .cc-last{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .cc-badge{background:var(--gold);color:#000;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px}
+        .cx-st.cx-o{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2)}.cx-st.cx-c{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2)}
+        .cx-big{font-size:1.8rem;font-weight:800;margin:6px 0 3px}.cx-lbl{font-size:.8rem;color:var(--muted)}
         .chat-msgs{max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding:4px}
         .chat-msg{padding:9px 13px;border-radius:var(--rs);max-width:80%;font-size:.83rem;line-height:1.4}
-        .chat-msg.sent{background:rgba(212,169,55,.12);align-self:flex-end;border-bottom-right-radius:2px}
-        .chat-msg.recv{background:var(--bg4);align-self:flex-start;border-bottom-left-radius:2px}
-        .cm-s{font-weight:700;font-size:.72rem;color:var(--gold);margin-bottom:2px}
-        .cm-t{font-size:.65rem;color:var(--dim);margin-top:3px}
+        .chat-msg.sent{background:rgba(212,169,55,.12);align-self:flex-end}.chat-msg.recv{background:var(--bg4);align-self:flex-start}
+        .cm-s{font-weight:700;font-size:.72rem;color:var(--gold);margin-bottom:2px}.cm-t{font-size:.65rem;color:var(--dim);margin-top:3px}
         .chat-inp{display:flex;gap:8px}
-
-        .stk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-        .stk .sn{flex:1;font-size:.85rem}
-        .stk-q{font-weight:700;font-size:.88rem}
-        .stk-low{color:var(--danger)}.stk-ok{color:var(--success)}
-
+        .chat-contact{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);cursor:pointer;transition:var(--tr);border:1px solid transparent}
+        .chat-contact:hover{background:var(--bg4)}.chat-contact.active{background:rgba(212,169,55,.08);border-color:rgba(212,169,55,.2)}
+        .cc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;flex-shrink:0;overflow:hidden}
+        .cc-av img{width:100%;height:100%;object-fit:cover}
+        .cc-info{flex:1;min-width:0}.cc-name{font-weight:600;font-size:.85rem}.cc-last{font-size:.72rem;color:var(--muted)}
+        .cc-badge{background:var(--gold);color:#000;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px}
         .f-dots{display:flex;gap:6px;justify-content:center;margin:14px 0;flex-wrap:wrap}
         .f-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:var(--tr)}
         .f-dot.filled{background:var(--gold);border-color:var(--gold);color:#000}
-
         .pb-w{height:6px;background:var(--bg4);border-radius:10px;overflow:hidden;margin-top:5px}
         .pb-f{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .5s ease}
-
         .divider{height:1px;background:var(--border);margin:14px 0}
-        .tg{color:var(--gold)}.ts{color:var(--success)}.td{color:var(--danger)}.tm{color:var(--muted)}
-        .tc{text-align:center}.fw{font-weight:700}
-        .mt{margin-top:14px}.mb{margin-bottom:14px}
+        .tg{color:var(--gold)}.ts{color:var(--success)}.td{color:var(--danger)}.tm{color:var(--muted)}.tc{text-align:center}.fw{font-weight:700}.mt{margin-top:14px}.mb{margin-bottom:14px}
         .fb{display:flex;justify-content:space-between;align-items:center}
-
-        .search{position:relative;margin-bottom:12px}
-        .search input{width:100%;padding:10px 14px 10px 36px;background:var(--bg4);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:.85rem;outline:none;transition:var(--tr)}
-        .search input:focus{border-color:var(--gold)}
-        .search::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem}
-
-        .date-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+        .date-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
         .df-btn{padding:7px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rx);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--tr)}
-        .df-btn:hover{border-color:var(--gold);color:var(--gold)}
-        .df-btn.active{background:rgba(212,169,55,.1);border-color:var(--gold);color:var(--gold)}
-
+        .df-btn:hover{border-color:var(--gold);color:var(--gold)}.df-btn.active{background:rgba(212,169,55,.1);border-color:var(--gold);color:var(--gold)}
+        .pay-methods{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+        .pay-opt{flex:1;min-width:80px;padding:12px;border:2px solid var(--border);border-radius:var(--rs);text-align:center;cursor:pointer;transition:var(--tr);background:var(--bg4)}
+        .pay-opt:hover{border-color:var(--gold)}.pay-opt.selected{border-color:var(--gold);background:rgba(212,169,55,.1)}
+        .pay-opt .pay-icon{font-size:1.5rem;margin-bottom:4px}.pay-opt .pay-label{font-size:.75rem;font-weight:600}
+        .photo-upload{width:80px;height:80px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 14px;overflow:hidden;transition:var(--tr);position:relative}
+        .photo-upload:hover{border-color:var(--gold)}.photo-upload img{width:100%;height:100%;object-fit:cover}
+        .photo-upload .ph-text{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.2}
+        .photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+        .toggle-switch{position:relative;width:44px;height:24px;background:var(--bg4);border-radius:12px;cursor:pointer;transition:var(--tr);border:1px solid var(--border);flex-shrink:0}
+        .toggle-switch.on{background:var(--success);border-color:var(--success)}
+        .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:var(--tr)}
+        .toggle-switch.on::after{left:22px}
         .mob-h{display:none;position:fixed;top:0;left:0;right:0;height:54px;background:var(--sidebar);border-bottom:1px solid var(--border);z-index:99;align-items:center;padding:0 12px;gap:10px}
-        .ham{background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;padding:6px}
-        .mob-h .mb-t{font-weight:700;color:var(--gold);font-size:.9rem}
+        .ham{background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;padding:6px}.mob-h .mb-t{font-weight:700;color:var(--gold);font-size:.9rem}
         .sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99}
-
-        @media(max-width:768px){
-            .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sb-ov.show{display:block}.mob-h{display:flex}
-            .main{margin-left:0;padding:64px 12px 20px}.g2{grid-template-columns:1fr}.fr{grid-template-columns:1fr}
-            .podium{flex-direction:column;align-items:center}.pod-bar{display:none}.sg{grid-template-columns:1fr 1fr}
-        }
-
+        @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sb-ov.show{display:block}.mob-h{display:flex}.main{margin-left:0;padding:64px 12px 20px}.g2{grid-template-columns:1fr}.fr{grid-template-columns:1fr}.podium{flex-direction:column;align-items:center}.pod-bar{display:none}.sg{grid-template-columns:1fr 1fr}}
         .m-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
         .m-ov.active{display:flex}
         .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:92%;max-width:500px;max-height:90vh;overflow-y:auto;animation:mIn .25s ease}
         @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
-        .mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-        .mh h3{font-size:1.05rem}
-        .mx{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px}
-        .mx:hover{color:var(--text)}
-        .mbd{padding:20px}
-        .mft{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
-
+        .mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.mh h3{font-size:1.05rem}
+        .mx{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}.mx:hover{color:var(--text)}
+        .mbd{padding:20px}.mft{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
         .toast-c{position:fixed;top:18px;right:18px;z-index:300;display:flex;flex-direction:column;gap:6px;max-width:340px}
         .toast{padding:11px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:.83rem;font-weight:500;box-shadow:var(--shadow);animation:tIn .3s ease,tOut .3s ease 3s forwards;display:flex;align-items:center;gap:8px}
         .toast.ts2{border-left:4px solid var(--success)}.toast.te{border-left:4px solid var(--danger)}.toast.ti{border-left:4px solid var(--info)}.toast.tw2{border-left:4px solid var(--warn)}
         @keyframes tIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
         @keyframes tOut{to{opacity:0;transform:translateX(60px)}}
-
         .booking-page{min-height:100vh;background:linear-gradient(135deg,#0a0a0f,#1a1020);padding:20px;display:flex;align-items:center;justify-content:center}
         .booking-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:30px;width:100%;max-width:500px;box-shadow:var(--shadow)}
-        .b-logo{text-align:center;margin-bottom:24px}
-        .b-logo .logo{font-size:2.5rem}
-        .b-logo h2{color:var(--gold);font-size:1.4rem;font-weight:800}
-        .b-logo p{color:var(--muted);font-size:.82rem}
+        .b-logo{text-align:center;margin-bottom:24px}.b-logo .logo{font-size:2.5rem}.b-logo h2{color:var(--gold);font-size:1.4rem;font-weight:800}.b-logo p{color:var(--muted);font-size:.82rem}
         .time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(75px,1fr));gap:6px}
         .time-slot{padding:10px;text-align:center;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rx);cursor:pointer;font-size:.82rem;font-weight:600;transition:var(--tr)}
-        .time-slot:hover{border-color:var(--gold);color:var(--gold)}
-        .time-slot.selected{background:rgba(212,169,55,.15);border-color:var(--gold);color:var(--gold)}
+        .time-slot:hover{border-color:var(--gold);color:var(--gold)}.time-slot.selected{background:rgba(212,169,55,.15);border-color:var(--gold);color:var(--gold)}
         .time-slot.blocked{opacity:.3;cursor:not-allowed;text-decoration:line-through}
     </style>
 </head>
 <body>
-
-<div class="loading-overlay" id="loadingScreen">
-    <div class="spinner"></div>
-    <span class="loading-text" id="loadingText">Conectando ao MR Barbearia...</span>
-</div>
-
-<div class="login-screen hidden" id="loginScreen">
-    <div class="login-card">
-        <span class="logo">💈</span>
-        <h1>MR Barbearia</h1>
-        <p class="sub">Sistema de Gestão Premium</p>
-        <div class="fg">
-            <label>Usuário</label>
-            <select class="fc" id="loginUser"><option value="admin">👑 Administrador</option></select>
-        </div>
-        <div class="fg">
-            <label>Senha</label>
-            <input type="password" class="fc" id="loginPass" placeholder="Digite sua senha (min 6 caracteres)" value="123456">
-        </div>
-        <button class="btn btn-gold full" id="loginBtn" onclick="doLogin()" style="margin-top:10px">Entrar</button>
-        <div class="error-msg" id="loginError"></div>
-        <p class="tm" style="margin-top:16px;font-size:.72rem">Senha padrão: <strong>123456</strong></p>
-    </div>
-</div>
-
+<div class="loading-overlay" id="loadingScreen"><div class="spinner"></div><span class="lt" id="loadingText">Conectando...</span></div>
+<div class="login-screen hidden" id="loginScreen"><div class="login-card"><span class="logo">💈</span><h1>MR Barbearia</h1><p class="sub">Sistema Premium</p>
+    <div class="fg"><label>Usuário</label><select class="fc" id="loginUser"><option value="admin">👑 Administrador</option></select></div>
+    <div class="fg"><label>Senha</label><input type="password" class="fc" id="loginPass" placeholder="Min 6 caracteres" value="123456"></div>
+    <button class="btn btn-gold full" id="loginBtn" onclick="doLogin()" style="margin-top:10px">Entrar</button>
+    <div class="error-msg" id="loginError"></div><p class="tm" style="margin-top:16px;font-size:.72rem">Senha: <b>123456</b></p></div></div>
 <div class="app" id="appContainer">
-    <div class="mob-h">
-        <button class="ham" onclick="toggleSB()">☰</button>
-        <span class="mb-t">💈 MR Barbearia</span>
-    </div>
+    <div class="mob-h"><button class="ham" onclick="toggleSB()">☰</button><span class="mb-t">💈 MR Barbearia</span></div>
     <div class="sb-ov" id="sbOv" onclick="toggleSB()"></div>
-    <aside class="sidebar" id="sidebar">
-        <div class="sb-brand"><h1>💈 MR Barbearia</h1><p>Gestão Premium</p></div>
+    <aside class="sidebar" id="sidebar"><div class="sb-brand"><h1>💈 MR Barbearia</h1><p>Premium</p></div>
         <nav class="sb-nav" id="sbNav"></nav>
-        <div class="sb-foot">
-            <div class="u-av" id="sbAvatar">AD</div>
-            <div class="u-info"><div class="n" id="sbName">Admin</div><div class="r" id="sbRole">Proprietário</div></div>
-            <button class="lo-btn" onclick="doLogout()" title="Sair">🚪</button>
-        </div>
-    </aside>
+        <div class="sb-foot"><div class="u-av" id="sbAvatar">AD</div><div class="u-info"><div class="n" id="sbName">Admin</div><div class="r" id="sbRole">Proprietário</div></div>
+        <button class="lo-btn" onclick="doLogout()" title="Sair">🚪</button></div></aside>
     <div class="main" id="mainContent"></div>
 </div>
-
-<div class="booking-page hidden" id="bookingPage">
-    <div class="booking-card" id="bookingContent"></div>
-</div>
-
-<div class="m-ov" id="mOv" onclick="if(event.target===this)closeMod()">
-    <div class="modal" id="modContent"></div>
-</div>
-
+<div class="booking-page hidden" id="bookingPage"><div class="booking-card" id="bookingContent"></div></div>
+<div class="m-ov" id="mOv" onclick="if(event.target===this)closeMod()"><div class="modal" id="modContent"></div></div>
 <div class="toast-c" id="toastC"></div>
 
 <script>
-// ================================================================
-//  FIREBASE
-// ================================================================
-firebase.initializeApp({
-    apiKey:"AIzaSyDrRxJQ_ZiXcXXvxOYzyHNrmvms6yNtIt4",
-    authDomain:"mrbarbearia.firebaseapp.com",
-    projectId:"mrbarbearia",
-    storageBucket:"mrbarbearia.firebasestorage.app",
-    messagingSenderId:"94335538247",
-    appId:"1:94335538247:web:fe660b36c755ca2b75cd62"
-});
-const auth=firebase.auth();
-const db=firebase.firestore();
-const DOC=db.collection('system').doc('data');
+firebase.initializeApp({apiKey:"AIzaSyDrRxJQ_ZiXcXXvxOYzyHNrmvms6yNtIt4",authDomain:"mrbarbearia.firebaseapp.com",projectId:"mrbarbearia",storageBucket:"mrbarbearia.firebasestorage.app",messagingSenderId:"94335538247",appId:"1:94335538247:web:fe660b36c755ca2b75cd62"});
+const auth=firebase.auth(),db=firebase.firestore(),DOC=db.collection('system').doc('data');
+let D=null,CU=null,CP='dashboard',ACI=null,DF={type:'month',start:null,end:null},selPay='';
 
-// ================================================================
-//  STATE
-// ================================================================
-let D=null,currentUser=null,currentPage='dashboard',activeChatId=null;
-let dateFilter={type:'month',start:null,end:null};
+const TD=()=>new Date().toISOString().split('T')[0];
+const NW=()=>{const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const UI=()=>Date.now()+Math.floor(Math.random()*9999);
+const MK=(d)=>(d||TD()).substring(0,7);
 
-const TODAY=()=>new Date().toISOString().split('T')[0];
-const NOW=()=>{const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
-const UID=()=>Date.now()+Math.floor(Math.random()*9999);
-const MK=(d)=>(d||TODAY()).substring(0,7);
-
-const DEF={
-    barbers:[
-        {id:1,name:'Carlos Silva',specialty:'Corte & Barba',status:'offline',avatar:'av1',rating:5,phone:'(11)99999-0001',email:'carlos@mr.com',commission:50},
-        {id:2,name:'Ricardo Santos',specialty:'Degradê Specialist',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50},
-        {id:3,name:'André Lima',specialty:'Barba & Tratamento',status:'offline',avatar:'av3',rating:5,phone:'(11)99999-0003',email:'andre@mr.com',commission:45},
-        {id:4,name:'Felipe Costa',specialty:'Corte Infantil',status:'offline',avatar:'av4',rating:4,phone:'(11)99999-0004',email:'felipe@mr.com',commission:45}
-    ],
-    clients:[
-        {id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2},
-        {id:2,name:'Pedro Almeida',phone:'(11)98888-2222',visits:8,lastVisit:'2025-01-12',totalSpent:480,points:8},
-        {id:3,name:'Lucas Ferreira',phone:'(11)98888-3333',visits:15,lastVisit:'2025-01-13',totalSpent:1050,points:5},
-        {id:4,name:'Marcos Oliveira',phone:'(11)98888-4444',visits:5,lastVisit:'2025-01-11',totalSpent:275,points:5},
-        {id:5,name:'Bruno Souza',phone:'(11)98888-5555',visits:20,lastVisit:'2025-01-13',totalSpent:1400,points:0},
-        {id:6,name:'Gabriel Rocha',phone:'(11)98888-6666',visits:3,lastVisit:'2025-01-09',totalSpent:135,points:3}
-    ],
-    services:[
-        {id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},
-        {id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'},
-        {id:3,name:'Corte + Barba',duration:50,price:70,icon:'💈'},
-        {id:4,name:'Degradê Premium',duration:40,price:55,icon:'⭐'},
-        {id:5,name:'Sobrancelha',duration:15,price:20,icon:'👁️'},
-        {id:6,name:'Tratamento Capilar',duration:45,price:80,icon:'🧴'},
-        {id:7,name:'Pigmentação',duration:35,price:60,icon:'🎨'},
-        {id:8,name:'Corte Infantil',duration:25,price:35,icon:'👦'}
-    ],
+const DEF={barbers:[
+    {id:1,name:'Carlos Silva',specialty:'Corte & Barba',status:'offline',avatar:'av1',rating:5,phone:'(11)99999-0001',email:'carlos@mr.com',commission:50,photo:'',active:true},
+    {id:2,name:'Ricardo Santos',specialty:'Degradê',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50,photo:'',active:true},
+    {id:3,name:'André Lima',specialty:'Barba & Tratamento',status:'offline',avatar:'av3',rating:5,phone:'(11)99999-0003',email:'andre@mr.com',commission:45,photo:'',active:true},
+    {id:4,name:'Felipe Costa',specialty:'Corte Infantil',status:'offline',avatar:'av4',rating:4,phone:'(11)99999-0004',email:'felipe@mr.com',commission:45,photo:'',active:true}],
+    clients:[{id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2},{id:2,name:'Pedro Almeida',phone:'(11)98888-2222',visits:8,lastVisit:'2025-01-12',totalSpent:480,points:8},{id:3,name:'Lucas Ferreira',phone:'(11)98888-3333',visits:15,lastVisit:'2025-01-13',totalSpent:1050,points:5},{id:4,name:'Marcos Oliveira',phone:'(11)98888-4444',visits:5,lastVisit:'2025-01-11',totalSpent:275,points:5},{id:5,name:'Bruno Souza',phone:'(11)98888-5555',visits:20,lastVisit:'2025-01-13',totalSpent:1400,points:0},{id:6,name:'Gabriel Rocha',phone:'(11)98888-6666',visits:3,lastVisit:'2025-01-09',totalSpent:135,points:3}],
+    services:[{id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},{id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'},{id:3,name:'Corte + Barba',duration:50,price:70,icon:'💈'},{id:4,name:'Degradê Premium',duration:40,price:55,icon:'⭐'},{id:5,name:'Sobrancelha',duration:15,price:20,icon:'👁️'},{id:6,name:'Tratamento',duration:45,price:80,icon:'🧴'},{id:7,name:'Pigmentação',duration:35,price:60,icon:'🎨'},{id:8,name:'Corte Infantil',duration:25,price:35,icon:'👦'}],
     appointments:[],completedServices:[],cashiers:[],vales:[],notifications:[],rankings:{},
-    stock:[{id:1,name:'Pomada',qty:15,min:5},{id:2,name:'Lâmina',qty:50,min:20},{id:3,name:'Creme Pós-Barba',qty:8,min:3},{id:4,name:'Óleo Barba',qty:12,min:4},{id:5,name:'Shampoo',qty:6,min:3},{id:6,name:'Cera',qty:10,min:4}],
+    stock:[{id:1,name:'Pomada',qty:15,min:5},{id:2,name:'Lâmina',qty:50,min:20},{id:3,name:'Creme Pós-Barba',qty:8,min:3},{id:4,name:'Óleo Barba',qty:12,min:4}],
     chatMessages:[],goals:[],timeRecords:[],lunchRecords:[],
     fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},
     rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},
-    config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10}
-};
+    config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10}};
 
-// ================================================================
-//  FIREBASE LOAD / SAVE
-// ================================================================
-async function loadData(){
-    setLoading('Carregando dados...');
-    try{
-        const snap=await DOC.get();
-        if(snap.exists){
-            D=snap.data();
-            // Ensure all arrays exist
-            D.appointments=D.appointments||[];D.completedServices=D.completedServices||[];
-            D.cashiers=D.cashiers||[];D.vales=D.vales||[];D.notifications=D.notifications||[];
-            D.rankings=D.rankings||{};D.stock=D.stock||[];D.chatMessages=D.chatMessages||[];
-            D.goals=D.goals||[];D.timeRecords=D.timeRecords||[];D.lunchRecords=D.lunchRecords||[];
-            D.rankConfig=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};
-            D.fidelityRules=D.fidelityRules||{visitsForReward:10,rewardDescription:'1 Corte Grátis'};
-            D.config=D.config||{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10};
-        } else {
-            D=JSON.parse(JSON.stringify(DEF));
-            await DOC.set(D);
-        }
-    }catch(e){
-        console.error('Load error:',e);
-        D=JSON.parse(JSON.stringify(DEF));
-        try{await DOC.set(D)}catch(e2){console.error('Init save error:',e2)}
-    }
-}
+async function loadData(){try{const s=await DOC.get();if(s.exists){D=s.data()}else{D=JSON.parse(JSON.stringify(DEF));await DOC.set(D)}}catch(e){D=JSON.parse(JSON.stringify(DEF));try{await DOC.set(D)}catch(e2){}}
+    ['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','timeRecords','lunchRecords','barbers','clients','services'].forEach(k=>{D[k]=D[k]||[]});
+    D.rankings=D.rankings||{};D.rankConfig=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};D.fidelityRules=D.fidelityRules||{visitsForReward:10,rewardDescription:'1 Corte Grátis'};
+    D.config=D.config||{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10};
+    D.barbers.forEach(b=>{if(b.active===undefined)b.active=true;if(!b.photo)b.photo=''})}
+async function save(){try{await DOC.set(D)}catch(e){toast('Erro!','error')}}
+function listen(){DOC.onSnapshot(s=>{if(s.exists&&CU){const n=s.data();['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','timeRecords','lunchRecords','barbers','clients','services'].forEach(k=>{n[k]=n[k]||[]});n.rankings=n.rankings||{};n.rankConfig=n.rankConfig||D.rankConfig;n.fidelityRules=n.fidelityRules||D.fidelityRules;n.config=n.config||D.config;D=n;renderPage(CP)}},e=>{})}
 
-async function save(){
-    try{await DOC.set(D)}catch(e){console.error('Save:',e);toast('Erro ao salvar!','error')}
-}
+async function doLogin(){const sel=document.getElementById('loginUser').value,pass=document.getElementById('loginPass').value,err=document.getElementById('loginError'),btn=document.getElementById('loginBtn');
+    err.textContent='';if(pass.length<6){err.textContent='Mínimo 6 caracteres!';return}btn.disabled=true;btn.textContent='Entrando...';
+    let email,isA=false,bid=null;if(sel==='admin'){email='admin@mrbarbearia.com';isA=true}else{bid=Number(sel);const b=GB(bid);if(!b){err.textContent='Não encontrado!';btn.disabled=false;btn.textContent='Entrar';return}email=b.email||`b${b.id}@mr.com`}
+    try{await auth.signInWithEmailAndPassword(email,pass)}catch(e){if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){try{await auth.createUserWithEmailAndPassword(email,pass)}catch(e2){err.textContent=e2.code==='auth/email-already-in-use'?'Senha incorreta!':'Erro: '+e2.message;btn.disabled=false;btn.textContent='Entrar';return}}else{err.textContent=e.code==='auth/wrong-password'?'Senha incorreta!':'Erro: '+e.message;btn.disabled=false;btn.textContent='Entrar';return}}
+    if(isA)CU={type:'admin',name:'Admin'};else{const b=GB(bid);CU={type:'barber',id:b.id,name:b.name};b.status='online';addN(`▶️ ${b.name} entrou`);await save()}
+    document.getElementById('loginScreen').classList.add('hidden');document.getElementById('appContainer').classList.add('active');
+    buildSB();navigate('dashboard');toast(`Bem-vindo, ${CU.name}! 👋`);btn.disabled=false;btn.textContent='Entrar'}
+async function doLogout(){if(CU?.type==='barber'){const b=GB(CU.id);if(b)b.status='offline';await save()}try{await auth.signOut()}catch(e){}CU=null;document.getElementById('appContainer').classList.remove('active');document.getElementById('loginScreen').classList.remove('hidden');popLU()}
+function popLU(){if(!D)return;document.getElementById('loginUser').innerHTML='<option value="admin">👑 Administrador</option>'+D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}
 
-function listenData(){
-    DOC.onSnapshot(snap=>{
-        if(snap.exists&&currentUser){
-            const newD=snap.data();
-            // Preserve arrays
-            newD.appointments=newD.appointments||[];newD.completedServices=newD.completedServices||[];
-            newD.cashiers=newD.cashiers||[];newD.vales=newD.vales||[];newD.notifications=newD.notifications||[];
-            newD.stock=newD.stock||[];newD.chatMessages=newD.chatMessages||[];
-            newD.goals=newD.goals||[];newD.timeRecords=newD.timeRecords||[];newD.lunchRecords=newD.lunchRecords||[];
-            newD.rankConfig=newD.rankConfig||D.rankConfig;newD.fidelityRules=newD.fidelityRules||D.fidelityRules;
-            newD.config=newD.config||D.config;newD.rankings=newD.rankings||{};
-            D=newD;
-            renderPage(currentPage);
-        }
-    },err=>console.error('Listen:',err));
-}
-
-function setLoading(text){
-    const el=document.getElementById('loadingText');
-    if(el)el.textContent=text;
-}
-
-// ================================================================
-//  AUTH - CORRIGIDO
-// ================================================================
-async function doLogin(){
-    const sel=document.getElementById('loginUser').value;
-    const pass=document.getElementById('loginPass').value;
-    const errEl=document.getElementById('loginError');
-    const btn=document.getElementById('loginBtn');
-    errEl.textContent='';
-
-    if(pass.length<6){errEl.textContent='Senha deve ter no mínimo 6 caracteres!';return}
-
-    btn.disabled=true;btn.textContent='Entrando...';
-
-    let email,isAdm=false,barberId=null;
-
-    if(sel==='admin'){
-        email='admin@mrbarbearia.com';isAdm=true;
-    }else{
-        barberId=Number(sel);
-        const b=D.barbers.find(x=>x.id===barberId);
-        if(!b){errEl.textContent='Barbeiro não encontrado!';btn.disabled=false;btn.textContent='Entrar';return}
-        email=b.email||`barber${b.id}@mrbarbearia.com`;
-    }
-
-    try{
-        // Try sign in
-        await auth.signInWithEmailAndPassword(email,pass);
-    }catch(e){
-        if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){
-            // Try create account
-            try{
-                await auth.createUserWithEmailAndPassword(email,pass);
-            }catch(e2){
-                if(e2.code==='auth/email-already-in-use'){
-                    errEl.textContent='Senha incorreta! Tente novamente.';
-                }else{
-                    errEl.textContent='Erro: '+e2.message;
-                }
-                btn.disabled=false;btn.textContent='Entrar';return;
-            }
-        }else if(e.code==='auth/wrong-password'){
-            errEl.textContent='Senha incorreta!';
-            btn.disabled=false;btn.textContent='Entrar';return;
-        }else{
-            errEl.textContent='Erro: '+e.message;
-            btn.disabled=false;btn.textContent='Entrar';return;
-        }
-    }
-
-    // Login success
-    if(isAdm){
-        currentUser={type:'admin',name:'Admin'};
-    }else{
-        const b=D.barbers.find(x=>x.id===barberId);
-        currentUser={type:'barber',id:b.id,name:b.name};
-        b.status='online';
-        addNotif(`▶️ ${b.name} entrou no sistema`);
-        await save();
-    }
-
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appContainer').classList.add('active');
-    buildSB();navigate('dashboard');
-    toast(`Bem-vindo, ${currentUser.name}! 👋`);
-    btn.disabled=false;btn.textContent='Entrar';
-}
-
-async function doLogout(){
-    if(currentUser?.type==='barber'){
-        const b=GB(currentUser.id);if(b)b.status='offline';await save();
-    }
-    try{await auth.signOut()}catch(e){}
-    currentUser=null;
-    document.getElementById('appContainer').classList.remove('active');
-    document.getElementById('loginScreen').classList.remove('hidden');
-    popLoginUsers();
-}
-
-function popLoginUsers(){
-    if(!D)return;
-    const s=document.getElementById('loginUser');
-    s.innerHTML='<option value="admin">👑 Administrador</option>'+
-        D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('');
-}
-
-// ================================================================
-//  HELPERS
-// ================================================================
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function fmt(v){return'R$ '+Number(v||0).toFixed(2).replace('.',',')}
 function fDt(s){if(!s)return'-';const p=s.split('-');return`${p[2]}/${p[1]}/${p[0]}`}
 function GC(id){return(D.clients||[]).find(c=>c.id===id)}
 function GB(id){return(D.barbers||[]).find(b=>b.id===id)}
 function GS(id){return(D.services||[]).find(s=>s.id===id)}
-function stars(n){return'★'.repeat(n||0)+'☆'.repeat(5-(n||0))}
-function isAdm(){return currentUser?.type==='admin'}
-function myId(){return currentUser?.id}
-function toast(m,t='success'){const c=document.getElementById('toastC');const ic={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};const el=document.createElement('div');el.className=`toast ${t==='success'?'ts2':t==='error'?'te':t==='warning'?'tw2':'ti'}`;el.innerHTML=`${ic[t]||''} ${m}`;c.appendChild(el);setTimeout(()=>el.remove(),3500)}
-function addNotif(text,type='info'){D.notifications=D.notifications||[];D.notifications.unshift({id:UID(),text,type,time:NOW(),date:TODAY(),read:false});if(D.notifications.length>100)D.notifications.length=100}
+function isA(){return CU?.type==='admin'}
+function myId(){return CU?.id}
+function toast(m,t='success'){const c=document.getElementById('toastC');const el=document.createElement('div');el.className=`toast ${t==='success'?'ts2':t==='error'?'te':t==='warning'?'tw2':'ti'}`;el.innerHTML=`${{success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'}[t]||''} ${m}`;c.appendChild(el);setTimeout(()=>el.remove(),3500)}
+function addN(t,tp='info'){D.notifications.unshift({id:UI(),text:t,type:tp,time:NW(),date:TD(),read:false});if(D.notifications.length>100)D.notifications.length=100}
 function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOv').classList.toggle('show')}
-function timeOpts(){const t=[];for(let h=8;h<=20;h++){t.push(`${String(h).padStart(2,'0')}:00`);if(h<20)t.push(`${String(h).padStart(2,'0')}:30`)}return t}
-function getMonthRev(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&(s.date||'').startsWith(mk)).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)}
-function getValesTotal(bid,mk){return(D.vales||[]).filter(v=>v.barberId===bid&&(v.date||'').startsWith(mk)&&v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0)}
-function getSvcCount(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&(s.date||'').startsWith(mk)).length}
+function tOpts(){const t=[];for(let h=8;h<=20;h++){t.push(`${String(h).padStart(2,'0')}:00`);if(h<20)t.push(`${String(h).padStart(2,'0')}:30`)}return t}
+function gMR(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&(s.date||'').startsWith(mk)).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)}
+function gVT(bid,mk){return(D.vales||[]).filter(v=>v.barberId===bid&&(v.date||'').startsWith(mk)&&v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0)}
+function gSC(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&(s.date||'').startsWith(mk)).length}
 function updBell(){const c=(D.notifications||[]).filter(n=>!n.read).length;document.querySelectorAll('.nav-bg').forEach(el=>el.textContent=c)}
+function t2m(t){const[h,m]=(t||'00:00').split(':').map(Number);return h*60+m}
+function m2t(m){return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}
+function isSlotOk(bid,dt,tm,sid){const sv=GS(sid);if(!sv)return false;const buf=D.config?.bufferMinutes||10,nS=t2m(tm),nE=nS+sv.duration+buf;
+    return!(D.appointments||[]).filter(a=>a.barberId===bid&&a.date===dt&&a.status!=='cancelled').some(a=>{const as=GS(a.serviceId);if(!as)return false;const aS=t2m(a.time),aE=aS+as.duration+buf;return nS<aE&&nE>aS})}
+function getSlots(bid,dt,sid){const s=[];for(let m=480;m<=1200;m+=30){const t=m2t(m);if(isSlotOk(bid,dt,t,sid))s.push(t)}return s}
+function getFS(){const s=D.completedServices||[],t=DF.type,td=TD();
+    if(t==='today')return s.filter(x=>x.date===td);if(t==='week'){const w=new Date();w.setDate(w.getDate()-7);return s.filter(x=>x.date>=w.toISOString().split('T')[0])}
+    if(t==='month')return s.filter(x=>(x.date||'').startsWith(MK()));if(t==='custom'&&DF.start&&DF.end)return s.filter(x=>x.date>=DF.start&&x.date<=DF.end);return s.filter(x=>(x.date||'').startsWith(MK()))}
+function bAvatar(b){return b.photo?`<img src="${b.photo}">`:(b.name||'?').split(' ').map(n=>n[0]).join('').substring(0,2)}
+function shareWA(bid,p){const b=GB(bid);if(!b)return;let t=`💈 MR BARBEARIA\n${b.name} · ${p}\n✂️ ${gSC(bid,p)} serviços\n💰 ${fmt(gMR(bid,p))}\n💳 Comissão: ${fmt(gMR(bid,p)*(b.commission/100))}`;window.open(`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank')}
+function getBookURL(){return window.location.href.split('?')[0]+'?booking=1'}
+function payIcon(m){return{dinheiro:'💵',cartao:'💳',pix:'📱'}[m]||'💰'}
+function payLabel(m){return{dinheiro:'Dinheiro',cartao:'Cartão',pix:'PIX'}[m]||m}
 
-function timeToMin(t){const[h,m]=(t||'00:00').split(':').map(Number);return h*60+m}
-function minToTime(m){return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}
-
-function isSlotAvailable(barberId,date,time,serviceId){
-    const svc=GS(serviceId);if(!svc)return false;
-    const buf=(D.config?.bufferMinutes)||10;
-    const dur=svc.duration+buf;
-    const nS=timeToMin(time),nE=nS+dur;
-    return!(D.appointments||[]).filter(a=>a.barberId===barberId&&a.date===date&&a.status!=='cancelled').some(a=>{
-        const aSvc=GS(a.serviceId);if(!aSvc)return false;
-        const aS=timeToMin(a.time),aE=aS+aSvc.duration+buf;
-        return nS<aE&&nE>aS;
-    });
-}
-
-function getAvailableSlots(bid,date,sid){
-    const slots=[];for(let m=480;m<=1200;m+=30){const t=minToTime(m);if(isSlotAvailable(bid,date,t,sid))slots.push(t)}return slots;
-}
-
-function getFilteredSvcs(){
-    const svcs=D.completedServices||[];const t=dateFilter.type;const td=TODAY();
-    if(t==='today')return svcs.filter(x=>x.date===td);
-    if(t==='yesterday'){const y=new Date();y.setDate(y.getDate()-1);return svcs.filter(x=>x.date===y.toISOString().split('T')[0])}
-    if(t==='week'){const w=new Date();w.setDate(w.getDate()-7);return svcs.filter(x=>x.date>=w.toISOString().split('T')[0])}
-    if(t==='month')return svcs.filter(x=>(x.date||'').startsWith(MK()));
-    if(t==='lastmonth'){const d=new Date();d.setMonth(d.getMonth()-1);return svcs.filter(x=>(x.date||'').startsWith(MK(d.toISOString().split('T')[0])))}
-    if(t==='custom'&&dateFilter.start&&dateFilter.end)return svcs.filter(x=>x.date>=dateFilter.start&&x.date<=dateFilter.end);
-    return svcs.filter(x=>(x.date||'').startsWith(MK()));
-}
-
-function genReport(bid,p){
-    const b=GB(bid);if(!b)return'';
-    const svcs=(D.completedServices||[]).filter(s=>s.barberId===bid&&(s.date||'').startsWith(p));
-    const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
-    const comm=rev*(b.commission/100);const vales=getValesTotal(bid,p);
-    let t=`╔═══════════════════════╗\n║ 💈 MR BARBEARIA\n║ Relatório: ${b.name}\n║ Período: ${p}\n╠═══════════════════════╣\n`;
-    t+=`║ ✂️ Serviços: ${svcs.length}\n║ 💰 Faturamento: ${fmt(rev)}\n║ 💳 Comissão (${b.commission}%): ${fmt(comm)}\n`;
-    t+=`║ 📥 Vales: -${fmt(vales)}\n║ 💵 Líquido: ${fmt(comm-vales)}\n╚═══════════════════════╝`;
-    return t;
-}
-
-function shareWA(bid,p){window.open(`https://wa.me/?text=${encodeURIComponent(genReport(bid,p))}`,'_blank');toast('WhatsApp aberto! 📲')}
-function getBookingURL(){return window.location.href.split('?')[0]+'?booking=1'}
-
-// ================================================================
-//  NAVIGATION
-// ================================================================
-const ADM_NAV=[
-    {s:'Principal'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'agendamentos',ic:'📋',lb:'Agendamentos'},
+// NAV
+const AN=[{s:'Principal'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'agendamentos',ic:'📋',lb:'Agendamentos'},
     {s:'Cadastros'},{id:'barbeiros',ic:'💈',lb:'Barbeiros'},{id:'clientes',ic:'👥',lb:'Clientes'},{id:'servicos',ic:'✂️',lb:'Serviços'},
     {s:'Financeiro'},{id:'financeiro',ic:'💰',lb:'Financeiro'},{id:'caixa',ic:'🏦',lb:'Caixas'},{id:'vales',ic:'📥',lb:'Vales'},
     {s:'Gestão'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'estoque',ic:'📦',lb:'Estoque'},
-    {s:'Comunicação'},{id:'notif',ic:'🔔',lb:'Notificações',bg:true},{id:'chat',ic:'💬',lb:'Chat'},
-    {s:'Extra'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'},{id:'booking',ic:'📱',lb:'Link Online'},{id:'config',ic:'⚙️',lb:'Configurações'}
-];
-const BAR_NAV=[
-    {s:'Meu Painel'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'lancar',ic:'✂️',lb:'Lançar Serviço'},{id:'agenda',ic:'📅',lb:'Minha Agenda'},
-    {s:'Financeiro'},{id:'meufat',ic:'💰',lb:'Meu Faturamento'},{id:'meucaixa',ic:'🏦',lb:'Meu Caixa'},{id:'meusvales',ic:'📥',lb:'Meus Vales'},
-    {s:'Geral'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'chat',ic:'💬',lb:'Chat'},{id:'almoco',ic:'🍽️',lb:'Almoço'}
-];
+    {s:'Comunicação'},{id:'notif',ic:'🔔',lb:'Notificações',bg:1},{id:'chat',ic:'💬',lb:'Chat'},
+    {s:'Extra'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'},{id:'booking',ic:'📱',lb:'Link Online'},{id:'config',ic:'⚙️',lb:'Config'}];
+const BN=[{s:'Meu Painel'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'lancar',ic:'✂️',lb:'Lançar Serviço'},{id:'agenda',ic:'📅',lb:'Agenda'},
+    {s:'Financeiro'},{id:'meufat',ic:'💰',lb:'Faturamento'},{id:'meucaixa',ic:'🏦',lb:'Caixa'},{id:'meusvales',ic:'📥',lb:'Vales'},
+    {s:'Geral'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'chat',ic:'💬',lb:'Chat'},{id:'almoco',ic:'🍽️',lb:'Almoço'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'}];
 
-function buildSB(){
-    const nav=document.getElementById('sbNav');
-    const items=isAdm()?ADM_NAV:BAR_NAV;
-    nav.innerHTML=items.map(it=>{
-        if(it.s)return`<div class="nav-sec">${it.s}</div>`;
-        return`<button class="nav-it" data-p="${it.id}" onclick="navigate('${it.id}',this)"><span class="nav-ic">${it.ic}</span>${it.lb}${it.bg?'<span class="nav-bg">0</span>':''}</button>`;
-    }).join('');
-    const n=isAdm()?'Admin':currentUser.name;
-    document.getElementById('sbAvatar').textContent=n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
-    document.getElementById('sbName').textContent=n;
-    document.getElementById('sbRole').textContent=isAdm()?'Proprietário':'Barbeiro';
-    updBell();
-}
+function buildSB(){const nav=document.getElementById('sbNav'),items=isA()?AN:BN;
+    nav.innerHTML=items.map(it=>it.s?`<div class="nav-sec">${it.s}</div>`:`<button class="nav-it" data-p="${it.id}" onclick="navigate('${it.id}',this)"><span class="nav-ic">${it.ic}</span>${it.lb}${it.bg?'<span class="nav-bg">0</span>':''}</button>`).join('');
+    const n=isA()?'Admin':CU.name,b=isA()?null:GB(CU.id);
+    document.getElementById('sbAvatar').innerHTML=b?.photo?`<img src="${b.photo}">`:(n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase());
+    document.getElementById('sbName').textContent=n;document.getElementById('sbRole').textContent=isA()?'Proprietário':'Barbeiro';updBell()}
+function navigate(p,btn){CP=p;document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('act'));if(btn)btn.classList.add('act');else{const b=document.querySelector(`.nav-it[data-p="${p}"]`);if(b)b.classList.add('act')}
+    document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').classList.remove('show');renderPage(p)}
+function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:isA()?pgMts:pgBMt,ponto:isA()?pgPt:pgMPt,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,almoco:pgAlm};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
 
-function navigate(p,btn){
-    currentPage=p;
-    document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('act'));
-    if(btn)btn.classList.add('act');
-    else{const b=document.querySelector(`.nav-it[data-p="${p}"]`);if(b)b.classList.add('act')}
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sbOv').classList.remove('show');
-    renderPage(p);
-}
-
-function renderPage(p){
-    const m=document.getElementById('mainContent');
-    try{
-        const pages={
-            dashboard:isAdm()?pgAdmDash:pgBarDash,agenda:isAdm()?pgAgenda:pgBarAgenda,agendamentos:pgAppts,
-            barbeiros:pgBarbers,clientes:pgClients,servicos:pgSvcs,financeiro:pgFin,caixa:pgCaixaAdm,vales:pgVales,
-            ranking:pgRank,metas:isAdm()?pgMetas:pgBarMetas,ponto:isAdm()?pgPonto:pgMeuPonto,estoque:pgEstoque,
-            notif:pgNotif,chat:pgChat,fidelidade:pgFid,booking:pgBookLink,config:pgConfig,
-            lancar:pgLancar,meufat:pgMeuFat,meucaixa:pgMeuCaixa,meusvales:pgMeusVales,almoco:pgAlmoco
-        };
-        m.innerHTML=(pages[p]||pgAdmDash)();
-    }catch(e){
-        console.error('Render error:',e);
-        m.innerHTML=`<div class="page active"><div class="card"><div class="cb tc"><p class="td">Erro ao carregar: ${e.message}</p></div></div></div>`;
-    }
-}
-
-// ================================================================
-//  ADMIN PAGES
-// ================================================================
-function pgAdmDash(){
-    const ta=(D.appointments||[]).filter(a=>a.date===TODAY());
-    const ts=(D.completedServices||[]).filter(s=>s.date===TODAY());
-    const ms=(D.completedServices||[]).filter(s=>(s.date||'').startsWith(MK()));
-    const tRev=ts.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
-    const mRev=ms.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
-    const pend=ta.filter(a=>a.status==='pending').length;
-    const hr=new Date().getHours();const gr=hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite';
-    const stM={online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'};
-
-    return`<div class="page active">
-        <div class="ph"><div><h2>${gr}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TODAY())} · MR Barbearia</p></div>
+// === PAGES ===
+function pgAD(){const ta=(D.appointments||[]).filter(a=>a.date===TD()),ts=(D.completedServices||[]).filter(s=>s.date===TD()),tR=ts.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),mR=(D.completedServices||[]).filter(s=>(s.date||'').startsWith(MK())).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const payStats={dinheiro:0,cartao:0,pix:0};ts.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
+    return`<div class="page active"><div class="ph"><div><h2>${new Date().getHours()<12?'Bom dia':new Date().getHours()<18?'Boa tarde':'Boa noite'}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TD())}</p></div>
         <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
         <div class="sg">
             <div class="sc"><div class="si gd">📅</div><div class="sv">${ta.length}</div><div class="sl">Agendamentos</div></div>
-            <div class="sc"><div class="si gr">💰</div><div class="sv">${fmt(tRev)}</div><div class="sl">Hoje</div></div>
-            <div class="sc"><div class="si bl">📊</div><div class="sv">${fmt(mRev)}</div><div class="sl">Mês</div></div>
-            <div class="sc"><div class="si rd">⏳</div><div class="sv">${pend}</div><div class="sl">Pendentes</div></div>
+            <div class="sc"><div class="si gr">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Hoje</div></div>
+            <div class="sc"><div class="si bl">📊</div><div class="sv">${fmt(mR)}</div><div class="sl">Mês</div></div>
+            <div class="sc"><div class="si rd">⏳</div><div class="sv">${ta.filter(a=>a.status==='pending').length}</div><div class="sl">Pendentes</div></div>
         </div>
-        <div class="card mb"><div class="ch"><h3>💈 Equipe</h3></div><div class="cb">
-            ${D.barbers.map(b=>{const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY()&&!l.returnTime);const st=lr?'lunch':b.status;
-                return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)">
-                    <span>${stM[st]||'🔴'}</span><span class="fw" style="font-size:.83rem">${esc(b.name)}</span>
-                    <span class="tm" style="font-size:.73rem;margin-left:auto">${b.specialty}</span></div>`}).join('')}
+        <div class="card mb"><div class="ch"><h3>💳 Pagamentos Hoje</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
         </div></div>
         <div class="g2">
             <div class="card"><div class="ch"><h3>🕐 Próximos</h3></div><div class="cb">
-                ${ta.filter(a=>!['completed','cancelled'].includes(a.status)).sort((a,b)=>(a.time||'').localeCompare(b.time||'')).slice(0,5).map(a=>{
-                    const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
+                ${ta.filter(a=>!['completed','cancelled'].includes(a.status)).sort((a,b)=>(a.time||'').localeCompare(b.time||'')).slice(0,5).map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
                     return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'} · ${a.time}</div><div class="sd">💈 ${bb?.name||'?'}</div></div>
                     <span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status==='confirmed'?'OK':'Pend'}</span></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
             </div></div>
-            <div class="card"><div class="ch"><h3>🔔 Notificações</h3></div><div class="cb">
-                ${(D.notifications||[]).slice(0,5).map(n=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
-                    <div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div>
-                    <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''}</div></div></div>`).join('')||'<p class="tm tc">Sem notificações</p>'}
-            </div></div>
-        </div>
-    </div>`;
-}
+            <div class="card"><div class="ch"><h3>💈 Equipe</h3></div><div class="cb">
+                ${D.barbers.map(b=>{const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()&&!l.returnTime);const st=lr?'lunch':b.status;
+                    return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                        <span>${{online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'}[st]||'🔴'}</span>
+                        <span class="fw" style="font-size:.82rem">${esc(b.name)}</span>
+                        ${!b.active?'<span class="badge b-dan" style="margin-left:auto">Desativado</span>':''}
+                    </div>`}).join('')}</div></div>
+        </div></div>`}
 
-function pgAppts(){
-    const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-    const stL={confirmed:'Confirmado',pending:'Pendente',completed:'Concluído',cancelled:'Cancelado'};
-    const stB={confirmed:'b-suc',pending:'b-warn',completed:'b-inf',cancelled:'b-dan'};
-    return`<div class="page active"><div class="ph"><div><h2>📋 <span>Agendamentos</span></h2></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Novo</button></div></div>
+function pgApts(){const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    return`<div class="page active"><div class="ph"><div><h2>📋 <span>Agendamentos</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Novo</button></div></div>
         <div class="card"><div class="tw"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Data</th><th>Status</th><th>Valor</th><th>Ações</th></tr></thead><tbody>
-        ${appts.map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
+        ${appts.map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);const stL={confirmed:'Confirmado',pending:'Pendente',completed:'Concluído',cancelled:'Cancelado'};
             return`<tr><td>${cl?.name||'?'}</td><td>${sv?.icon||''} ${sv?.name||'?'}</td><td>${bb?.name||'?'}</td><td>${fDt(a.date)} ${a.time}</td>
-            <td><span class="badge ${stB[a.status]||''}">${stL[a.status]||''}</span></td><td class="fw tg">${fmt(sv?.price)}</td>
-            <td><div style="display:flex;gap:3px">
-            ${a.status==='pending'?`<button class="btn-i" onclick="updAppt(${a.id},'confirmed')">✅</button>`:''}
-            ${a.status==='confirmed'?`<button class="btn-i" onclick="updAppt(${a.id},'completed')">✔️</button>`:''}
-            ${!['completed','cancelled'].includes(a.status)?`<button class="btn-i" onclick="updAppt(${a.id},'cancelled')">❌</button>`:''}
-            <button class="btn-i" onclick="delAppt(${a.id})">🗑️</button></div></td></tr>`}).join('')}
-        </tbody></table></div></div></div>`;
-}
+            <td><span class="badge ${({confirmed:'b-suc',pending:'b-warn',completed:'b-inf',cancelled:'b-dan'})[a.status]||''}">${stL[a.status]||''}</span></td><td class="fw tg">${fmt(sv?.price)}</td>
+            <td><div style="display:flex;gap:3px">${a.status==='pending'?`<button class="btn-i" onclick="uA(${a.id},'confirmed')">✅</button>`:''}${a.status==='confirmed'?`<button class="btn-i" onclick="uA(${a.id},'completed')">✔️</button>`:''}${!['completed','cancelled'].includes(a.status)?`<button class="btn-i" onclick="uA(${a.id},'cancelled')">❌</button>`:''}
+            <button class="btn-i" onclick="dA(${a.id})">🗑️</button></div></td></tr>`}).join('')}</tbody></table></div></div></div>`}
+async function uA(id,st){const a=(D.appointments||[]).find(x=>x.id===id);if(!a)return;a.status=st;if(st==='completed'){D.completedServices.push({id:UI(),clientId:a.clientId,barberId:a.barberId,serviceId:a.serviceId,date:a.date,time:a.time,payMethod:'dinheiro',change:0});const cl=GC(a.clientId),sv=GS(a.serviceId);if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=a.date;cl.points=(cl.points||0)+1}}await save();renderPage(CP);toast('Atualizado!')}
+async function dA(id){D.appointments=(D.appointments||[]).filter(a=>a.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-async function updAppt(id,st){const a=(D.appointments||[]).find(x=>x.id===id);if(!a)return;a.status=st;
-    if(st==='completed'){D.completedServices.push({id:UID(),clientId:a.clientId,barberId:a.barberId,serviceId:a.serviceId,date:a.date,time:a.time});
-        const cl=GC(a.clientId),sv=GS(a.serviceId);if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=a.date;cl.points=(cl.points||0)+1}}
-    await save();renderPage(currentPage);toast('Atualizado!')}
-async function delAppt(id){D.appointments=(D.appointments||[]).filter(a=>a.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
-
-function pgAgenda(){
-    const appts=(D.appointments||[]).filter(a=>a.date===TODAY()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-    return`<div class="page active"><div class="ph"><div><h2>📅 <span>Agenda</span></h2><p class="ph-sub">${fDt(TODAY())}</p></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
-        <div class="card"><div class="cb">${timeOpts().map(t=>{
-            const a=appts.find(x=>x.time===t);const cl=a?GC(a.clientId):null;const sv=a?GS(a.serviceId):null;const bb=a?GB(a.barberId):null;
-            return`<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)">
-                <div style="width:50px;font-size:.78rem;color:var(--muted)">${t}</div>
+function pgAg(){const appts=(D.appointments||[]).filter(a=>a.date===TD()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    return`<div class="page active"><div class="ph"><div><h2>📅 <span>Agenda</span></h2><p class="ph-sub">${fDt(TD())}</p></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
+        <div class="card"><div class="cb">${tOpts().map(t=>{const a=appts.find(x=>x.time===t);const cl=a?GC(a.clientId):null,sv=a?GS(a.serviceId):null,bb=a?GB(a.barberId):null;
+            return`<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="width:50px;font-size:.78rem;color:var(--muted)">${t}</div>
                 <div style="flex:1">${a?`<div style="background:rgba(212,169,55,.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px">
-                    <div class="fw" style="font-size:.83rem">${cl?.name||'?'}</div>
-                    <div class="tm" style="font-size:.73rem">${sv?.icon||''} ${sv?.name||'?'} (${sv?.duration||0}min) · 💈 ${bb?.name||'?'}</div></div>`:''}</div></div>`}).join('')}
-        </div></div></div>`;
-}
+                    <div class="fw" style="font-size:.83rem">${cl?.name||'?'}</div><div class="tm" style="font-size:.73rem">${sv?.icon||''} ${sv?.name||'?'} (${sv?.duration||0}min) · 💈 ${bb?.name||'?'}</div></div>`:''}</div></div>`}).join('')}
+        </div></div></div>`}
 
-function pgBarbers(){
-    const stM={online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'};const dtM={online:'d-on',offline:'d-off',busy:'d-busy',lunch:'d-lunch'};
-    return`<div class="page active"><div class="ph"><div><h2>💈 <span>Barbeiros</span></h2></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('barber')">＋ Adicionar</button></div></div>
-        <div class="g3">${D.barbers.map(b=>{
-            const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id);const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
-            const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY()&&!l.returnTime);const st=lr?'lunch':b.status;
-            return`<div class="bc"><div class="b-av ${b.avatar}">${b.name.split(' ').map(n=>n[0]).join('').substring(0,2)}<div class="st-dot ${dtM[st]||'d-off'}"></div></div>
-                <h4>${esc(b.name)}</h4><div class="spec">${b.specialty}</div>
-                <div class="bms"><div class="bm"><div class="v">${svcs.length}</div><div class="l">Serviços</div></div>
-                <div class="bm"><div class="v">${fmt(rev)}</div><div class="l">Receita</div></div>
-                <div class="bm"><div class="v">${b.commission}%</div><div class="l">Comissão</div></div>
-                <div class="bm"><div class="v">${fmt(rev*(b.commission/100))}</div><div class="l">Ganhos</div></div></div>
-                <div style="display:flex;gap:5px;justify-content:center">
-                    <button class="btn btn-out btn-sm" onclick="openMod('editBarber',${b.id})">✏️</button>
-                    <button class="btn-i" onclick="delBarber(${b.id})">🗑️</button></div></div>`}).join('')}</div></div>`;
-}
-async function delBarber(id){if(D.barbers.length<=1){toast('Mínimo 1!','error');return}D.barbers=D.barbers.filter(b=>b.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+function pgBbs(){return`<div class="page active"><div class="ph"><div><h2>💈 <span>Barbeiros</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('barber')">＋ Adicionar</button></div></div>
+    <div class="g3">${D.barbers.map(b=>{const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id),rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+        const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()&&!l.returnTime),st=lr?'lunch':b.status;
+        return`<div class="bc" style="${!b.active?'opacity:.5':''}"><div class="b-av ${b.avatar}">${bAvatar(b)}<div class="st-dot ${({online:'d-on',offline:'d-off',busy:'d-busy',lunch:'d-lunch'})[st]||'d-off'}"></div></div>
+            <h4>${esc(b.name)}</h4><div class="spec">${b.specialty} ${!b.active?'· <span class="td">Desativado</span>':''}</div>
+            <div class="bms"><div class="bm"><div class="v">${svcs.length}</div><div class="l">Serviços</div></div><div class="bm"><div class="v">${fmt(rev)}</div><div class="l">Receita</div></div>
+            <div class="bm"><div class="v">${b.commission}%</div><div class="l">Comissão</div></div><div class="bm"><div class="v">${fmt(rev*(b.commission/100))}</div><div class="l">Ganhos</div></div></div>
+            <div style="display:flex;gap:5px;justify-content:center">
+                <button class="btn btn-out btn-sm" onclick="openMod('editBarber',${b.id})">✏️</button>
+                <button class="btn ${b.active?'btn-warn':'btn-success'} btn-sm" onclick="toggleBarberActive(${b.id})">${b.active?'Desativar':'Ativar'}</button>
+                <button class="btn-i" onclick="delBb(${b.id})">🗑️</button></div></div>`}).join('')}</div></div>`}
+async function toggleBarberActive(id){const b=GB(id);if(b){b.active=!b.active;await save();renderPage(CP);toast(b.active?'Barbeiro ativado!':'Barbeiro desativado!')}}
+async function delBb(id){if(D.barbers.length<=1){toast('Mínimo 1!','error');return}D.barbers=D.barbers.filter(b=>b.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-function pgClients(){
-    return`<div class="page active"><div class="ph"><div><h2>👥 <span>Clientes</span></h2></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('client')">＋ Novo</button></div></div>
-        <div class="card"><div class="tw"><table><thead><tr><th>Nome</th><th>Tel</th><th>Visitas</th><th>Pontos</th><th>Total</th><th>Ações</th></tr></thead><tbody>
-        ${[...D.clients].sort((a,b)=>b.visits-a.visits).map(c=>`<tr><td class="fw">${esc(c.name)}</td><td>${c.phone||''}</td><td>${c.visits}</td>
-            <td><span class="badge b-gld">⭐${c.points||0}</span></td><td class="tg fw">${fmt(c.totalSpent)}</td>
-            <td><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editClient',${c.id})">✏️</button><button class="btn-i" onclick="delClient(${c.id})">🗑️</button></div></td></tr>`).join('')}
-        </tbody></table></div></div></div>`;
-}
-async function delClient(id){D.clients=D.clients.filter(c=>c.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+function pgCls(){return`<div class="page active"><div class="ph"><div><h2>👥 <span>Clientes</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('client')">＋ Novo</button></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Nome</th><th>Tel</th><th>Visitas</th><th>Pontos</th><th>Total</th><th>Ações</th></tr></thead><tbody>
+    ${[...D.clients].sort((a,b)=>b.visits-a.visits).map(c=>`<tr><td class="fw">${esc(c.name)}</td><td>${c.phone||''}</td><td>${c.visits}</td><td><span class="badge b-gld">⭐${c.points||0}</span></td><td class="tg fw">${fmt(c.totalSpent)}</td>
+        <td><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editClient',${c.id})">✏️</button><button class="btn-i" onclick="delCl(${c.id})">🗑️</button></div></td></tr>`).join('')}
+    </tbody></table></div></div></div>`}
+async function delCl(id){D.clients=D.clients.filter(c=>c.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-function pgSvcs(){
-    return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Serviços</span></h2></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('service')">＋ Novo</button></div></div>
-        <div class="card"><div class="cb">${D.services.map(s=>`<div class="svc"><div class="svc-ic">${s.icon}</div>
-            <div class="svc-i"><div class="sn">${esc(s.name)}</div><div class="sd">⏱️ ${s.duration}min</div></div>
-            <div class="svc-p">${fmt(s.price)}</div>
-            <div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editSvc',${s.id})">✏️</button><button class="btn-i" onclick="delSvc(${s.id})">🗑️</button></div></div>`).join('')}
-        </div></div></div>`;
-}
-async function delSvc(id){if(!isAdm()){toast('Somente ADM!','error');return}if(D.services.length<=1){toast('Mínimo 1!','error');return}D.services=D.services.filter(s=>s.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+function pgSvs(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Serviços</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('service')">＋ Novo</button></div></div>
+    <div class="card"><div class="cb">${D.services.map(s=>`<div class="svc"><div class="svc-ic">${s.icon}</div><div class="svc-i"><div class="sn">${esc(s.name)}</div><div class="sd">⏱️ ${s.duration}min</div></div>
+        <div class="svc-p">${fmt(s.price)}</div><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editSvc',${s.id})">✏️</button><button class="btn-i" onclick="delSv(${s.id})">🗑️</button></div></div>`).join('')}</div></div></div>`}
+async function delSv(id){if(!isA()){toast('Somente ADM!','error');return}if(D.services.length<=1){toast('Mínimo 1!','error');return}D.services=D.services.filter(s=>s.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-function pgFin(){
-    const fS=getFilteredSvcs();const tR=fS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const avg=fS.length?tR/fS.length:0;
-    const tC=D.barbers.reduce((s,b)=>{const r=fS.filter(x=>x.barberId===b.id).reduce((s2,x)=>s2+(GS(x.serviceId)?.price||0),0);return s+r*(b.commission/100)},0);
-    const fBtns=[{t:'today',l:'Hoje'},{t:'yesterday',l:'Ontem'},{t:'week',l:'Semana'},{t:'month',l:'Mês'},{t:'lastmonth',l:'Mês Ant.'},{t:'custom',l:'📅 Custom'}];
+function pgFin(){const fS=getFS(),tR=fS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),avg=fS.length?tR/fS.length:0;
+    const payStats={dinheiro:0,cartao:0,pix:0};fS.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
+    const fBtns=[{t:'today',l:'Hoje'},{t:'week',l:'Semana'},{t:'month',l:'Mês'},{t:'custom',l:'📅 Custom'}];
     return`<div class="page active"><div class="ph"><div><h2>💰 <span>Financeiro</span></h2></div>
-        <div class="ph-acts">${D.barbers.map(b=>`<button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${MK()}')">📲 ${b.name.split(' ')[0]}</button>`).join('')}</div></div>
-        <div class="date-filter">${fBtns.map(f=>`<button class="df-btn ${dateFilter.type===f.t?'active':''}" onclick="setDF('${f.t}')">${f.l}</button>`).join('')}
-            ${dateFilter.type==='custom'?`<input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfS" value="${dateFilter.start||TODAY()}" onchange="setCD()">
-            <span class="tm">até</span><input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfE" value="${dateFilter.end||TODAY()}" onchange="setCD()">`:''}</div>
+        <div class="ph-acts">${D.barbers.map(b=>`<button class="btn btn-out btn-xs" onclick="shareWA(${b.id},'${MK()}')">📲${b.name.split(' ')[0]}</button>`).join('')}</div></div>
+        <div class="date-filter">${fBtns.map(f=>`<button class="df-btn ${DF.type===f.t?'active':''}" onclick="setDF('${f.t}')">${f.l}</button>`).join('')}
+            ${DF.type==='custom'?`<input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfS" value="${DF.start||TD()}" onchange="setCD()"><span class="tm">até</span><input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfE" value="${DF.end||TD()}" onchange="setCD()">`:''}</div>
         <div class="sg">
             <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Receita</div></div>
             <div class="sc"><div class="si gr">✂️</div><div class="sv">${fS.length}</div><div class="sl">Serviços</div></div>
-            <div class="sc"><div class="si bl">🎯</div><div class="sv">${fmt(avg)}</div><div class="sl">Ticket Médio</div></div>
-            <div class="sc"><div class="si pr">💳</div><div class="sv">${fmt(tC)}</div><div class="sl">Comissões</div></div>
+            <div class="sc"><div class="si bl">🎯</div><div class="sv">${fmt(avg)}</div><div class="sl">Ticket</div></div>
         </div>
-        <div class="card"><div class="ch"><h3>💈 Por Barbeiro</h3></div><div class="cb">
-        ${D.barbers.map((b,i)=>{const rev=fS.filter(x=>x.barberId===b.id).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const mx=Math.max(...D.barbers.map(x=>fS.filter(s=>s.barberId===x.id).reduce((s2,s)=>s2+(GS(s.serviceId)?.price||0),0)),1);
-            return`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div><div class="rank-info"><div class="rank-nm">💈 ${esc(b.name)}</div>
-            <div class="rank-sub">Comissão: ${fmt(rev*(b.commission/100))}</div><div class="rank-bar"><div class="rank-fill" style="width:${(rev/mx)*100}%"></div></div></div>
-            <div class="rank-v">${fmt(rev)}</div></div>`}).join('')}</div></div>
-        <div class="card mt"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Valor</th></tr></thead><tbody>
-        ${[...fS].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,25).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId),bb=GB(s.barberId);
-            return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td>${bb?.name||'?'}</td><td class="tg fw">${fmt(sv?.price)}</td></tr>`}).join('')}
-        </tbody></table></div></div></div>`;
-}
-function setDF(t){dateFilter.type=t;if(t==='custom'){dateFilter.start=TODAY();dateFilter.end=TODAY()}renderPage('financeiro')}
-function setCD(){dateFilter.start=document.getElementById('dfS')?.value;dateFilter.end=document.getElementById('dfE')?.value;renderPage('financeiro')}
+        <div class="card mb"><div class="ch"><h3>💳 Por Método</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
+        </div></div>
+        <div class="card"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Pagto</th><th>Valor</th></tr></thead><tbody>
+        ${[...fS].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,30).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId),bb=GB(s.barberId);
+            return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td>${bb?.name||'?'}</td>
+            <td><span class="badge b-gld">${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}</span></td>
+            <td class="tg fw">${fmt(sv?.price)}</td></tr>`}).join('')}</tbody></table></div></div></div>`}
+function setDF(t){DF.type=t;if(t==='custom'){DF.start=TD();DF.end=TD()}renderPage('financeiro')}
+function setCD(){DF.start=document.getElementById('dfS')?.value;DF.end=document.getElementById('dfE')?.value;renderPage('financeiro')}
 
-function pgCaixaAdm(){const tc=(D.cashiers||[]).filter(c=>c.date===TODAY());
-    return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixas</span></h2></div></div>
-        <div class="g3">${D.barbers.map(b=>{const c=tc.find(x=>x.barberId===b.id);const io=c&&!c.closedAt;
-            const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TODAY());const exp=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
-            return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4>
-                <div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.3rem">${c?io?'🟢':'✅':'🔴'}</div>
-                <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não abriu'}</div><div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Sem caixa'}</div></div>
-                ${c?.closedAt&&c.difference!==0?`<div class="badge b-dan mt">⚠️ Dif: ${fmt(c.difference)}</div>`:c?.closedAt?`<div class="badge b-suc mt">✅ OK</div>`:''}</div></div>`}).join('')}</div></div>`}
+function pgCxA(){const tc=(D.cashiers||[]).filter(c=>c.date===TD());return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixas</span></h2></div></div>
+    <div class="g3">${D.barbers.map(b=>{const c=tc.find(x=>x.barberId===b.id),io=c&&!c.closedAt,svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
+        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.3rem">${c?io?'🟢':'✅':'🔴'}</div>
+            <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não abriu'}</div></div>
+            ${c?.closedAt&&c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:c?.closedAt?`<div class="badge b-suc">✅ OK</div>`:''}</div></div>`}).join('')}</div></div>`}
 
-function pgVales(){
-    return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div>
-        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('vale')">＋ Registrar</button></div></div>
-        <div class="sg">${D.barbers.map(b=>{const t=(D.vales||[]).filter(v=>v.barberId===b.id&&v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0);
-            return`<div class="sc"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">${esc(b.name)}</div></div>`}).join('')}</div>
-        <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Barbeiro</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-        ${[...(D.vales||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(v=>{const bb=GB(v.barberId);
-            return`<tr><td>${fDt(v.date)}</td><td>${bb?.name||'?'}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
-            <td class="fw td">${fmt(v.amount)}</td><td><span class="badge ${v.status==='pending'?'b-warn':v.status==='deducted'?'b-inf':'b-suc'}">${v.status==='pending'?'Pendente':v.status==='deducted'?'Descontado':'Perdoado'}</span></td>
-            <td>${v.status==='pending'?`<button class="btn btn-xs btn-warn" onclick="updVale(${v.id},'deducted')">Desc</button><button class="btn btn-xs btn-success" onclick="updVale(${v.id},'forgiven')">Perdoar</button>`:''}</td></tr>`}).join('')}
-        </tbody></table></div></div></div>`}
-async function updVale(id,st){const v=(D.vales||[]).find(x=>x.id===id);if(v){v.status=st;await save();renderPage(currentPage);toast('Atualizado!')}}
+function pgVls(){return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('vale')">＋ Registrar</button></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Barbeiro</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>
+    ${[...(D.vales||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(v=>{const bb=GB(v.barberId);
+        return`<tr><td>${fDt(v.date)}</td><td>${bb?.name||'?'}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
+        <td class="fw td">${fmt(v.amount)}</td><td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pendente':'OK'}</span></td>
+        <td>${v.status==='pending'?`<button class="btn btn-xs btn-warn" onclick="uV(${v.id},'deducted')">Desc</button><button class="btn btn-xs btn-success" onclick="uV(${v.id},'forgiven')">Perdoar</button>`:''}</td></tr>`}).join('')}
+    </tbody></table></div></div></div>`}
+async function uV(id,st){const v=(D.vales||[]).find(x=>x.id===id);if(v){v.status=st;await save();renderPage(CP);toast('OK!')}}
 
-function pgRank(){
-    const mk=MK();const rc=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};
-    const ranked=D.barbers.map(b=>({...b,revenue:getMonthRev(b.id,mk),svcs:getSvcCount(b.id,mk),wins:Object.values(D.rankings||{}).filter(r=>r.first===b.id).length})).sort((a,b)=>b.revenue-a.revenue);
-    const showVal=isAdm();
-    return`<div class="page active"><div class="ph"><div><h2>🏆 <span>Ranking</span></h2><p class="ph-sub">${mk} · ${rc.premiados} premiado(s)</p></div>
-        ${isAdm()?`<div class="ph-acts"><button class="btn btn-out btn-sm" onclick="openMod('rankCfg')">⚙️ Configurar</button></div>`:''}</div>
+function pgRk(){const mk=MK(),rc=D.rankConfig,ranked=D.barbers.map(b=>({...b,revenue:gMR(b.id,mk),svcs:gSC(b.id,mk),wins:Object.values(D.rankings||{}).filter(r=>r.first===b.id).length})).sort((a,b)=>b.revenue-a.revenue),sv=isA();
+    return`<div class="page active"><div class="ph"><div><h2>🏆 <span>Ranking</span></h2><p class="ph-sub">${mk}</p></div>
+        ${isA()?`<div class="ph-acts"><button class="btn btn-out btn-sm" onclick="openMod('rankCfg')">⚙️ Config</button></div>`:''}</div>
         ${ranked.length>=3?`<div class="podium">
-            <div class="pod-it"><div class="pod-av p2">${ranked[1].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥈</span></div>
-                <div class="pod-name">${esc(ranked[1].name)}</div><div class="pod-svc">✂️ ${ranked[1].svcs}</div>
-                ${showVal?`<div class="pod-val">${fmt(ranked[1].revenue)}</div>`:'<div class="hidden-val">████</div>'}
-                ${rc.premiados>=2?`<div class="pod-prize">🎁 ${fmt(rc.prizes[2]||0)}</div>`:''}<div class="pod-bar b2"></div></div>
-            <div class="pod-it"><div class="pod-av p1">${ranked[0].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥇</span></div>
-                <div class="pod-name">${esc(ranked[0].name)}</div><div class="pod-svc">✂️ ${ranked[0].svcs}</div>
-                ${showVal?`<div class="pod-val">${fmt(ranked[0].revenue)}</div>`:'<div class="hidden-val">████</div>'}
-                <div class="pod-prize">🎁 ${fmt(rc.prizes[1]||0)}</div><div class="pod-bar b1"></div></div>
-            <div class="pod-it"><div class="pod-av p3">${ranked[2].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥉</span></div>
-                <div class="pod-name">${esc(ranked[2].name)}</div><div class="pod-svc">✂️ ${ranked[2].svcs}</div>
-                ${showVal?`<div class="pod-val">${fmt(ranked[2].revenue)}</div>`:'<div class="hidden-val">████</div>'}
-                ${rc.premiados>=3?`<div class="pod-prize">🎁 ${fmt(rc.prizes[3]||0)}</div>`:''}<div class="pod-bar b3"></div></div>
-        </div>`:''}
-        <div class="card"><div class="ch"><h3>📊 Classificação</h3></div><div class="cb">
-        ${ranked.map((r,i)=>`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div>
+            <div class="pod-it"><div class="pod-av p2">${bAvatar(ranked[1])}<span class="pod-trophy">🥈</span></div><div class="pod-name">${esc(ranked[1].name)}</div><div class="pod-svc">✂️ ${ranked[1].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[1].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=2?`<div class="pod-prize">🎁 ${fmt(rc.prizes[2]||0)}</div>`:''}<div class="pod-bar b2"></div></div>
+            <div class="pod-it"><div class="pod-av p1">${bAvatar(ranked[0])}<span class="pod-trophy">🥇</span></div><div class="pod-name">${esc(ranked[0].name)}</div><div class="pod-svc">✂️ ${ranked[0].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[0].revenue)}</div>`:'<div class="hidden-val">████</div>'}<div class="pod-prize">🎁 ${fmt(rc.prizes[1]||0)}</div><div class="pod-bar b1"></div></div>
+            <div class="pod-it"><div class="pod-av p3">${bAvatar(ranked[2])}<span class="pod-trophy">🥉</span></div><div class="pod-name">${esc(ranked[2].name)}</div><div class="pod-svc">✂️ ${ranked[2].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[2].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=3?`<div class="pod-prize">🎁 ${fmt(rc.prizes[3]||0)}</div>`:''}<div class="pod-bar b3"></div></div>
+        </div>`:''}<div class="card"><div class="cb">${ranked.map((r,i)=>`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div>
             <div class="rank-info"><div class="rank-nm">${esc(r.name)} ${r.wins?`<span class="wins-b">🏆${r.wins}x</span>`:''}</div>
             <div class="rank-sub">✂️ ${r.svcs} serviços ${i<rc.premiados?`· 🎁 ${fmt(rc.prizes[i+1]||0)}`:''}</div></div>
-            ${showVal?`<div class="rank-v">${fmt(r.revenue)}</div>`:'<div class="hidden-val">████</div>'}</div>`).join('')}
-        </div></div></div>`}
+            ${sv?`<div class="rank-v">${fmt(r.revenue)}</div>`:'<div class="hidden-val">████</div>'}</div>`).join('')}</div></div></div>`}
 
-function pgMetas(){return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div>
-    <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Meta</button></div></div>
-    <div class="g3">${D.barbers.map(b=>{const mk=MK();const rev=getMonthRev(b.id,mk);const g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===mk);const tgt=g?g.target:0;const pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
-        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="tm" style="font-size:.76rem">Meta: ${tgt?fmt(tgt):'N/A'}</div>
-            <div style="font-size:1.6rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'};margin:6px 0">${pct}%</div>
-            <div class="pb-w"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div>
-            <div style="font-size:.8rem;margin-top:6px">${fmt(rev)}/${fmt(tgt)}</div>
-            ${pct>=100?'<div class="badge b-suc mt">🎉 Batida!</div>':''}</div></div>`}).join('')}</div></div>`}
+function pgMts(){return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Meta</button></div></div>
+    <div class="g3">${D.barbers.map(b=>{const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div style="font-size:1.6rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}; margin:6px 0">${pct}%</div>
+            <div class="pb-w"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div><div style="font-size:.8rem;margin-top:6px">${fmt(rev)}/${fmt(tgt)}</div></div></div>`}).join('')}</div></div>`}
 
-function pgPonto(){return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
-    <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço↗</th><th>Almoço↙</th><th>Saída</th><th>Status</th></tr></thead><tbody>
-    ${D.barbers.map(b=>{const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TODAY());const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY());
-        return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td>
-        <td><span class="badge ${tr?tr.clockOut?'b-inf':'b-suc':'b-dan'}">${tr?tr.clockOut?'Fim':'Ativo':'Ausente'}</span></td></tr>`}).join('')}
+function pgPt(){return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço↗</th><th>Almoço↙</th><th>Saída</th></tr></thead><tbody>
+    ${D.barbers.map(b=>{const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TD()),lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD());
+        return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td></tr>`}).join('')}
     </tbody></table></div></div></div>`}
 
-function pgEstoque(){return`<div class="page active"><div class="ph"><div><h2>📦 <span>Estoque</span></h2></div>
-    <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div>
-    <div class="card"><div class="cb">${(D.stock||[]).map(s=>`<div class="stk"><div class="sn">${esc(s.name)}</div>
-        <div class="stk-q ${s.qty<=s.min?'stk-low':'stk-ok'}">${s.qty}un ${s.qty<=s.min?'⚠️':''}</div>
-        <div style="display:flex;gap:3px"><button class="btn-i" onclick="adjStk(${s.id},5)">➕</button><button class="btn-i" onclick="adjStk(${s.id},-1)">➖</button></div></div>`).join('')}
-    </div></div></div>`}
-async function adjStk(id,d){const s=(D.stock||[]).find(x=>x.id===id);if(s){s.qty=Math.max(0,s.qty+d);if(s.qty<=s.min)addNotif(`⚠️ Estoque: ${s.name} (${s.qty})`,'warning');await save();renderPage(currentPage)}}
+function pgEst(){return`<div class="page active"><div class="ph"><div><h2>📦 <span>Estoque</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div>
+    <div class="card"><div class="cb">${(D.stock||[]).map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+        <div style="flex:1;font-size:.85rem">${esc(s.name)}</div><div class="fw ${s.qty<=s.min?'td':'ts'}">${s.qty}un ${s.qty<=s.min?'⚠️':''}</div>
+        <div style="display:flex;gap:3px"><button class="btn-i" onclick="adjS(${s.id},5)">➕</button><button class="btn-i" onclick="adjS(${s.id},-1)">➖</button></div></div>`).join('')}</div></div></div>`}
+async function adjS(id,d){const s=(D.stock||[]).find(x=>x.id===id);if(s){s.qty=Math.max(0,s.qty+d);if(s.qty<=s.min)addN(`⚠️ Estoque: ${s.name} (${s.qty})`,'warning');await save();renderPage(CP)}}
 
-function pgNotif(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();
-    return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div>
-    <div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div>
-    <div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+function pgNt(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();
+    return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div>
+    <div class="card"><div class="cb">${(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
         <div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div>
-        <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''} · ${fDt(n.date)}</div></div></div>`).join(''):'<p class="tm tc">Vazio</p>'}
-    </div></div></div>`}
+        <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''}</div></div></div>`).join('')||'<p class="tm tc">Vazio</p>'}</div></div></div>`}
 
-function pgChat(){
-    if(isAdm()){
-        const contacts=[{id:'all',name:'📢 Mural',avatar:'av2'},...D.barbers.map(b=>({id:b.id,name:b.name,avatar:b.avatar}))];
-        const ac=activeChatId||'all';
-        const msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===ac);
-        return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
-            <div class="g2"><div class="card"><div class="ch"><h3>Conversas</h3></div><div class="cb"><div class="chat-list">
-                ${contacts.map(c=>{const ur=(D.chatMessages||[]).filter(m=>m.chatId===(c.id==='all'?'all':c.id)&&!m.read&&m.senderId!=='admin').length;
-                    return`<div class="chat-contact ${ac===c.id?'active':''}" onclick="selChat('${c.id}')">
-                        <div class="cc-av ${c.avatar||'av2'}" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700">${c.id==='all'?'📢':c.name.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
-                        <div class="cc-info"><div class="cc-name">${esc(c.name)}</div><div class="cc-last">${c.id==='all'?'Todos':'Privado'}</div></div>
-                        ${ur?`<span class="cc-badge">${ur}</span>`:''}</div>`}).join('')}
-            </div></div></div>
-            <div class="card"><div class="ch"><h3>${ac==='all'?'📢 Mural':'💬 '+(GB(ac)?.name||'')}</h3></div><div class="cb">
-                <div class="chat-msgs" id="chatMsgs">${msgs.map(m=>`<div class="chat-msg ${m.senderId==='admin'?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem mensagens</p>'}</div>
-                <div class="chat-inp"><input type="text" class="fc" id="chatIn" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
-                <button class="btn btn-gold" style="width:auto" onclick="sendMsg()">Enviar</button></div>
-            </div></div></div></div>`
-    } else {
-        const contacts=[{id:'admin',name:'👑 Admin'},{id:'all',name:'📢 Mural'}];const ac=activeChatId||'admin';
-        const msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===myId());
-        return`<div class="page active"><div class="ph"><div><h2>💬 <span>Mensagens</span></h2></div></div>
-            <div class="card"><div class="cb">
-                <div style="display:flex;gap:6px;margin-bottom:12px">${contacts.map(c=>`<button class="btn ${ac===c.id?'btn-gold':'btn-out'} btn-sm" onclick="selChat('${c.id}')">${c.name}</button>`).join('')}</div>
-                <div class="chat-msgs" id="chatMsgs">${msgs.map(m=>`<div class="chat-msg ${m.senderId===myId()?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem mensagens</p>'}</div>
-                <div class="chat-inp"><input type="text" class="fc" id="chatIn" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
-                <button class="btn btn-gold" style="width:auto" onclick="sendMsg()">Enviar</button></div>
-            </div></div></div>`
-    }
-}
-function selChat(id){activeChatId=id;renderPage('chat');setTimeout(()=>{const el=document.getElementById('chatMsgs');if(el)el.scrollTop=el.scrollHeight},100)}
-async function sendMsg(){const inp=document.getElementById('chatIn');const txt=inp?.value?.trim();if(!txt)return;
-    const cid=isAdm()?(activeChatId||'all'):(activeChatId==='all'?'all':myId());
-    D.chatMessages.push({id:UID(),chatId:cid,senderId:isAdm()?'admin':myId(),senderName:currentUser.name,text:txt,time:NOW(),date:TODAY(),read:false});
-    inp.value='';await save();renderPage('chat');setTimeout(()=>{const el=document.getElementById('chatMsgs');if(el)el.scrollTop=el.scrollHeight},100)}
+function pgCh(){if(isA()){const contacts=[{id:'all',name:'📢 Mural'},...D.barbers.map(b=>({id:b.id,name:b.name,avatar:b.avatar,photo:b.photo}))],ac=ACI||'all',msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===ac);
+    return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
+        <div class="g2"><div class="card"><div class="ch"><h3>Conversas</h3></div><div class="cb">${contacts.map(c=>`<div class="chat-contact ${ac===c.id?'active':''}" onclick="ACI='${c.id}';renderPage('chat')">
+            <div class="cc-av ${c.avatar||'av2'}">${c.id==='all'?'📢':c.photo?`<img src="${c.photo}">`:(c.name||'').split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+            <div class="cc-info"><div class="cc-name">${esc(c.name)}</div></div></div>`).join('')}</div></div>
+        <div class="card"><div class="ch"><h3>${ac==='all'?'📢 Mural':'💬 '+(GB(ac)?.name||'')}</h3></div><div class="cb">
+            <div class="chat-msgs" id="cM">${msgs.map(m=>`<div class="chat-msg ${m.senderId==='admin'?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem msgs</p>'}</div>
+            <div class="chat-inp"><input type="text" class="fc" id="cI" placeholder="Msg..." onkeypress="if(event.key==='Enter')sM()"><button class="btn btn-gold" style="width:auto" onclick="sM()">Enviar</button></div></div></div></div></div>`
+    }else{const ac=ACI||'admin',msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===myId());
+    return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
+        <div class="card"><div class="cb"><div style="display:flex;gap:6px;margin-bottom:12px"><button class="btn ${ac==='admin'?'btn-gold':'btn-out'} btn-sm" onclick="ACI='admin';renderPage('chat')">👑 Admin</button><button class="btn ${ac==='all'?'btn-gold':'btn-out'} btn-sm" onclick="ACI='all';renderPage('chat')">📢 Mural</button></div>
+            <div class="chat-msgs" id="cM">${msgs.map(m=>`<div class="chat-msg ${m.senderId===myId()?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem msgs</p>'}</div>
+            <div class="chat-inp"><input type="text" class="fc" id="cI" placeholder="Msg..." onkeypress="if(event.key==='Enter')sM()"><button class="btn btn-gold" style="width:auto" onclick="sM()">Enviar</button></div></div></div></div>`}}
+async function sM(){const inp=document.getElementById('cI'),txt=inp?.value?.trim();if(!txt)return;const cid=isA()?(ACI||'all'):(ACI==='all'?'all':myId());
+    D.chatMessages.push({id:UI(),chatId:cid,senderId:isA()?'admin':myId(),senderName:CU.name,text:txt,time:NW(),date:TD(),read:false});inp.value='';await save();renderPage('chat');setTimeout(()=>{const el=document.getElementById('cM');if(el)el.scrollTop=el.scrollHeight},100)}
 
-function pgFid(){const rules=D.fidelityRules||{visitsForReward:10,rewardDescription:'1 Corte Grátis'};
+// FIDELIDADE - ADM
+function pgFid(){const rules=D.fidelityRules;
     return`<div class="page active"><div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
-    <div class="g3">${D.clients.map(c=>{const pts=c.points||0;const tgt=rules.visitsForReward;const pct=Math.min(100,Math.round(pts/tgt*100));
+    <div class="g3">${D.clients.map(c=>{const pts=c.points||0,tgt=rules.visitsForReward,pct=Math.min(100,Math.round(pts/tgt*100));
         return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
             <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
             <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
             ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}</div></div>`}).join('')}</div></div>`}
 
-function pgBookLink(){const url=getBookingURL();
-    return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div>
+// FIDELIDADE - BARBEIRO (editável)
+function pgBFid(){const rules=D.fidelityRules;
+    return`<div class="page active"><div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
+    <div class="g3">${D.clients.map(c=>{const pts=c.points||0,tgt=rules.visitsForReward,pct=Math.min(100,Math.round(pts/tgt*100));
+        return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
+            <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
+            <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
+            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}
+            <div style="display:flex;gap:4px;justify-content:center;margin-top:10px">
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},1)">＋1 Ponto</button>
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},-1)">−1 Ponto</button>
+                ${pts>=tgt?`<button class="btn btn-success btn-xs" onclick="redeemPts(${c.id})">🎁 Resgatar</button>`:''}
+            </div></div></div>`}).join('')}</div></div>`}
+async function adjPts(cid,d){const c=GC(cid);if(c){c.points=Math.max(0,(c.points||0)+d);await save();renderPage(CP);toast(d>0?'Ponto adicionado!':'Ponto removido!')}}
+async function redeemPts(cid){const c=GC(cid);if(c){c.points=0;await save();renderPage(CP);toast('🎁 Resgatado!')}}
+
+function pgBkL(){const url=getBookURL();return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div>
     <div class="card"><div class="cb tc"><div style="font-size:3rem;margin-bottom:12px">📱</div><h3 style="margin-bottom:8px">Link de Agendamento</h3>
         <div style="background:var(--bg4);padding:12px;border-radius:var(--rx);margin:14px 0;word-break:break-all;font-size:.8rem;color:var(--gold)">${esc(url)}</div>
         <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-            <button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Copiado! 📋')">📋 Copiar</button>
-            <button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button>
-        </div></div></div></div>`}
-
-function pgConfig(){return`<div class="page active"><div class="ph"><div><h2>⚙️ <span>Configurações</span></h2></div></div>
-    <div class="card"><div class="cb">
-        <div class="fg"><label>Nome</label><input type="text" class="fc" id="cfN" value="${esc(D.config?.businessName||'MR Barbearia')}"></div>
-        <div class="fr"><div class="fg"><label>Abertura</label><input type="time" class="fc" id="cfO" value="${D.config?.openTime||'08:00'}"></div>
-        <div class="fg"><label>Fechamento</label><input type="time" class="fc" id="cfC" value="${D.config?.closeTime||'20:00'}"></div></div>
-        <div class="fr"><div class="fg"><label>Buffer (min)</label><input type="number" class="fc" id="cfB" value="${D.config?.bufferMinutes||10}"></div>
-        <div class="fg"><label>Fidelidade (visitas)</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules?.visitsForReward||10}"></div></div>
-        <button class="btn btn-gold mt" style="width:auto" onclick="saveCfg()">💾 Salvar</button>
-        <div class="divider"></div>
-        <button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar TUDO?')){DOC.delete().then(()=>location.reload())}">🗑️ Resetar</button>
+            <button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Copiado!')">📋 Copiar</button>
+            <button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button></div>
     </div></div></div>`}
-async function saveCfg(){D.config.businessName=document.getElementById('cfN').value;D.config.openTime=document.getElementById('cfO').value;D.config.closeTime=document.getElementById('cfC').value;D.config.bufferMinutes=Number(document.getElementById('cfB').value)||10;D.fidelityRules.visitsForReward=Number(document.getElementById('cfFV').value)||10;await save();toast('Salvo! ⚙️')}
 
-// ================================================================
-//  BARBER PAGES
-// ================================================================
-function pgBarDash(){const b=GB(myId());if(!b)return'<div class="page active">Erro</div>';
-    const mk=MK();const mS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk));const tS=mS.filter(s=>s.date===TODAY());
-    const mR=mS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const tR=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
-    const comm=mR*(b.commission/100);const vl=getValesTotal(b.id,mk);
-    const ranked=D.barbers.map(x=>({id:x.id,rev:getMonthRev(x.id,mk)})).sort((a,b)=>b.rev-a.rev);const pos=ranked.findIndex(r=>r.id===b.id)+1;
-    return`<div class="page active"><div class="ph"><div><h2>Olá, <span>${esc(b.name)}</span> 💈</h2><p class="ph-sub">${fDt(TODAY())}</p></div></div>
+function pgCfg(){return`<div class="page active"><div class="ph"><div><h2>⚙️ <span>Config</span></h2></div></div>
+    <div class="card"><div class="cb">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="cfN" value="${esc(D.config?.businessName||'')}"></div>
+        <div class="fr"><div class="fg"><label>Buffer (min)</label><input type="number" class="fc" id="cfB" value="${D.config?.bufferMinutes||10}"></div>
+        <div class="fg"><label>Fidelidade</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules?.visitsForReward||10}"></div></div>
+        <div class="fg"><label>Recompensa</label><input type="text" class="fc" id="cfFR" value="${esc(D.fidelityRules?.rewardDescription||'')}"></div>
+        <button class="btn btn-gold mt" style="width:auto" onclick="sCfg()">💾 Salvar</button>
+        <div class="divider"></div><button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar?')){DOC.delete().then(()=>location.reload())}">🗑️ Resetar</button>
+    </div></div></div>`}
+async function sCfg(){D.config.businessName=document.getElementById('cfN').value;D.config.bufferMinutes=Number(document.getElementById('cfB').value)||10;D.fidelityRules.visitsForReward=Number(document.getElementById('cfFV').value)||10;D.fidelityRules.rewardDescription=document.getElementById('cfFR').value;await save();toast('Salvo! ⚙️')}
+
+// === BARBER PAGES ===
+function pgBD(){const b=GB(myId());if(!b)return'<div class="page active">Erro</div>';const mk=MK(),mS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk)),tS=mS.filter(s=>s.date===TD());
+    const mR=mS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),tR=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),comm=mR*(b.commission/100),vl=gVT(b.id,mk);
+    const payStats={dinheiro:0,cartao:0,pix:0};tS.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
+    return`<div class="page active"><div class="ph"><div><h2>Olá, <span>${esc(b.name)}</span> 💈</h2></div></div>
         <div class="sg">
-            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(mR)}</div><div class="sl">Faturamento</div></div>
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(mR)}</div><div class="sl">Mês</div></div>
             <div class="sc"><div class="si gr">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div>
             <div class="sc"><div class="si bl">✂️</div><div class="sv">${mS.length}</div><div class="sl">Serviços</div></div>
-            <div class="sc"><div class="si pr">🏆</div><div class="sv">${pos}º</div><div class="sl">Ranking</div></div>
         </div>
-        <div class="g2">
-            <div class="card"><div class="ch"><h3>📅 Hoje</h3></div><div class="cb tc"><div style="font-size:2rem;font-weight:800;color:var(--gold)">${fmt(tR)}</div><div class="tm">${tS.length} serviços</div></div></div>
-            <div class="card"><div class="ch"><h3>💳 Financeiro</h3></div><div class="cb">
-                <div class="fb mb"><span class="tm">Faturamento</span><span class="fw">${fmt(mR)}</span></div>
-                <div class="fb mb"><span class="tm">Comissão (${b.commission}%)</span><span class="fw">${fmt(comm)}</span></div>
-                <div class="fb mb"><span class="tm">Vales</span><span class="fw td">-${fmt(vl)}</span></div>
-                <div class="divider"></div><div class="fb"><span class="fw">Líquido</span><span class="fw tg" style="font-size:1.1rem">${fmt(comm-vl)}</span></div></div></div>
-        </div></div>`}
+        <div class="card mb"><div class="ch"><h3>💳 Pagamentos Hoje</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:10px"><div style="font-size:1rem">${payIcon(k)}</div><div class="sv" style="font-size:1.1rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
+        </div></div></div>`}
 
-function pgLancar(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Lançar</span></h2></div></div>
+// LANÇAR SERVIÇO COM PAGAMENTO
+function pgLc(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Lançar Serviço</span></h2></div></div>
     <div class="card"><div class="cb">
         <div class="fg"><label>Cliente</label><select class="fc" id="lcCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
         <div class="fg"><label>Serviço</label><select class="fc" id="lcSv">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)}</option>`).join('')}</select></div>
-        <button class="btn btn-gold mt" style="width:auto" onclick="launchSvc()">✂️ Lançar</button>
+        <div class="fg"><label>Método de Pagamento</label>
+            <div class="pay-methods">
+                <div class="pay-opt ${selPay==='dinheiro'?'selected':''}" onclick="selPayM('dinheiro')"><div class="pay-icon">💵</div><div class="pay-label">Dinheiro</div></div>
+                <div class="pay-opt ${selPay==='cartao'?'selected':''}" onclick="selPayM('cartao')"><div class="pay-icon">💳</div><div class="pay-label">Cartão</div></div>
+                <div class="pay-opt ${selPay==='pix'?'selected':''}" onclick="selPayM('pix')"><div class="pay-icon">📱</div><div class="pay-label">PIX</div></div>
+            </div>
+        </div>
+        <div id="trocoArea" class="${selPay==='dinheiro'?'':'hidden'}">
+            <div class="fg"><label>Valor Recebido (R$)</label><input type="number" class="fc" id="lcRecv" placeholder="0.00" oninput="calcTroco()"></div>
+            <div class="fg"><label>Troco</label><div id="trocoVal" style="font-size:1.2rem;font-weight:800;color:var(--gold);padding:8px 0">R$ 0,00</div></div>
+        </div>
+        <button class="btn btn-gold mt" style="width:auto" onclick="launchSvc()">✂️ Lançar Serviço</button>
     </div></div>
     <div class="card mt"><div class="ch"><h3>📋 Hoje</h3></div><div class="cb">
-    ${(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TODAY()).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
-        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} · ${s.time}</div></div><div class="svc-p">${fmt(sv?.price)}</div></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
+    ${(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD()).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
+        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} · ${s.time} · ${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}${s.change>0?' · Troco: '+fmt(s.change):''}</div></div><div class="svc-p">${fmt(sv?.price)}</div></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
     </div></div></div>`}
-async function launchSvc(){const cid=Number(document.getElementById('lcCl').value);const sid=Number(document.getElementById('lcSv').value);
-    const sv=GS(sid);const cl=GC(cid);const b=GB(myId());
-    D.completedServices.push({id:UID(),clientId:cid,barberId:myId(),serviceId:sid,date:TODAY(),time:NOW()});
-    if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=TODAY();cl.points=(cl.points||0)+1}
-    addNotif(`🟢 ${b?.name} lançou: ${sv?.name} — ${fmt(sv?.price)}`);
+
+function selPayM(m){selPay=m;renderPage('lancar')}
+function calcTroco(){const sid=Number(document.getElementById('lcSv')?.value),sv=GS(sid),recv=parseFloat(document.getElementById('lcRecv')?.value)||0,price=sv?.price||0,troco=Math.max(0,recv-price);
+    document.getElementById('trocoVal').textContent=fmt(troco)}
+async function launchSvc(){const cid=Number(document.getElementById('lcCl').value),sid=Number(document.getElementById('lcSv').value);
+    if(!selPay){toast('Selecione o pagamento!','error');return}
+    const sv=GS(sid),cl=GC(cid),b=GB(myId());let change=0;
+    if(selPay==='dinheiro'){const recv=parseFloat(document.getElementById('lcRecv')?.value)||0;change=Math.max(0,recv-(sv?.price||0))}
+    D.completedServices.push({id:UI(),clientId:cid,barberId:myId(),serviceId:sid,date:TD(),time:NW(),payMethod:selPay,change});
+    if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=TD();cl.points=(cl.points||0)+1}
+    addN(`🟢 ${b?.name}: ${sv?.name} ${fmt(sv?.price)} · ${payIcon(selPay)} ${payLabel(selPay)}${change>0?' · Troco: '+fmt(change):''}`);
     await save();renderPage('lancar');toast('Lançado! ✂️')}
 
-function pgBarAgenda(){const appts=(D.appointments||[]).filter(a=>a.barberId===myId()&&a.date===TODAY()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+function pgBAg(){const appts=(D.appointments||[]).filter(a=>a.barberId===myId()&&a.date===TD()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     return`<div class="page active"><div class="ph"><div><h2>📅 <span>Agenda</span></h2></div></div>
     <div class="card"><div class="cb">${appts.length?appts.map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId);
-        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${a.time} — ${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} (${sv?.duration||0}min)</div></div>
-        <span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status}</span></div>`}).join(''):'<p class="tm tc">Sem agenda</p>'}
-    </div></div></div>`}
+        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${a.time} — ${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} (${sv?.duration||0}min)</div></div></div>`}).join(''):'<p class="tm tc">Sem agenda</p>'}</div></div></div>`}
 
-function pgMeuFat(){const b=GB(myId());if(!b)return'';const mk=MK();
-    const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk));
-    const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const comm=rev*(b.commission/100);const vl=getValesTotal(b.id,mk);
-    return`<div class="page active"><div class="ph"><div><h2>💰 <span>Faturamento</span></h2></div>
-    <div class="ph-acts"><button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${mk}')">📲 WhatsApp</button></div></div>
-    <div class="sg">
-        <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(rev)}</div><div class="sl">Faturamento</div></div>
+function pgMF(){const b=GB(myId());if(!b)return'';const mk=MK(),svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk)),rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),comm=rev*(b.commission/100),vl=gVT(b.id,mk);
+    const payStats={dinheiro:0,cartao:0,pix:0};svcs.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
+    return`<div class="page active"><div class="ph"><div><h2>💰 <span>Faturamento</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${mk}')">📲 WhatsApp</button></div></div>
+    <div class="sg"><div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(rev)}</div><div class="sl">Faturamento</div></div>
         <div class="sc"><div class="si gr">💳</div><div class="sv">${fmt(comm)}</div><div class="sl">Comissão</div></div>
-        <div class="sc"><div class="si rd">📥</div><div class="sv td">${fmt(vl)}</div><div class="sl">Vales</div></div>
-        <div class="sc"><div class="si bl">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div>
-    </div>
-    <div class="card"><div class="ch"><h3>📋 Serviços</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Valor</th></tr></thead><tbody>
+        <div class="sc"><div class="si bl">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div></div>
+    <div class="card mb"><div class="ch"><h3>💳 Por Método</h3></div><div class="cb"><div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:10px"><div style="font-size:1rem">${payIcon(k)}</div><div class="sv" style="font-size:1.1rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div></div></div>
+    <div class="card"><div class="ch"><h3>📋 Serviços</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Pagto</th><th>Valor</th></tr></thead><tbody>
     ${svcs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
-        return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td class="tg fw">${fmt(sv?.price)}</td></tr>`}).join('')}
+        return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td><span class="badge b-gld">${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}</span></td><td class="tg fw">${fmt(sv?.price)}</td></tr>`}).join('')}
     </tbody></table></div></div></div>`}
 
-function pgMeuCaixa(){const b=GB(myId());if(!b)return'';
-    const c=(D.cashiers||[]).find(x=>x.barberId===b.id&&x.date===TODAY());const io=c&&!c.closedAt;
-    const tS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TODAY());
-    const exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
+function pgMCx(){const b=GB(myId());if(!b)return'';const c=(D.cashiers||[]).find(x=>x.barberId===b.id&&x.date===TD()),io=c&&!c.closedAt,tS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
     return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixa</span></h2></div></div>
-    <div class="card"><div class="cb tc">
-        <div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div>
-        <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div><div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Abra para iniciar'}</div></div>
-        ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div><button class="btn btn-gold" style="width:auto" onclick="openCx()">☀️ Abrir</button>`:''}
-        ${io?`<div class="fg mt"><label>Valor Contagem</label><input type="number" class="fc" id="cxC"></div><button class="btn btn-danger" style="width:auto" onclick="closeCx()">🌙 Fechar</button>`:''}
-        ${c?.closedAt?`<div class="mt">${c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:'<div class="badge b-suc">✅ OK</div>'}</div>`:''}</div></div></div>`}
-async function openCx(){const amt=parseFloat(document.getElementById('cxO')?.value)||0;
-    D.cashiers.push({id:UID(),barberId:myId(),date:TODAY(),openedAt:NOW(),openAmount:amt,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});
-    addNotif(`🏦 ${GB(myId())?.name} abriu caixa`);await save();renderPage('meucaixa');toast('Aberto! ☀️')}
-async function closeCx(){const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TODAY()&&!x.closedAt);if(!c)return;
-    const ca=parseFloat(document.getElementById('cxC')?.value)||0;const tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TODAY());
-    const exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+c.openAmount;const diff=ca-exp;
-    c.closedAt=NOW();c.closedAmount=ca;c.expectedAmount=exp;c.difference=diff;
-    if(diff!==0){addNotif(`🔴 ${GB(myId())?.name}: DIVERGÊNCIA ${fmt(diff)}`,'danger');D.vales.push({id:UID(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo ${fDt(TODAY())}`,date:TODAY(),status:'pending'});toast('⚠️ Divergência!','warning')}
-    else{addNotif(`✅ ${GB(myId())?.name} caixa OK`);toast('Fechado! ✅')}
+    <div class="card"><div class="cb tc"><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div><div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div></div>
+        ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div><button class="btn btn-gold" style="width:auto" onclick="oCx()">☀️ Abrir</button>`:''}
+        ${io?`<div class="fg mt"><label>Contagem</label><input type="number" class="fc" id="cxC"></div><button class="btn btn-danger" style="width:auto" onclick="cCx()">🌙 Fechar</button>`:''}
+        ${c?.closedAt?`${c.difference!==0?`<div class="badge b-dan mt">⚠️ Dif: ${fmt(c.difference)}</div>`:`<div class="badge b-suc mt">✅ OK</div>`}`:''}</div></div></div>`}
+async function oCx(){const a=parseFloat(document.getElementById('cxO')?.value)||0;D.cashiers.push({id:UI(),barberId:myId(),date:TD(),openedAt:NW(),openAmount:a,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});addN(`🏦 ${GB(myId())?.name} abriu caixa`);await save();renderPage('meucaixa');toast('Aberto! ☀️')}
+async function cCx(){const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TD()&&!x.closedAt);if(!c)return;const ca=parseFloat(document.getElementById('cxC')?.value)||0,tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD()),exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+c.openAmount,diff=ca-exp;
+    c.closedAt=NW();c.closedAmount=ca;c.expectedAmount=exp;c.difference=diff;
+    if(diff!==0){addN(`🔴 ${GB(myId())?.name}: DIVERGÊNCIA ${fmt(diff)}`,'danger');D.vales.push({id:UI(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo ${fDt(TD())}`,date:TD(),status:'pending'});toast('⚠️ Divergência!','warning')}else{addN(`✅ ${GB(myId())?.name} caixa OK`);toast('Fechado! ✅')}
     await save();renderPage('meucaixa')}
 
-function pgMeusVales(){const b=GB(myId());if(!b)return'';const mv=(D.vales||[]).filter(v=>v.barberId===b.id);const t=mv.filter(v=>v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0);
+function pgMV(){const b=GB(myId());if(!b)return'';const mv=(D.vales||[]).filter(v=>v.barberId===b.id),t=mv.filter(v=>v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0);
     return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div></div>
     <div class="sc mb"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">Débitos</div></div>
     <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Status</th></tr></thead><tbody>
-    ${mv.map(v=>`<tr><td>${fDt(v.date)}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
-        <td class="fw td">${fmt(v.amount)}</td><td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pendente':'Tratado'}</span></td></tr>`).join('')}
-    </tbody></table></div></div></div>`}
+    ${mv.map(v=>`<tr><td>${fDt(v.date)}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td><td class="fw td">${fmt(v.amount)}</td>
+        <td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pend':'OK'}</span></td></tr>`).join('')}</tbody></table></div></div></div>`}
 
-function pgBarMetas(){const b=GB(myId());if(!b)return'';const mk=MK();const rev=getMonthRev(b.id,mk);
-    const g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===mk);const tgt=g?g.target:0;const pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+function pgBMt(){const b=GB(myId());if(!b)return'';const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
     return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div></div>
-    <div class="card"><div class="cb tc"><div style="font-size:3rem;margin:14px 0">${pct>=100?'🎉':'🎯'}</div>
+    <div class="card"><div class="cb tc"><div style="font-size:2.5rem;margin:14px 0">${pct>=100?'🎉':'🎯'}</div>
         <div style="font-size:2.2rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}">${pct}%</div>
         <div class="pb-w" style="height:8px;margin:12px auto;max-width:300px"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div>
-        <div style="font-size:.95rem;margin:8px 0">${fmt(rev)}/${fmt(tgt)}</div>
-        ${pct>=100?'<div class="badge b-suc" style="font-size:.85rem;padding:6px 14px">🏆 BATIDA!</div>':tgt?`<div class="tm">Faltam ${fmt(tgt-rev)}</div>`:'<div class="tm">Não definida</div>'}
-    </div></div></div>`}
+        <div style="font-size:.95rem">${fmt(rev)}/${fmt(tgt)}</div></div></div></div>`}
 
-function pgMeuPonto(){const b=GB(myId());if(!b)return'';const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TODAY());
+function pgMPt(){const b=GB(myId());if(!b)return'';const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TD());
     return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
     <div class="card"><div class="cb tc"><div style="font-size:2.2rem;margin:14px 0">${tr?tr.clockOut?'✅':'🟢':'🔴'}</div>
-        <div style="font-size:1rem;font-weight:700;margin-bottom:12px">${tr?tr.clockOut?'Encerrado':'Ativo':'Não registrado'}</div>
         ${tr?`<div class="fb mb" style="max-width:220px;margin:0 auto"><span>Entrada</span><span class="fw">${tr.clockIn}</span></div>`:''}
-        ${tr?.clockOut?`<div class="fb mb" style="max-width:220px;margin:0 auto"><span>Saída</span><span class="fw">${tr.clockOut}</span></div>`:''}
-        ${!tr?`<button class="btn btn-gold" style="width:auto" onclick="ckIn()">▶️ Entrada</button>`:''}
-        ${tr&&!tr.clockOut?`<button class="btn btn-danger" style="width:auto" onclick="ckOut()">⏹️ Saída</button>`:''}
-    </div></div></div>`}
-async function ckIn(){D.timeRecords.push({id:UID(),barberId:myId(),date:TODAY(),clockIn:NOW(),clockOut:null});const b=GB(myId());if(b)b.status='online';addNotif(`▶️ ${b?.name} entrada ${NOW()}`);await save();renderPage('ponto');toast('Entrada! ▶️')}
-async function ckOut(){const tr=(D.timeRecords||[]).find(t=>t.barberId===myId()&&t.date===TODAY()&&!t.clockOut);if(tr){tr.clockOut=NOW();const b=GB(myId());if(b)b.status='offline';addNotif(`⏹️ ${b?.name} saída ${NOW()}`);await save();renderPage('ponto');toast('Saída! ⏹️')}}
+        ${!tr?`<button class="btn btn-gold" onclick="ckI()">▶️ Entrada</button>`:''}
+        ${tr&&!tr.clockOut?`<button class="btn btn-danger" onclick="ckO()">⏹️ Saída</button>`:''}</div></div></div>`}
+async function ckI(){D.timeRecords.push({id:UI(),barberId:myId(),date:TD(),clockIn:NW(),clockOut:null});const b=GB(myId());if(b)b.status='online';addN(`▶️ ${b?.name} entrada`);await save();renderPage('ponto');toast('Entrada! ▶️')}
+async function ckO(){const tr=(D.timeRecords||[]).find(t=>t.barberId===myId()&&t.date===TD()&&!t.clockOut);if(tr){tr.clockOut=NW();const b=GB(myId());if(b)b.status='offline';addN(`⏹️ ${b?.name} saída`);await save();renderPage('ponto');toast('Saída! ⏹️')}}
 
-function pgAlmoco(){const b=GB(myId());if(!b)return'';const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY());const io=lr&&!lr.returnTime;
+function pgAlm(){const b=GB(myId());if(!b)return'';const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()),io=lr&&!lr.returnTime;
     return`<div class="page active"><div class="ph"><div><h2>🍽️ <span>Almoço</span></h2></div></div>
     <div class="card"><div class="cb tc"><div style="font-size:2.5rem;margin:14px 0">${io?'🍽️':lr?'✅':'☕'}</div>
-        <div style="font-size:1rem;font-weight:700;margin-bottom:12px">${io?'Almoçando':lr?'Concluído':'Pronto?'}</div>
-        ${lr?`<div class="fb mb" style="max-width:220px;margin:0 auto"><span>Saiu</span><span class="fw">${lr.leaveTime}</span></div>`:''}
-        ${lr?.returnTime?`<div class="fb mb" style="max-width:220px;margin:0 auto"><span>Voltou</span><span class="fw">${lr.returnTime}</span></div>`:''}
-        ${!lr?`<button class="btn btn-gold" style="width:auto" onclick="lOut()">🍽️ Saí</button>`:''}
-        ${io?`<button class="btn btn-success" style="width:auto" onclick="lIn()">✅ Voltei</button>`:''}
-    </div></div></div>`}
-async function lOut(){D.lunchRecords.push({id:UID(),barberId:myId(),date:TODAY(),leaveTime:NOW(),returnTime:null});const b=GB(myId());if(b)b.status='lunch';addNotif(`🍽️ ${b?.name} almoço`);await save();renderPage('almoco');toast('Bom almoço! 🍽️')}
-async function lIn(){const lr=(D.lunchRecords||[]).find(l=>l.barberId===myId()&&l.date===TODAY()&&!l.returnTime);if(lr){lr.returnTime=NOW();const b=GB(myId());if(b)b.status='online';addNotif(`✅ ${b?.name} voltou`);await save();renderPage('almoco');toast('Bem-vindo! ✅')}}
+        ${!lr?`<button class="btn btn-gold" onclick="lO()">🍽️ Saí</button>`:''}
+        ${io?`<button class="btn btn-success" onclick="lI()">✅ Voltei</button>`:''}</div></div></div>`}
+async function lO(){D.lunchRecords.push({id:UI(),barberId:myId(),date:TD(),leaveTime:NW(),returnTime:null});const b=GB(myId());if(b)b.status='lunch';addN(`🍽️ ${b?.name} almoço`);await save();renderPage('almoco');toast('Bom almoço!')}
+async function lI(){const lr=(D.lunchRecords||[]).find(l=>l.barberId===myId()&&l.date===TD()&&!l.returnTime);if(lr){lr.returnTime=NW();const b=GB(myId());if(b)b.status='online';addN(`✅ ${b?.name} voltou`);await save();renderPage('almoco');toast('Bem-vindo!')}}
 
-// ================================================================
-//  MODALS
-// ================================================================
-function openMod(type,eid){
-    const ov=document.getElementById('mOv');const md=document.getElementById('modContent');let h='';
-
-    if(type==='appt'){
-        h=`<div class="mh"><h3>📅 Agendar</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd">
-            <div class="fg"><label>Cliente</label><select class="fc" id="mCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
-            <div class="fg"><label>Serviço</label><select class="fc" id="mSv" onchange="updSlots()">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} (${s.duration}min) ${fmt(s.price)}</option>`).join('')}</select></div>
-            <div class="fg"><label>Barbeiro</label><select class="fc" id="mBb" onchange="updSlots()">${D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}</select></div>
-            <div class="fg"><label>Data</label><input type="date" class="fc" id="mDt" value="${TODAY()}" onchange="updSlots()"></div>
-            <div class="fg"><label>Horário</label><div class="time-grid" id="tGrid"></div></div>
-            <input type="hidden" id="mTm">
+// === MODALS ===
+function openMod(type,eid){const ov=document.getElementById('mOv'),md=document.getElementById('modContent');let h='';
+    if(type==='appt'){h=`<div class="mh"><h3>📅 Agendar</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Cliente</label><select class="fc" id="mCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Serviço</label><select class="fc" id="mSv" onchange="uSl()">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} (${s.duration}min) ${fmt(s.price)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mBb" onchange="uSl()">${D.barbers.filter(b=>b.active!==false).map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="mDt" value="${TD()}" onchange="uSl()"></div>
+        <div class="fg"><label>Horário</label><div class="time-grid" id="tG"></div></div><input type="hidden" id="mTm">
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sAppt()">Agendar</button></div>`
+    }else if(type==='client'||type==='editClient'){const c=type==='editClient'?GC(eid):null;
+        h=`<div class="mh"><h3>${c?'✏️':'👤'} Cliente</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mCid" value="${c?.id||''}">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mCn" value="${c?esc(c.name):''}"></div>
+        <div class="fg"><label>Telefone</label><input type="text" class="fc" id="mCp" value="${c?.phone||''}"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sClM()">Salvar</button></div>`
+    }else if(type==='barber'||type==='editBarber'){const b=type==='editBarber'?GB(eid):null;
+        h=`<div class="mh"><h3>${b?'✏️':'💈'} Barbeiro</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mBid" value="${b?.id||''}">
+        <div class="photo-upload" onclick="document.getElementById('photoIn').click()">
+            ${b?.photo?`<img src="${b.photo}">`:'<div class="ph-text">📸<br>Foto</div>'}
+            <input type="file" id="photoIn" accept="image/*" onchange="handlePhoto(this)" style="display:none">
         </div>
-        <div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveAppt()">Agendar</button></div>`;
-    } else if(type==='client'||type==='editClient'){
-        const c=type==='editClient'?GC(eid):null;
-        h=`<div class="mh"><h3>${c?'✏️':'👤'} Cliente</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd"><input type="hidden" id="mCid" value="${c?.id||''}">
-            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mCn" value="${c?esc(c.name):''}"></div>
-            <div class="fg"><label>Telefone</label><input type="text" class="fc" id="mCp" value="${c?.phone||''}"></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveClMod()">Salvar</button></div>`;
-    } else if(type==='barber'||type==='editBarber'){
-        const b=type==='editBarber'?GB(eid):null;
-        h=`<div class="mh"><h3>${b?'✏️':'💈'} Barbeiro</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd"><input type="hidden" id="mBid" value="${b?.id||''}">
-            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mBn" value="${b?esc(b.name):''}"></div>
-            <div class="fg"><label>Especialidade</label><input type="text" class="fc" id="mBs" value="${b?.specialty||''}"></div>
-            <div class="fr"><div class="fg"><label>Comissão %</label><input type="number" class="fc" id="mBc" value="${b?.commission||50}"></div>
-            <div class="fg"><label>E-mail</label><input type="email" class="fc" id="mBe" value="${b?.email||''}"></div></div>
-            <div class="fg"><label>Avatar</label><select class="fc" id="mBav"><option value="av1" ${b?.avatar==='av1'?'selected':''}>🟣</option><option value="av2" ${b?.avatar==='av2'?'selected':''}>🟡</option><option value="av3" ${b?.avatar==='av3'?'selected':''}>🔵</option><option value="av4" ${b?.avatar==='av4'?'selected':''}>🔴</option><option value="av5" ${b?.avatar==='av5'?'selected':''}>🟢</option></select></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveBbMod()">Salvar</button></div>`;
-    } else if(type==='service'||type==='editSvc'){
-        if(!isAdm()){toast('Somente ADM!','error');return}const s=type==='editSvc'?GS(eid):null;
-        h=`<div class="mh"><h3>${s?'✏️':'✂️'} Serviço</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd"><input type="hidden" id="mSid" value="${s?.id||''}">
-            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSn" value="${s?esc(s.name):''}"></div>
-            <div class="fr"><div class="fg"><label>Preço</label><input type="number" class="fc" id="mSp" value="${s?.price||''}"></div>
-            <div class="fg"><label>Duração (min)</label><input type="number" class="fc" id="mSd" value="${s?.duration||30}"></div></div>
-            <div class="fg"><label>Ícone</label><select class="fc" id="mSi">${['✂️','🪒','💈','⭐','👁️','🧴','🎨','👦'].map(i=>`<option value="${i}" ${s?.icon===i?'selected':''}>${i}</option>`).join('')}</select></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveSvMod()">Salvar</button></div>`;
-    } else if(type==='vale'){
-        h=`<div class="mh"><h3>📥 Vale</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd">
-            <div class="fg"><label>Barbeiro</label><select class="fc" id="mVb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
-            <div class="fr"><div class="fg"><label>Tipo</label><select class="fc" id="mVt"><option value="vale">Vale</option><option value="furo">Furo</option></select></div>
-            <div class="fg"><label>Valor</label><input type="number" class="fc" id="mVa"></div></div>
-            <div class="fg"><label>Motivo</label><input type="text" class="fc" id="mVr"></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveVlMod()">Registrar</button></div>`;
-    } else if(type==='goal'){
-        h=`<div class="mh"><h3>🎯 Meta</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd">
-            <div class="fg"><label>Barbeiro</label><select class="fc" id="mGb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
-            <div class="fg"><label>Mês</label><input type="month" class="fc" id="mGm" value="${MK()}"></div>
-            <div class="fg"><label>Meta R$</label><input type="number" class="fc" id="mGv"></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveGlMod()">Salvar</button></div>`;
-    } else if(type==='stock'){
-        h=`<div class="mh"><h3>📦 Produto</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd">
-            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSkn"></div>
-            <div class="fr"><div class="fg"><label>Qtd</label><input type="number" class="fc" id="mSkq" value="10"></div>
-            <div class="fg"><label>Min</label><input type="number" class="fc" id="mSkm" value="5"></div></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveSkMod()">Salvar</button></div>`;
-    } else if(type==='rankCfg'){
-        const rc=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};
-        h=`<div class="mh"><h3>⚙️ Ranking</h3><button class="mx" onclick="closeMod()">✕</button></div>
-        <div class="mbd">
-            <div class="fg"><label>Premiados</label><select class="fc" id="mRcP"><option value="1" ${rc.premiados===1?'selected':''}>1</option><option value="2" ${rc.premiados===2?'selected':''}>2</option><option value="3" ${rc.premiados===3?'selected':''}>3</option></select></div>
-            <div class="fg"><label>🥇 1º R$</label><input type="number" class="fc" id="mRc1" value="${rc.prizes?.[1]||0}"></div>
-            <div class="fg"><label>🥈 2º R$</label><input type="number" class="fc" id="mRc2" value="${rc.prizes?.[2]||0}"></div>
-            <div class="fg"><label>🥉 3º R$</label><input type="number" class="fc" id="mRc3" value="${rc.prizes?.[3]||0}"></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveRcMod()">Salvar</button></div>`;
-    }
-
-    md.innerHTML=h;ov.classList.add('active');
-    if(type==='appt')setTimeout(updSlots,100);
-}
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mBn" value="${b?esc(b.name):''}"></div>
+        <div class="fg"><label>Especialidade</label><input type="text" class="fc" id="mBs" value="${b?.specialty||''}"></div>
+        <div class="fr"><div class="fg"><label>Comissão %</label><input type="number" class="fc" id="mBc" value="${b?.commission||50}"></div>
+        <div class="fg"><label>E-mail</label><input type="email" class="fc" id="mBe" value="${b?.email||''}"></div></div>
+        <div class="fg"><label>Avatar (cor)</label><select class="fc" id="mBav"><option value="av1" ${b?.avatar==='av1'?'selected':''}>🟣</option><option value="av2" ${b?.avatar==='av2'?'selected':''}>🟡</option><option value="av3" ${b?.avatar==='av3'?'selected':''}>🔵</option><option value="av4" ${b?.avatar==='av4'?'selected':''}>🔴</option><option value="av5" ${b?.avatar==='av5'?'selected':''}>🟢</option></select></div>
+        <div class="fg"><label>Ativo para agendamento</label><div style="display:flex;align-items:center;gap:10px"><div class="toggle-switch ${b?.active!==false?'on':''}" id="mBact" onclick="this.classList.toggle('on')"></div><span class="tm" style="font-size:.8rem">${b?.active!==false?'Sim':'Não'}</span></div></div>
+        <input type="hidden" id="mBphoto" value="${b?.photo||''}">
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sBbM()">Salvar</button></div>`
+    }else if(type==='service'||type==='editSvc'){if(!isA()){toast('Somente ADM!','error');return}const s=type==='editSvc'?GS(eid):null;
+        h=`<div class="mh"><h3>${s?'✏️':'✂️'} Serviço</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mSid" value="${s?.id||''}">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSn" value="${s?esc(s.name):''}"></div>
+        <div class="fr"><div class="fg"><label>Preço</label><input type="number" class="fc" id="mSp" value="${s?.price||''}"></div><div class="fg"><label>Duração min</label><input type="number" class="fc" id="mSd" value="${s?.duration||30}"></div></div>
+        <div class="fg"><label>Ícone</label><select class="fc" id="mSi">${['✂️','🪒','💈','⭐','👁️','🧴','🎨','👦'].map(i=>`<option value="${i}" ${s?.icon===i?'selected':''}>${i}</option>`).join('')}</select></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sSvM()">Salvar</button></div>`
+    }else if(type==='vale'){h=`<div class="mh"><h3>📥 Vale</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mVb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fr"><div class="fg"><label>Tipo</label><select class="fc" id="mVt"><option value="vale">Vale</option><option value="furo">Furo</option></select></div>
+        <div class="fg"><label>Valor</label><input type="number" class="fc" id="mVa"></div></div>
+        <div class="fg"><label>Motivo</label><input type="text" class="fc" id="mVr"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sVlM()">Registrar</button></div>`
+    }else if(type==='goal'){h=`<div class="mh"><h3>🎯 Meta</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mGb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Mês</label><input type="month" class="fc" id="mGm" value="${MK()}"></div>
+        <div class="fg"><label>Meta R$</label><input type="number" class="fc" id="mGv"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sGlM()">Salvar</button></div>`
+    }else if(type==='stock'){h=`<div class="mh"><h3>📦 Produto</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSkn"></div>
+        <div class="fr"><div class="fg"><label>Qtd</label><input type="number" class="fc" id="mSkq" value="10"></div><div class="fg"><label>Min</label><input type="number" class="fc" id="mSkm" value="5"></div></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sSkM()">Salvar</button></div>`
+    }else if(type==='rankCfg'){const rc=D.rankConfig;
+        h=`<div class="mh"><h3>⚙️ Ranking</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Premiados</label><select class="fc" id="mRcP"><option value="1" ${rc.premiados===1?'selected':''}>1</option><option value="2" ${rc.premiados===2?'selected':''}>2</option><option value="3" ${rc.premiados===3?'selected':''}>3</option></select></div>
+        <div class="fg"><label>🥇 1º R$</label><input type="number" class="fc" id="mRc1" value="${rc.prizes?.[1]||0}"></div>
+        <div class="fg"><label>🥈 2º R$</label><input type="number" class="fc" id="mRc2" value="${rc.prizes?.[2]||0}"></div>
+        <div class="fg"><label>🥉 3º R$</label><input type="number" class="fc" id="mRc3" value="${rc.prizes?.[3]||0}"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sRcM()">Salvar</button></div>`}
+    md.innerHTML=h;ov.classList.add('active');if(type==='appt')setTimeout(uSl,100)}
 
 function closeMod(){document.getElementById('mOv').classList.remove('active')}
 
-function updSlots(){
-    const bid=Number(document.getElementById('mBb')?.value);const sid=Number(document.getElementById('mSv')?.value);const date=document.getElementById('mDt')?.value;
-    const grid=document.getElementById('tGrid');if(!grid)return;
-    const slots=getAvailableSlots(bid,date,sid);
-    grid.innerHTML=timeOpts().map(t=>{const ok=slots.includes(t);
-        return`<div class="time-slot ${ok?'':'blocked'}" onclick="${ok?`selTime('${t}')`:''}">${t}${ok?'':'🔒'}</div>`}).join('');
-}
+function handlePhoto(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const photo=e.target.result;document.getElementById('mBphoto').value=photo;
+    const upload=input.closest('.photo-upload');upload.innerHTML=`<img src="${photo}"><input type="file" id="photoIn" accept="image/*" onchange="handlePhoto(this)" style="display:none">`};reader.readAsDataURL(file)}
 
-function selTime(t){document.querySelectorAll('.time-slot').forEach(el=>el.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('mTm').value=t}
+function uSl(){const bid=Number(document.getElementById('mBb')?.value),sid=Number(document.getElementById('mSv')?.value),dt=document.getElementById('mDt')?.value,grid=document.getElementById('tG');if(!grid)return;
+    const slots=getSlots(bid,dt,sid);grid.innerHTML=tOpts().map(t=>{const ok=slots.includes(t);return`<div class="time-slot ${ok?'':'blocked'}" onclick="${ok?`selTm('${t}')`:''}">${t}${ok?'':'🔒'}</div>`}).join('')}
+function selTm(t){document.querySelectorAll('.time-slot').forEach(el=>el.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('mTm').value=t}
 
-async function saveAppt(){const tm=document.getElementById('mTm').value;if(!tm){toast('Horário!','error');return}
-    const bid=Number(document.getElementById('mBb').value);const sid=Number(document.getElementById('mSv').value);
-    if(!isSlotAvailable(bid,document.getElementById('mDt').value,tm,sid)){toast('Indisponível!','error');return}
-    D.appointments.push({id:UID(),clientId:Number(document.getElementById('mCl').value),barberId:bid,serviceId:sid,date:document.getElementById('mDt').value,time:tm,status:'pending'});
-    await save();closeMod();renderPage(currentPage);toast('Agendado! 📅')}
-
-async function saveClMod(){const id=document.getElementById('mCid').value;const n=document.getElementById('mCn').value.trim();if(!n){toast('Nome!','error');return}
-    if(id){const c=GC(Number(id));if(c){c.name=n;c.phone=document.getElementById('mCp').value}}
-    else D.clients.push({id:UID(),name:n,phone:document.getElementById('mCp').value,visits:0,lastVisit:null,totalSpent:0,points:0});
-    await save();closeMod();renderPage(currentPage);toast('Salvo! 👤');popLoginUsers()}
-
-async function saveBbMod(){const id=document.getElementById('mBid').value;const n=document.getElementById('mBn').value.trim();if(!n){toast('Nome!','error');return}
-    const obj={name:n,specialty:document.getElementById('mBs').value||'Corte',commission:Number(document.getElementById('mBc').value)||50,email:document.getElementById('mBe').value,avatar:document.getElementById('mBav').value};
-    if(id){const b=GB(Number(id));if(b)Object.assign(b,obj)}else D.barbers.push({id:UID(),status:'offline',rating:5,phone:'',...obj});
-    await save();closeMod();renderPage(currentPage);toast('Salvo! 💈');popLoginUsers()}
-
-async function saveSvMod(){if(!isAdm()){toast('Somente ADM!','error');return}const id=document.getElementById('mSid').value;const n=document.getElementById('mSn').value.trim();
-    const p=parseFloat(document.getElementById('mSp').value)||0;if(!n||p<=0){toast('Preencha!','error');return}
+async function sAppt(){const tm=document.getElementById('mTm').value;if(!tm){toast('Horário!','error');return}const bid=Number(document.getElementById('mBb').value),sid=Number(document.getElementById('mSv').value);
+    if(!isSlotOk(bid,document.getElementById('mDt').value,tm,sid)){toast('Indisponível!','error');return}
+    D.appointments.push({id:UI(),clientId:Number(document.getElementById('mCl').value),barberId:bid,serviceId:sid,date:document.getElementById('mDt').value,time:tm,status:'pending'});await save();closeMod();renderPage(CP);toast('Agendado! 📅')}
+async function sClM(){const id=document.getElementById('mCid').value,n=document.getElementById('mCn').value.trim();if(!n){toast('Nome!','error');return}
+    if(id){const c=GC(Number(id));if(c){c.name=n;c.phone=document.getElementById('mCp').value}}else D.clients.push({id:UI(),name:n,phone:document.getElementById('mCp').value,visits:0,lastVisit:null,totalSpent:0,points:0});
+    await save();closeMod();renderPage(CP);toast('Salvo!');popLU()}
+async function sBbM(){const id=document.getElementById('mBid').value,n=document.getElementById('mBn').value.trim();if(!n){toast('Nome!','error');return}
+    const photo=document.getElementById('mBphoto')?.value||'';const active=document.getElementById('mBact')?.classList.contains('on')??true;
+    const obj={name:n,specialty:document.getElementById('mBs').value||'Corte',commission:Number(document.getElementById('mBc').value)||50,email:document.getElementById('mBe').value,avatar:document.getElementById('mBav').value,photo,active};
+    if(id){const b=GB(Number(id));if(b)Object.assign(b,obj)}else D.barbers.push({id:UI(),status:'offline',rating:5,phone:'',...obj});
+    await save();closeMod();renderPage(CP);toast('Salvo! 💈');popLU()}
+async function sSvM(){if(!isA()){toast('Somente ADM!','error');return}const id=document.getElementById('mSid').value,n=document.getElementById('mSn').value.trim(),p=parseFloat(document.getElementById('mSp').value)||0;if(!n||p<=0){toast('Preencha!','error');return}
     const obj={name:n,price:p,duration:Number(document.getElementById('mSd').value)||30,icon:document.getElementById('mSi').value};
-    if(id){const s=GS(Number(id));if(s)Object.assign(s,obj)}else D.services.push({id:UID(),...obj});
-    await save();closeMod();renderPage(currentPage);toast('Salvo! ✂️')}
+    if(id){const s=GS(Number(id));if(s)Object.assign(s,obj)}else D.services.push({id:UI(),...obj});await save();closeMod();renderPage(CP);toast('Salvo! ✂️')}
+async function sVlM(){const a=parseFloat(document.getElementById('mVa').value)||0;if(a<=0){toast('Valor!','error');return}const bid=Number(document.getElementById('mVb').value);
+    D.vales.push({id:UI(),barberId:bid,type:document.getElementById('mVt').value,amount:a,reason:document.getElementById('mVr').value,date:TD(),status:'pending'});addN(`📥 Vale: ${GB(bid)?.name} ${fmt(a)}`,'warning');await save();closeMod();renderPage(CP);toast('Registrado!')}
+async function sGlM(){const bid=Number(document.getElementById('mGb').value),m=document.getElementById('mGm').value,v=parseFloat(document.getElementById('mGv').value)||0;if(v<=0){toast('Valor!','error');return}
+    const ex=(D.goals||[]).findIndex(g=>g.barberId===bid&&g.month===m);if(ex>=0)D.goals[ex].target=v;else D.goals.push({id:UI(),barberId:bid,month:m,target:v});await save();closeMod();renderPage(CP);toast('Meta! 🎯')}
+async function sSkM(){const n=document.getElementById('mSkn').value.trim();if(!n){toast('Nome!','error');return}D.stock.push({id:UI(),name:n,qty:Number(document.getElementById('mSkq').value)||0,min:Number(document.getElementById('mSkm').value)||5});await save();closeMod();renderPage(CP);toast('Adicionado!')}
+async function sRcM(){D.rankConfig={premiados:Number(document.getElementById('mRcP').value),prizes:{1:parseFloat(document.getElementById('mRc1').value)||0,2:parseFloat(document.getElementById('mRc2').value)||0,3:parseFloat(document.getElementById('mRc3').value)||0}};await save();closeMod();renderPage(CP);toast('Ranking OK! 🏆')}
 
-async function saveVlMod(){const a=parseFloat(document.getElementById('mVa').value)||0;if(a<=0){toast('Valor!','error');return}
-    const bid=Number(document.getElementById('mVb').value);D.vales.push({id:UID(),barberId:bid,type:document.getElementById('mVt').value,amount:a,reason:document.getElementById('mVr').value,date:TODAY(),status:'pending'});
-    addNotif(`📥 Vale: ${GB(bid)?.name} ${fmt(a)}`,'warning');await save();closeMod();renderPage(currentPage);toast('Registrado! 📥')}
-
-async function saveGlMod(){const bid=Number(document.getElementById('mGb').value);const m=document.getElementById('mGm').value;const v=parseFloat(document.getElementById('mGv').value)||0;
-    if(v<=0){toast('Valor!','error');return}const ex=(D.goals||[]).findIndex(g=>g.barberId===bid&&g.month===m);
-    if(ex>=0)D.goals[ex].target=v;else D.goals.push({id:UID(),barberId:bid,month:m,target:v});
-    await save();closeMod();renderPage(currentPage);toast('Meta! 🎯')}
-
-async function saveSkMod(){const n=document.getElementById('mSkn').value.trim();if(!n){toast('Nome!','error');return}
-    D.stock.push({id:UID(),name:n,qty:Number(document.getElementById('mSkq').value)||0,min:Number(document.getElementById('mSkm').value)||5});
-    await save();closeMod();renderPage(currentPage);toast('Adicionado! 📦')}
-
-async function saveRcMod(){D.rankConfig={premiados:Number(document.getElementById('mRcP').value),prizes:{1:parseFloat(document.getElementById('mRc1').value)||0,2:parseFloat(document.getElementById('mRc2').value)||0,3:parseFloat(document.getElementById('mRc3').value)||0}};
-    await save();closeMod();renderPage(currentPage);toast('Ranking configurado! 🏆')}
-
-// ================================================================
-//  BOOKING (CLIENT)
-// ================================================================
-function initBooking(){document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('bookingPage').classList.remove('hidden');renderBook()}
-
-function renderBook(step=1,bd={}){const bc=document.getElementById('bookingContent');
+// BOOKING
+function initBk(){document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('bookingPage').classList.remove('hidden');rBk()}
+function rBk(step=1,bd={}){const bc=document.getElementById('bookingContent');
     if(step===1){bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>MR Barbearia</h2><p>Agende online</p></div>
-        <div class="fg"><label>Seu Nome</label><input type="text" class="fc" id="bkN" placeholder="Nome"></div>
-        <div class="fg"><label>Telefone</label><input type="text" class="fc" id="bkP" placeholder="(11)99999-0000"></div>
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="bkN"></div><div class="fg"><label>Telefone</label><input type="text" class="fc" id="bkP"></div>
         <div class="fg"><label>Serviço</label><select class="fc" id="bkS">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} ${fmt(s.price)}</option>`).join('')}</select></div>
-        <div class="fg"><label>Barbeiro</label><select class="fc" id="bkB"><option value="">Sem preferência</option>${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
-        <div class="fg"><label>Data</label><input type="date" class="fc" id="bkD" value="${TODAY()}" min="${TODAY()}"></div>
-        <button class="btn btn-gold full mt" onclick="bkStep2()">Ver Horários →</button>`
-    }else if(step===2){const slots=getAvailableSlots(bd.bid,bd.date,bd.sid);
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="bkB"><option value="">Sem preferência</option>${D.barbers.filter(b=>b.active!==false).map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="bkD" value="${TD()}" min="${TD()}"></div>
+        <button class="btn btn-gold full mt" onclick="bk2()">Ver Horários →</button>`
+    }else if(step===2){const slots=getSlots(bd.bid,bd.date,bd.sid);
         bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>Horários</h2><p>${fDt(bd.date)}</p></div>
-        <div class="time-grid">${slots.length?slots.map(t=>`<div class="time-slot" onclick="bkStep3('${t}')">${t}</div>`).join(''):'<p class="tm tc" style="grid-column:1/-1;padding:20px">Sem horários</p>'}</div>
-        <button class="btn btn-out full mt" onclick="renderBook()">← Voltar</button>`;window._bd=bd
+        <div class="time-grid">${slots.length?slots.map(t=>`<div class="time-slot" onclick="bk3('${t}')">${t}</div>`).join(''):'<p class="tm tc" style="grid-column:1/-1;padding:20px">Sem horários</p>'}</div>
+        <button class="btn btn-out full mt" onclick="rBk()">← Voltar</button>`;window._bd=bd
     }else if(step===3){bc.innerHTML=`<div class="b-logo"><span class="logo">✅</span><h2 class="tg">Solicitado!</h2><p class="tm">Aguarde confirmação</p></div>
-        <div class="card mt"><div class="cb"><div class="fb mb"><span class="tm">Serviço</span><span class="fw">${GS(bd.sid)?.name||''}</span></div>
-        <div class="fb mb"><span class="tm">Data</span><span class="fw">${fDt(bd.date)} ${bd.time}</span></div>
-        <div class="fb"><span class="tm">Valor</span><span class="fw tg">${fmt(GS(bd.sid)?.price)}</span></div></div></div>
-        <button class="btn btn-gold full mt" onclick="renderBook()">Novo Agendamento</button>`}
-}
+        <button class="btn btn-gold full mt" onclick="rBk()">Novo</button>`}}
+function bk2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toast('Nome!','error');return}rBk(2,{name:n,phone:document.getElementById('bkP')?.value,sid:Number(document.getElementById('bkS').value),bid:Number(document.getElementById('bkB').value)||D.barbers.filter(b=>b.active!==false)[0]?.id,date:document.getElementById('bkD').value})}
+async function bk3(time){const d=window._bd;if(!d)return;let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UI(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
+    D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await save();rBk(3,d)}
 
-function bkStep2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toast('Nome!','error');return}
-    const sid=Number(document.getElementById('bkS').value);let bid=Number(document.getElementById('bkB').value)||D.barbers[0]?.id;
-    renderBook(2,{name:n,phone:document.getElementById('bkP')?.value,sid,bid,date:document.getElementById('bkD').value})}
-
-async function bkStep3(time){const d=window._bd;if(!d)return;
-    let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UID(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
-    D.appointments.push({id:UID(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});
-    addNotif(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);
-    await save();renderBook(3,{...d,time})}
-
-// ================================================================
-//  INIT
-// ================================================================
-async function init(){
-    try{
-        if(window.location.search.includes('booking=1')){
-            await loadData();initBooking();listenData();return;
-        }
-        await loadData();
-        popLoginUsers();
-        document.getElementById('loadingScreen').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-        listenData();
-    }catch(e){
-        console.error('Init error:',e);
-        document.getElementById('loadingText').textContent='Erro: '+e.message+' - Recarregue a página';
-    }
-}
-
+// INIT
+async function init(){try{if(window.location.search.includes('booking=1')){await loadData();initBk();listen();return}await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}}
 init();
 </script>
 </body>
