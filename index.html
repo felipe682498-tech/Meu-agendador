@@ -1,166 +1,1606 @@
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Agendamento Profissional</title>
+    <title>MR Barbearia - Sistema de Gestão Premium</title>
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
     <style>
-        :root { --primary: #0047ff; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --green: #25d366; --red: #ef4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 20px; }
-        .logo { display: block; max-width: 150px; margin: 0 auto 20px; } /* Estilo para sua futura logo */
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; color: #64748b; border: 1px solid #334155; margin-top: 10px; }
-        .hidden { display: none !important; }
-        
-        /* Itens da Lista */
-        .item-lista { background: #1a2233; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
-        .servico-item { background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .controles { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-zap { background: var(--green); color: white; flex: 2; text-align: center; text-decoration: none; border-radius: 8px; padding: 8px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .btn-del { background: var(--red); color: white; border-radius: 8px; padding: 8px; font-size: 12px; width: auto; }
+        :root{
+            --gold:#d4a937;--gold-l:#f0d078;--gold-d:#b8912e;
+            --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a25;--bg4:#22222e;
+            --sidebar:#0e0e16;--text:#f0f0f0;--muted:#7a7a8a;--dim:#44445a;
+            --border:#2a2a3a;--success:#2ecc71;--warn:#f39c12;--danger:#e74c3c;
+            --info:#3498db;--purple:#6c5ce7;
+            --r:14px;--rs:10px;--rx:6px;
+            --shadow:0 8px 32px rgba(0,0,0,.5);--shadow-g:0 4px 24px rgba(212,169,55,.2);
+            --tr:.3s ease;--sw:250px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+        ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+        .hidden{display:none!important}
+        button{font-family:inherit}
+
+        /* LOGIN */
+        .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a0a0f,#1a1020);padding:20px}
+        .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:40px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
+        .login-card .logo{font-size:3.5rem;margin-bottom:8px;display:block}
+        .login-card h1{font-size:1.8rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+        .login-card .sub{color:var(--muted);font-size:.85rem;margin-bottom:28px}
+        .login-card .error-msg{color:var(--danger);font-size:.82rem;margin-top:8px;min-height:20px}
+        .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+        .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* FORM */
+        .fg{margin-bottom:14px;text-align:left}
+        .fg label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+        .fc{width:100%;padding:12px 14px;background:var(--bg4);border:1.5px solid var(--border);border-radius:var(--rx);color:var(--text);font-size:.92rem;outline:none;transition:var(--tr)}
+        .fc:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,55,.08)}
+        .fc::placeholder{color:var(--dim)}
+        select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7a8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+        textarea.fc{resize:vertical;min-height:70px;font-family:inherit}
+        .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+        /* BUTTONS */
+        .btn{padding:11px 20px;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;justify-content:center;font-family:inherit}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}
+        .btn-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow-g)}
+        .btn-gold.full{width:100%;padding:14px;font-size:1rem}
+        .btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+        .btn-out:hover{border-color:var(--gold);color:var(--gold)}
+        .btn-sm{padding:7px 13px;font-size:.78rem}
+        .btn-xs{padding:5px 10px;font-size:.72rem}
+        .btn-danger{background:var(--danger);color:#fff}
+        .btn-success{background:var(--success);color:#fff}
+        .btn-info{background:var(--info);color:#fff}
+        .btn-warn{background:var(--warn);color:#000}
+        .btn-i{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--rx);background:var(--bg4);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:var(--tr);font-size:.95rem}
+        .btn-i:hover{color:var(--gold);border-color:var(--gold)}
+
+        /* SIDEBAR */
+        .app{display:none;min-height:100vh}
+        .app.active{display:flex}
+        .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform var(--tr)}
+        .sb-brand{padding:18px 16px 16px;border-bottom:1px solid var(--border)}
+        .sb-brand h1{font-size:1.15rem;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:8px}
+        .sb-brand p{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:3px}
+        .sb-nav{flex:1;padding:6px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+        .nav-sec{font-size:.63rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);padding:12px 12px 5px;font-weight:700}
+        .nav-it{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rx);cursor:pointer;font-size:.83rem;font-weight:500;color:var(--muted);transition:var(--tr);border:none;background:none;width:100%;text-align:left}
+        .nav-it:hover{background:var(--bg2);color:var(--text)}
+        .nav-it.act{background:rgba(212,169,55,.1);color:var(--gold);font-weight:600}
+        .nav-ic{font-size:1.05rem;width:20px;text-align:center}
+        .nav-bg{margin-left:auto;background:var(--danger);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center}
+        .sb-foot{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+        .u-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-d));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#000;flex-shrink:0}
+        .u-info{flex:1;min-width:0}
+        .u-info .n{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .u-info .r{font-size:.68rem;color:var(--muted)}
+        .lo-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:1rem;padding:4px;transition:var(--tr)}
+        .lo-btn:hover{color:var(--danger)}
+
+        /* MAIN */
+        .main{margin-left:var(--sw);flex:1;min-height:100vh;padding:24px}
+        .page{display:none;animation:fadeIn .25s ease}
+        .page.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+        /* HEADER */
+        .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+        .ph h2{font-size:1.5rem;font-weight:800}
+        .ph h2 span{color:var(--gold)}
+        .ph-sub{color:var(--muted);font-size:.83rem;margin-top:3px}
+        .ph-acts{display:flex;gap:8px;flex-wrap:wrap}
+
+        /* STATS */
+        .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:22px}
+        .sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:var(--tr);position:relative;overflow:hidden}
+        .sc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
+        .sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:var(--tr)}
+        .sc:hover::after{opacity:1}
+        .si{width:40px;height:40px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
+        .si.gd{background:rgba(212,169,55,.1)}.si.gr{background:rgba(46,204,113,.1)}.si.bl{background:rgba(52,152,219,.1)}.si.rd{background:rgba(231,76,60,.1)}.si.pr{background:rgba(108,92,231,.1)}
+        .sv{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
+        .sl{color:var(--muted);font-size:.75rem;margin-top:2px}
+
+        /* CARDS */
+        .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+        .ch{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+        .ch h3{font-size:.92rem;font-weight:700;display:flex;align-items:center;gap:8px}
+        .cb{padding:18px}
+        .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+
+        /* TABLE */
+        .tw{overflow-x:auto}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:.82rem}
+        th{color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,.01)}
+        tr:hover td{background:rgba(255,255,255,.015)}
+
+        /* BADGES */
+        .badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap;display:inline-block}
+        .b-suc{background:rgba(46,204,113,.15);color:var(--success)}
+        .b-warn{background:rgba(243,156,18,.15);color:var(--warn)}
+        .b-dan{background:rgba(231,76,60,.15);color:var(--danger)}
+        .b-inf{background:rgba(52,152,219,.15);color:var(--info)}
+        .b-gld{background:rgba(212,169,55,.15);color:var(--gold)}
+        .b-pur{background:rgba(108,92,231,.15);color:var(--purple)}
+
+        /* PODIUM */
+        .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:30px 20px 10px;margin-bottom:20px}
+        .pod-it{text-align:center;transition:var(--tr)}
+        .pod-it:hover{transform:translateY(-4px)}
+        .pod-av{width:60px;height:60px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;position:relative}
+        .pod-av.p1{width:76px;height:76px;font-size:1.6rem;background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000;box-shadow:0 0 25px rgba(212,169,55,.35);animation:glow 2s ease-in-out infinite}
+        @keyframes glow{0%,100%{box-shadow:0 0 25px rgba(212,169,55,.35)}50%{box-shadow:0 0 40px rgba(212,169,55,.5)}}
+        .pod-av.p2{background:linear-gradient(135deg,#bdc3c7,#95a5a6);color:#fff}
+        .pod-av.p3{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff}
+        .pod-trophy{position:absolute;top:-10px;right:-5px;font-size:1.1rem}
+        .pod-name{font-weight:700;font-size:.85rem}
+        .pod-val{color:var(--gold);font-weight:700;font-size:.88rem}
+        .pod-svc{font-size:.75rem;color:var(--muted)}
+        .pod-prize{font-size:.75rem;color:var(--success);font-weight:600;margin-top:2px}
+        .pod-bar{width:85px;margin:10px auto 0;border-radius:8px 8px 0 0}
+        .pod-bar.b1{height:110px;background:linear-gradient(to top,rgba(212,169,55,.2),rgba(212,169,55,.05));border:1px solid rgba(212,169,55,.3);border-bottom:none}
+        .pod-bar.b2{height:80px;background:linear-gradient(to top,rgba(189,195,199,.15),transparent);border:1px solid rgba(189,195,199,.2);border-bottom:none}
+        .pod-bar.b3{height:55px;background:linear-gradient(to top,rgba(230,126,34,.15),transparent);border:1px solid rgba(230,126,34,.2);border-bottom:none}
+        .hidden-val{background:var(--bg4);color:var(--bg4);border-radius:4px;padding:0 12px;user-select:none;letter-spacing:2px;font-size:.82rem}
+        .rank-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--rs);margin-bottom:5px;transition:var(--tr)}
+        .rank-row:hover{background:var(--bg4)}
+        .rank-pos{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;background:var(--bg4);flex-shrink:0}
+        .rp1{background:rgba(212,169,55,.2);color:var(--gold)}.rp2{background:rgba(189,195,199,.2);color:#bdc3c7}.rp3{background:rgba(230,126,34,.2);color:#e67e22}
+        .rank-info{flex:1}
+        .rank-nm{font-weight:600;font-size:.85rem}
+        .rank-sub{font-size:.7rem;color:var(--muted)}
+        .rank-bar{height:4px;background:var(--bg4);border-radius:4px;margin-top:3px;overflow:hidden}
+        .rank-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .5s ease}
+        .rank-v{font-weight:700;color:var(--gold);font-size:.88rem}
+        .wins-b{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;color:var(--gold);background:rgba(212,169,55,.1);padding:2px 6px;border-radius:10px;margin-left:4px}
+
+        /* BARBER CARD */
+        .bc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;transition:var(--tr)}
+        .bc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
+        .b-av{width:65px;height:65px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;position:relative}
+        .av1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}.av2{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}.av3{background:linear-gradient(135deg,#00cec9,#0984e3)}.av4{background:linear-gradient(135deg,#e17055,#d63031)}.av5{background:linear-gradient(135deg,#2ecc71,#27ae60)}
+        .st-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--bg2);position:absolute;bottom:0;right:0}
+        .d-on{background:var(--success)}.d-off{background:var(--dim)}.d-busy{background:var(--warn)}.d-lunch{background:var(--info)}
+        .bc h4{font-size:.95rem;margin-bottom:3px}
+        .bc .spec{color:var(--muted);font-size:.76rem;margin-bottom:8px}
+        .bms{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+        .bm{background:var(--bg4);border-radius:var(--rx);padding:7px 5px}
+        .bm .v{font-weight:700;font-size:.9rem}.bm .l{font-size:.65rem;color:var(--muted)}
+
+        /* SERVICES */
+        .svc{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg4);border-radius:var(--rs);margin-bottom:7px;transition:var(--tr)}
+        .svc:hover{background:var(--bg3)}
+        .svc-ic{width:38px;height:38px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(212,169,55,.1);flex-shrink:0}
+        .svc-i{flex:1;min-width:0}
+        .svc-i .sn{font-weight:600;font-size:.85rem}
+        .svc-i .sd{font-size:.72rem;color:var(--muted)}
+        .svc-p{font-weight:700;color:var(--gold);white-space:nowrap}
+
+        /* CASHIER */
+        .cx-st{padding:18px;border-radius:var(--r);text-align:center;margin-bottom:14px}
+        .cx-st.cx-o{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2)}
+        .cx-st.cx-c{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2)}
+        .cx-big{font-size:1.8rem;font-weight:800;margin:6px 0 3px}
+        .cx-lbl{font-size:.8rem;color:var(--muted)}
+
+        /* CHAT */
+        .chat-list{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+        .chat-contact{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);cursor:pointer;transition:var(--tr);border:1px solid transparent}
+        .chat-contact:hover{background:var(--bg4)}
+        .chat-contact.active{background:rgba(212,169,55,.08);border-color:rgba(212,169,55,.2)}
+        .chat-contact .cc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;flex-shrink:0}
+        .chat-contact .cc-info{flex:1;min-width:0}
+        .chat-contact .cc-name{font-weight:600;font-size:.85rem}
+        .chat-contact .cc-last{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .chat-contact .cc-badge{background:var(--gold);color:#000;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px}
+        .chat-msgs{max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding:4px}
+        .chat-msg{padding:9px 13px;border-radius:var(--rs);max-width:80%;font-size:.83rem;line-height:1.4}
+        .chat-msg.sent{background:rgba(212,169,55,.12);align-self:flex-end;border-bottom-right-radius:2px}
+        .chat-msg.recv{background:var(--bg4);align-self:flex-start;border-bottom-left-radius:2px}
+        .chat-msg .cm-s{font-weight:700;font-size:.72rem;color:var(--gold);margin-bottom:2px}
+        .chat-msg .cm-t{font-size:.65rem;color:var(--dim);margin-top:3px}
+        .chat-inp{display:flex;gap:8px}
+        .chat-inp input{flex:1}
+
+        /* STOCK */
+        .stk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+        .stk .sn{flex:1;font-size:.85rem}
+        .stk-q{font-weight:700;font-size:.88rem}
+        .stk-low{color:var(--danger)}.stk-ok{color:var(--success)}
+
+        /* FIDELITY */
+        .f-dots{display:flex;gap:6px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+        .f-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:var(--tr)}
+        .f-dot.filled{background:var(--gold);border-color:var(--gold);color:#000}
+
+        /* PROGRESS */
+        .pb-w{height:6px;background:var(--bg4);border-radius:10px;overflow:hidden;margin-top:5px}
+        .pb-f{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .5s ease}
+
+        /* MISC */
+        .divider{height:1px;background:var(--border);margin:14px 0}
+        .tg{color:var(--gold)}.ts{color:var(--success)}.td{color:var(--danger)}.tm{color:var(--muted)}
+        .tc{text-align:center}.fw{font-weight:700}
+        .mt{margin-top:14px}.mb{margin-bottom:14px}
+        .fb{display:flex;justify-content:space-between;align-items:center}
+        .search{position:relative;margin-bottom:12px}
+        .search input{width:100%;padding:10px 14px 10px 36px;background:var(--bg4);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:.85rem;outline:none;transition:var(--tr)}
+        .search input:focus{border-color:var(--gold)}
+        .search::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem}
+
+        /* DATE FILTER */
+        .date-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+        .df-btn{padding:7px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rx);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--tr)}
+        .df-btn:hover{border-color:var(--gold);color:var(--gold)}
+        .df-btn.active{background:rgba(212,169,55,.1);border-color:var(--gold);color:var(--gold)}
+
+        /* MOBILE */
+        .mob-h{display:none;position:fixed;top:0;left:0;right:0;height:54px;background:var(--sidebar);border-bottom:1px solid var(--border);z-index:99;align-items:center;padding:0 12px;gap:10px}
+        .ham{background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;padding:6px}
+        .mob-h .mb-t{font-weight:700;color:var(--gold);font-size:.9rem}
+        .sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99}
+
+        @media(max-width:768px){
+            .sidebar{transform:translateX(-100%)}
+            .sidebar.open{transform:translateX(0)}
+            .sb-ov.show{display:block}
+            .mob-h{display:flex}
+            .main{margin-left:0;padding:64px 12px 20px}
+            .g2{grid-template-columns:1fr}
+            .fr{grid-template-columns:1fr}
+            .podium{flex-direction:column;align-items:center}
+            .pod-bar{display:none}
+            .sg{grid-template-columns:1fr 1fr}
+            .date-filter{flex-direction:column}
+        }
+
+        /* MODAL */
+        .m-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+        .m-ov.active{display:flex}
+        .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:92%;max-width:500px;max-height:90vh;overflow-y:auto;animation:mIn .25s ease}
+        @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+        .mh h3{font-size:1.05rem}
+        .mx{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px}
+        .mx:hover{color:var(--text)}
+        .mbd{padding:20px}
+        .mft{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+        /* TOAST */
+        .toast-c{position:fixed;top:18px;right:18px;z-index:300;display:flex;flex-direction:column;gap:6px;max-width:340px}
+        .toast{padding:11px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:.83rem;font-weight:500;box-shadow:var(--shadow);animation:tIn .3s ease,tOut .3s ease 3s forwards;display:flex;align-items:center;gap:8px}
+        .toast.ts2{border-left:4px solid var(--success)}.toast.te{border-left:4px solid var(--danger)}.toast.ti{border-left:4px solid var(--info)}.toast.tw2{border-left:4px solid var(--warn)}
+        @keyframes tIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes tOut{to{opacity:0;transform:translateX(60px)}}
+
+        /* BOOKING PAGE */
+        .booking-page{min-height:100vh;background:linear-gradient(135deg,#0a0a0f,#1a1020);padding:20px;display:flex;align-items:center;justify-content:center}
+        .booking-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:30px;width:100%;max-width:500px;box-shadow:var(--shadow)}
+        .booking-card .b-logo{text-align:center;margin-bottom:24px}
+        .booking-card .b-logo .logo{font-size:2.5rem}
+        .booking-card .b-logo h2{color:var(--gold);font-size:1.4rem;font-weight:800}
+        .booking-card .b-logo p{color:var(--muted);font-size:.82rem}
+        .booking-success{text-align:center;padding:20px}
+        .booking-success .check{font-size:3rem;margin-bottom:12px}
+        .time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(75px,1fr));gap:6px}
+        .time-slot{padding:10px;text-align:center;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rx);cursor:pointer;font-size:.82rem;font-weight:600;transition:var(--tr)}
+        .time-slot:hover{border-color:var(--gold);color:var(--gold)}
+        .time-slot.selected{background:rgba(212,169,55,.15);border-color:var(--gold);color:var(--gold)}
+        .time-slot.blocked{opacity:.3;cursor:not-allowed;text-decoration:line-through}
     </style>
 </head>
 <body>
 
-<div class="container" id="view-cliente">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <img src="https://via.placeholder.com/150x50?text=Sua+Logo" alt="Logo" class="logo" id="img-logo">
-        <h1 style="color: var(--primary); margin: 0; font-size: 24px;">Agendamento Online</h1>
-    </div>
-
-    <div class="card">
-        <label>Seu Nome</label>
-        <input type="text" id="nome_cli" placeholder="Nome completo">
-        <label>WhatsApp</label>
-        <input type="tel" id="zap_cli" placeholder="Ex: 11999999999">
-        <label>Serviço</label>
-        <select id="select_servicos"><option value="">Carregando...</option></select>
-        <label>Data e Hora</label>
-        <input type="datetime-local" id="data_cli">
-        <button class="btn-primary" onclick="fazerAgendamento()">Confirmar Agendamento</button>
-    </div>
-    <button class="btn-outline" onclick="entrarNoPainel()">Painel Administrativo</button>
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingScreen">
+    <div class="spinner"></div>
+    <span class="tg fw">Carregando MR Barbearia...</span>
 </div>
 
-<div class="container hidden" id="view-adm">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: var(--primary); margin: 0;">Painel ADM</h2>
-        <button onclick="sairDoPainel()" style="width: auto; padding: 8px 15px; background: #334155; color: white;">Sair</button>
+<!-- LOGIN -->
+<div class="login-screen hidden" id="loginScreen">
+    <div class="login-card">
+        <span class="logo">💈</span>
+        <h1>MR Barbearia</h1>
+        <p class="sub">Sistema de Gestão Premium</p>
+        <div class="fg">
+            <label>Usuário</label>
+            <select class="fc" id="loginUser"><option value="admin">👑 Administrador</option></select>
+        </div>
+        <div class="fg">
+            <label>Senha</label>
+            <input type="password" class="fc" id="loginPass" placeholder="Digite sua senha" value="1234">
+        </div>
+        <button class="btn btn-gold full" onclick="doLogin()" style="margin-top:10px">Entrar</button>
+        <div class="error-msg" id="loginError"></div>
+        <p class="tm" style="margin-top:14px;font-size:.72rem">Senha padrão: 1234</p>
     </div>
-
-    <div class="card">
-        <h4 style="margin: 0 0 15px 0;">Novo Serviço</h4>
-        <input type="text" id="novo_serv_nome" placeholder="Nome do Serviço">
-        <input type="text" id="novo_serv_preco" placeholder="Valor (Ex: R$ 50)">
-        <button class="btn-primary" style="background: #10b981;" onclick="cadastrarServico()">Salvar Serviço</button>
-        
-        <h4 style="margin: 20px 0 10px 0; font-size: 14px; color: #94a3b8;">Serviços Ativos:</h4>
-        <div id="lista-servicos-adm"></div>
-    </div>
-
-    <h3>Agendamentos do Dia</h3>
-    <div id="lista-agendamentos"></div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- APP -->
+<div class="app" id="appContainer">
+    <div class="mob-h">
+        <button class="ham" onclick="toggleSB()">☰</button>
+        <span class="mb-t">💈 MR Barbearia</span>
+    </div>
+    <div class="sb-ov" id="sbOv" onclick="toggleSB()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sb-brand"><h1>💈 MR Barbearia</h1><p>Gestão Premium</p></div>
+        <nav class="sb-nav" id="sbNav"></nav>
+        <div class="sb-foot">
+            <div class="u-av" id="sbAvatar">AD</div>
+            <div class="u-info"><div class="n" id="sbName">Admin</div><div class="r" id="sbRole">Proprietário</div></div>
+            <button class="lo-btn" onclick="doLogout()" title="Sair">🚪</button>
+        </div>
+    </aside>
+    <div class="main" id="mainContent"></div>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBtBX8l_7Z9uGPA_8cdEuvV44Ns30Tgt7c",
-  authDomain: "meu-agendador-7a8ed.firebaseapp.com",
-  projectId: "meu-agendador-7a8ed",
-  storageBucket: "meu-agendador-7a8ed.firebasestorage.app",
-  messagingSenderId: "562762127881",
-  appId: "1:562762127881:web:e809db03e93a0f25bf76d8",
-  measurementId: "G-JX9F3KGP90"
+<!-- BOOKING (CLIENT PAGE) -->
+<div class="booking-page hidden" id="bookingPage">
+    <div class="booking-card" id="bookingContent"></div>
+</div>
+
+<!-- MODAL -->
+<div class="m-ov" id="mOv" onclick="if(event.target===this)closeMod()">
+    <div class="modal" id="modContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-c" id="toastC"></div>
+
+<script>
+// ================================================================
+//                  FIREBASE INIT
+// ================================================================
+const firebaseConfig={
+    apiKey:"AIzaSyDrRxJQ_ZiXcXXvxOYzyHNrmvms6yNtIt4",
+    authDomain:"mrbarbearia.firebaseapp.com",
+    projectId:"mrbarbearia",
+    storageBucket:"mrbarbearia.firebasestorage.app",
+    messagingSenderId:"94335538247",
+    appId:"1:94335538247:web:fe660b36c755ca2b75cd62",
+    measurementId:"G-LHH11Q892W"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
 
-    // NAVEGAÇÃO
-    window.entrarNoPainel = function() {
-        if(prompt("Senha:") === "1234") {
-            document.getElementById('view-cliente').classList.add('hidden');
-            document.getElementById('view-adm').classList.remove('hidden');
-        } else { alert("Acesso negado"); }
-    };
-    window.sairDoPainel = function() {
-        document.getElementById('view-adm').classList.add('hidden');
-        document.getElementById('view-cliente').classList.remove('hidden');
-    };
+// ================================================================
+//                  STATE
+// ================================================================
+let D=null;
+let currentUser=null;
+let currentPage='dashboard';
+let activeChatId=null;
+let dateFilter={type:'month',start:null,end:null};
 
-    // SERVIÇOS
-    window.cadastrarServico = async function() {
-        const nome = document.getElementById('novo_serv_nome').value;
-        const preco = document.getElementById('novo_serv_preco').value;
-        if(!nome || !preco) return alert("Preencha os campos!");
-        await addDoc(collection(db, "servicos"), { nome, preco });
-        document.getElementById('novo_serv_nome').value = "";
-        document.getElementById('novo_serv_preco').value = "";
-    };
+const TODAY=()=>new Date().toISOString().split('T')[0];
+const NOW=()=>{const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const UID=()=>Date.now()+Math.floor(Math.random()*9999);
+const MK=(d)=>(d||TODAY()).substring(0,7);
 
-    window.excluirServico = async function(id) {
-        if(confirm("Excluir este serviço?")) await deleteDoc(doc(db, "servicos", id));
-    };
+const DEFAULT_DATA={
+    barbers:[
+        {id:1,name:'Carlos Silva',specialty:'Corte & Barba',status:'offline',avatar:'av1',rating:5,phone:'(11)99999-0001',email:'carlos@mr.com',commission:50},
+        {id:2,name:'Ricardo Santos',specialty:'Degradê Specialist',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50},
+        {id:3,name:'André Lima',specialty:'Barba & Tratamento',status:'offline',avatar:'av3',rating:5,phone:'(11)99999-0003',email:'andre@mr.com',commission:45},
+        {id:4,name:'Felipe Costa',specialty:'Corte Infantil',status:'offline',avatar:'av4',rating:4,phone:'(11)99999-0004',email:'felipe@mr.com',commission:45}
+    ],
+    clients:[
+        {id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2},
+        {id:2,name:'Pedro Almeida',phone:'(11)98888-2222',visits:8,lastVisit:'2025-01-12',totalSpent:480,points:8},
+        {id:3,name:'Lucas Ferreira',phone:'(11)98888-3333',visits:15,lastVisit:'2025-01-13',totalSpent:1050,points:5},
+        {id:4,name:'Marcos Oliveira',phone:'(11)98888-4444',visits:5,lastVisit:'2025-01-11',totalSpent:275,points:5},
+        {id:5,name:'Bruno Souza',phone:'(11)98888-5555',visits:20,lastVisit:'2025-01-13',totalSpent:1400,points:0},
+        {id:6,name:'Gabriel Rocha',phone:'(11)98888-6666',visits:3,lastVisit:'2025-01-09',totalSpent:135,points:3}
+    ],
+    services:[
+        {id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},
+        {id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'},
+        {id:3,name:'Corte + Barba',duration:50,price:70,icon:'💈'},
+        {id:4,name:'Degradê Premium',duration:40,price:55,icon:'⭐'},
+        {id:5,name:'Sobrancelha',duration:15,price:20,icon:'👁️'},
+        {id:6,name:'Tratamento Capilar',duration:45,price:80,icon:'🧴'},
+        {id:7,name:'Pigmentação',duration:35,price:60,icon:'🎨'},
+        {id:8,name:'Corte Infantil',duration:25,price:35,icon:'👦'}
+    ],
+    appointments:[],
+    completedServices:[],
+    cashiers:[],
+    vales:[],
+    notifications:[],
+    rankings:{},
+    stock:[
+        {id:1,name:'Pomada Modeladora',qty:15,min:5},{id:2,name:'Lâmina de Barbear',qty:50,min:20},
+        {id:3,name:'Creme Pós-Barba',qty:8,min:3},{id:4,name:'Óleo para Barba',qty:12,min:4},
+        {id:5,name:'Shampoo Profissional',qty:6,min:3},{id:6,name:'Cera Capilar',qty:10,min:4}
+    ],
+    chatMessages:[],
+    goals:[],
+    timeRecords:[],
+    lunchRecords:[],
+    fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},
+    rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},
+    config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'1234',slotInterval:30,bufferMinutes:10}
+};
 
-    // LISTAR SERVIÇOS (ADM E CLIENTE)
-    onSnapshot(collection(db, "servicos"), (snap) => {
-        const select = document.getElementById('select_servicos');
-        const listaAdm = document.getElementById('lista-servicos-adm');
-        select.innerHTML = '<option value="">Selecione...</option>';
-        listaAdm.innerHTML = "";
-        
-        snap.forEach(d => {
-            const s = d.data();
-            select.innerHTML += `<option value="${s.nome} (${s.preco})">${s.nome} - ${s.preco}</option>`;
-            listaAdm.innerHTML += `
-                <div class="servico-item">
-                    <span>${s.nome} (${s.preco})</span>
-                    <button class="btn-del" onclick="excluirServico('${d.id}')">X</button>
-                </div>`;
-        });
+// ================================================================
+//                  FIREBASE DATA SYNC
+// ================================================================
+const DOC_REF=db.collection('system').doc('data');
+
+async function loadData(){
+    try{
+        const snap=await DOC_REF.get();
+        if(snap.exists){D=snap.data();} else {D=JSON.parse(JSON.stringify(DEFAULT_DATA));await DOC_REF.set(D);}
+    }catch(e){
+        console.error('Firebase load error:',e);
+        D=JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+}
+
+async function save(){
+    try{await DOC_REF.set(D);}catch(e){console.error('Save error:',e)}
+}
+
+// Listen for real-time updates
+function listenData(){
+    DOC_REF.onSnapshot(snap=>{
+        if(snap.exists){
+            D=snap.data();
+            if(currentUser)renderPage(currentPage);
+        }
     });
+}
 
-    // AGENDAMENTOS
-    window.fazerAgendamento = async function() {
-        const nome = document.getElementById('nome_cli').value;
-        const zap = document.getElementById('zap_cli').value;
-        const serv = document.getElementById('select_servicos').value;
-        const data = document.getElementById('data_cli').value;
-        if(!nome || !zap || !serv || !data) return alert("Preencha tudo!");
-        await addDoc(collection(db, "agendamentos"), { nome, zap, serv, data: new Date(data) });
-        alert("Agendado!");
-        window.open(`https://api.whatsapp.com/send?phone=55${zap.replace(/\D/g,'')}&text=Confirmado: ${serv}`, '_blank');
+// ================================================================
+//                  AUTH FUNCTIONS
+// ================================================================
+async function ensureUsers(){
+    // Create admin and barber accounts in Firebase Auth
+    const users=[{email:'admin@mr.com',pass:D.config.adminPassword||'1234'}];
+    D.barbers.forEach(b=>{users.push({email:b.email||`barber${b.id}@mr.com`,pass:'1234'})});
+    // Users are created on first login attempt
+}
+
+async function doLogin(){
+    const sel=document.getElementById('loginUser').value;
+    const pass=document.getElementById('loginPass').value;
+    const errEl=document.getElementById('loginError');
+    errEl.textContent='';
+
+    let email,isAdm=false,barberId=null;
+
+    if(sel==='admin'){
+        email='admin@mr.com';isAdm=true;
+    }else{
+        barberId=Number(sel);
+        const b=D.barbers.find(x=>x.id===barberId);
+        if(!b){errEl.textContent='Barbeiro não encontrado!';return}
+        email=b.email||`barber${b.id}@mr.com`;
+    }
+
+    try{
+        await auth.signInWithEmailAndPassword(email,pass);
+    }catch(e){
+        if(e.code==='auth/user-not-found'){
+            try{await auth.createUserWithEmailAndPassword(email,pass);}
+            catch(e2){errEl.textContent='Erro ao criar conta: '+e2.message;return}
+        }else if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
+            errEl.textContent='Senha incorreta!';return;
+        }else{errEl.textContent='Erro: '+e.message;return}
+    }
+
+    if(isAdm){
+        currentUser={type:'admin',name:'Admin'};
+    }else{
+        const b=D.barbers.find(x=>x.id===barberId);
+        currentUser={type:'barber',id:b.id,name:b.name};
+        b.status='online';
+        addNotif(`▶️ ${b.name} entrou no sistema`);
+        await save();
+    }
+
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appContainer').classList.add('active');
+    buildSB();navigate('dashboard');
+    toast(`Bem-vindo, ${currentUser.name}! 👋`);
+}
+
+async function doLogout(){
+    if(currentUser?.type==='barber'){
+        const b=GB(currentUser.id);if(b)b.status='offline';await save();
+    }
+    await auth.signOut();
+    currentUser=null;
+    document.getElementById('appContainer').classList.remove('active');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    popLoginUsers();
+}
+
+function popLoginUsers(){
+    if(!D)return;
+    const s=document.getElementById('loginUser');
+    s.innerHTML='<option value="admin">👑 Administrador</option>'+
+        D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('');
+}
+
+// ================================================================
+//                  HELPERS
+// ================================================================
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function fmt(v){return'R$ '+Number(v||0).toFixed(2).replace('.',',')}
+function fDt(s){if(!s)return'-';const p=s.split('-');return`${p[2]}/${p[1]}/${p[0]}`}
+function GC(id){return D.clients.find(c=>c.id===id)}
+function GB(id){return D.barbers.find(b=>b.id===id)}
+function GS(id){return D.services.find(s=>s.id===id)}
+function stars(n){return'★'.repeat(n||0)+'☆'.repeat(5-(n||0))}
+function isAdm(){return currentUser?.type==='admin'}
+function myId(){return currentUser?.id}
+function toast(m,t='success'){const c=document.getElementById('toastC');const ic={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};const el=document.createElement('div');el.className=`toast ${t==='success'?'ts2':t==='error'?'te':t==='warning'?'tw2':'ti'}`;el.innerHTML=`${ic[t]||''} ${m}`;c.appendChild(el);setTimeout(()=>el.remove(),3500)}
+function addNotif(text,type='info'){if(!D)return;D.notifications.unshift({id:UID(),text,type,time:NOW(),date:TODAY(),read:false});if(D.notifications.length>100)D.notifications.length=100}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOv').classList.toggle('show')}
+function timeOpts(){const t=[];for(let h=8;h<=20;h++){t.push(`${String(h).padStart(2,'0')}:00`);if(h<20)t.push(`${String(h).padStart(2,'0')}:30`)}return t}
+
+function getMonthRev(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&s.date?.startsWith(mk)).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)}
+function getValesTotal(bid,mk){return(D.vales||[]).filter(v=>v.barberId===bid&&v.date?.startsWith(mk)&&v.status!=='forgiven').reduce((s,v)=>s+v.amount,0)}
+function getSvcCount(bid,mk){return(D.completedServices||[]).filter(s=>s.barberId===bid&&s.date?.startsWith(mk)).length}
+
+function getFilteredSvcs(){
+    const svcs=D.completedServices||[];
+    const t=dateFilter.type;const s=dateFilter.start;const e=dateFilter.end;
+    const td=TODAY();
+    if(t==='today')return svcs.filter(x=>x.date===td);
+    if(t==='yesterday'){const y=new Date();y.setDate(y.getDate()-1);return svcs.filter(x=>x.date===y.toISOString().split('T')[0])}
+    if(t==='week'){const w=new Date();w.setDate(w.getDate()-7);const ws=w.toISOString().split('T')[0];return svcs.filter(x=>x.date>=ws)}
+    if(t==='lastweek'){const w1=new Date();w1.setDate(w1.getDate()-14);const w2=new Date();w2.setDate(w2.getDate()-7);return svcs.filter(x=>x.date>=w1.toISOString().split('T')[0]&&x.date<w2.toISOString().split('T')[0])}
+    if(t==='month')return svcs.filter(x=>x.date?.startsWith(MK()));
+    if(t==='lastmonth'){const d=new Date();d.setMonth(d.getMonth()-1);return svcs.filter(x=>x.date?.startsWith(MK(d.toISOString().split('T')[0])))}
+    if(t==='custom'&&s&&e)return svcs.filter(x=>x.date>=s&&x.date<=e);
+    return svcs.filter(x=>x.date?.startsWith(MK()));
+}
+
+function isSlotAvailable(barberId,date,time,serviceId){
+    const svc=GS(serviceId);if(!svc)return false;
+    const buf=D.config.bufferMinutes||10;
+    const dur=svc.duration+buf;
+    const newStart=timeToMin(time);
+    const newEnd=newStart+dur;
+
+    const appts=(D.appointments||[]).filter(a=>a.barberId===barberId&&a.date===date&&a.status!=='cancelled');
+    for(const a of appts){
+        const aSvc=GS(a.serviceId);if(!aSvc)continue;
+        const aStart=timeToMin(a.time);
+        const aEnd=aStart+aSvc.duration+(D.config.bufferMinutes||10);
+        if(newStart<aEnd&&newEnd>aStart)return false;
+    }
+    return true;
+}
+
+function timeToMin(t){const[h,m]=t.split(':').map(Number);return h*60+m}
+function minToTime(m){return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}
+
+function getAvailableSlots(barberId,date,serviceId){
+    const slots=[];
+    for(let m=480;m<=1200;m+=30){
+        const t=minToTime(m);
+        if(isSlotAvailable(barberId,date,t,serviceId))slots.push(t);
+    }
+    return slots;
+}
+
+function genReport(bid,period){
+    const b=GB(bid);if(!b)return'';
+    const svcs=(D.completedServices||[]).filter(s=>s.barberId===bid&&s.date?.startsWith(period));
+    const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const comm=rev*(b.commission/100);const vales=getValesTotal(bid,period);
+    const svcC={};svcs.forEach(x=>{const sv=GS(x.serviceId);if(sv)svcC[sv.name]=(svcC[sv.name]||0)+1});
+    const top=Object.entries(svcC).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    let t=`╔══════════════════════════╗\n║ 💈 MR BARBEARIA\n║ Relatório Individual\n╠══════════════════════════╣\n`;
+    t+=`║ Barbeiro: ${b.name}\n║ Período: ${period}\n╠══════════════════════════╣\n`;
+    t+=`║ ✂️ Serviços: ${svcs.length}\n║ 💰 Faturamento: ${fmt(rev)}\n║ 📊 Comissão (${b.commission}%): ${fmt(comm)}\n`;
+    t+=`║ 📥 Vales/Débitos: -${fmt(vales)}\n║ 💵 Líquido: ${fmt(comm-vales)}\n║ 🎯 Ticket Médio: ${fmt(svcs.length?rev/svcs.length:0)}\n`;
+    if(top.length){t+=`╠══════════════════════════╣\n║ Top Serviços:\n`;top.forEach((s,i)=>t+=`║ ${i+1}. ${s[0]} (${s[1]}x)\n`)}
+    t+=`╚══════════════════════════╝`;return t;
+}
+
+function shareWA(bid,p){const t=genReport(bid,p);window.open(`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank');toast('Aberto no WhatsApp! 📲')}
+
+function getBookingURL(){return window.location.href.split('?')[0]+'?booking=1'}
+
+// ================================================================
+//                  NAVIGATION
+// ================================================================
+const ADM_NAV=[
+    {s:'Principal'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'agendamentos',ic:'📋',lb:'Agendamentos'},
+    {s:'Cadastros'},{id:'barbeiros',ic:'💈',lb:'Barbeiros'},{id:'clientes',ic:'👥',lb:'Clientes'},{id:'servicos',ic:'✂️',lb:'Serviços'},
+    {s:'Financeiro'},{id:'financeiro',ic:'💰',lb:'Financeiro'},{id:'caixa',ic:'🏦',lb:'Caixas'},{id:'vales',ic:'📥',lb:'Vales/Débitos'},
+    {s:'Gestão'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'estoque',ic:'📦',lb:'Estoque'},
+    {s:'Comunicação'},{id:'notif',ic:'🔔',lb:'Notificações',bg:true},{id:'chat',ic:'💬',lb:'Chat'},
+    {s:'Extra'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'},{id:'booking',ic:'📱',lb:'Link Online'},{id:'config',ic:'⚙️',lb:'Configurações'}
+];
+
+const BAR_NAV=[
+    {s:'Meu Painel'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'lancar',ic:'✂️',lb:'Lançar Serviço'},{id:'agenda',ic:'📅',lb:'Minha Agenda'},
+    {s:'Financeiro'},{id:'meufat',ic:'💰',lb:'Meu Faturamento'},{id:'meucaixa',ic:'🏦',lb:'Meu Caixa'},{id:'meusvales',ic:'📥',lb:'Meus Vales'},
+    {s:'Geral'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Minhas Metas'},{id:'ponto',ic:'🕐',lb:'Meu Ponto'},{id:'chat',ic:'💬',lb:'Mensagens'},{id:'almoco',ic:'🍽️',lb:'Almoço'}
+];
+
+function buildSB(){
+    const nav=document.getElementById('sbNav');
+    const items=isAdm()?ADM_NAV:BAR_NAV;
+    nav.innerHTML=items.map(it=>{
+        if(it.s)return`<div class="nav-sec">${it.s}</div>`;
+        const bg=it.bg?`<span class="nav-bg" id="nBell">0</span>`:'';
+        return`<button class="nav-it" data-p="${it.id}" onclick="navigate('${it.id}',this)"><span class="nav-ic">${it.ic}</span>${it.lb}${bg}</button>`;
+    }).join('');
+    const n=isAdm()?'Admin':currentUser.name;
+    const ini=n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('sbAvatar').textContent=ini;
+    document.getElementById('sbName').textContent=n;
+    document.getElementById('sbRole').textContent=isAdm()?'Proprietário':'Barbeiro';
+    updBell();
+}
+
+function navigate(p,btn){
+    currentPage=p;
+    document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('act'));
+    if(btn)btn.classList.add('act');
+    else{const b=document.querySelector(`.nav-it[data-p="${p}"]`);if(b)b.classList.add('act')}
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sbOv').classList.remove('show');
+    renderPage(p);
+}
+
+function renderPage(p){
+    const m=document.getElementById('mainContent');
+    const pages={
+        dashboard:isAdm()?pgAdmDash:pgBarDash,agenda:isAdm()?pgAgenda:pgBarAgenda,agendamentos:pgAppts,
+        barbeiros:pgBarbers,clientes:pgClients,servicos:pgSvcs,financeiro:pgFin,caixa:pgCaixaAdm,vales:pgVales,
+        ranking:pgRank,metas:isAdm()?pgMetas:pgBarMetas,ponto:isAdm()?pgPonto:pgMeuPonto,estoque:pgEstoque,
+        notif:pgNotif,chat:pgChat,fidelidade:pgFid,booking:pgBookLink,config:pgConfig,
+        lancar:pgLancar,meufat:pgMeuFat,meucaixa:pgMeuCaixa,meusvales:pgMeusVales,almoco:pgAlmoco
     };
+    const fn=pages[p];
+    m.innerHTML=fn?fn():`<div class="page active"><p class="tm tc">Página não encontrada</p></div>`;
+}
 
-    onSnapshot(query(collection(db, "agendamentos"), orderBy("data", "asc")), (snap) => {
-        const lista = document.getElementById('lista-agendamentos');
-        lista.innerHTML = "";
-        snap.forEach(d => {
-            const ag = d.data();
-            lista.innerHTML += `
-                <div class="item-lista">
-                    <strong>👤 ${ag.nome}</strong><br>
-                    <span style="color:var(--primary); font-size:13px;">🛠️ ${ag.serv}</span><br>
-                    <small>📅 ${new Date(ag.data.seconds*1000).toLocaleString()}</small>
-                    <div class="controles">
-                        <a href="https://api.whatsapp.com/send?phone=55${ag.zap.replace(/\D/g,'')}" target="_blank" class="btn-zap">WhatsApp</a>
-                        <button class="btn-del" style="flex:1" onclick="excluirAg('${d.id}')">Ok</button>
-                    </div>
-                </div>`;
+function updBell(){const c=(D.notifications||[]).filter(n=>!n.read).length;document.querySelectorAll('.nav-bg,#nBell').forEach(el=>el.textContent=c)}
+
+// ================================================================
+//                  ADMIN PAGES
+// ================================================================
+function pgAdmDash(){
+    const ta=(D.appointments||[]).filter(a=>a.date===TODAY());
+    const ts=(D.completedServices||[]).filter(s=>s.date===TODAY());
+    const ms=(D.completedServices||[]).filter(s=>s.date?.startsWith(MK()));
+    const tRev=ts.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const mRev=ms.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const pend=ta.filter(a=>a.status==='pending').length;
+    const hr=new Date().getHours();const gr=hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite';
+    const stMap={online:'🟢',busy:'🟡',offline:'🔴',lunch:'🔵'};
+
+    return`<div class="page active">
+        <div class="ph"><div><h2>${gr}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TODAY())} · MR Barbearia</p></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">📅</div><div class="sv">${ta.length}</div><div class="sl">Agendamentos Hoje</div></div>
+            <div class="sc"><div class="si gr">💰</div><div class="sv">${fmt(tRev)}</div><div class="sl">Faturamento Hoje</div></div>
+            <div class="sc"><div class="si bl">📊</div><div class="sv">${fmt(mRev)}</div><div class="sl">Faturamento Mês</div></div>
+            <div class="sc"><div class="si rd">⏳</div><div class="sv">${pend}</div><div class="sl">Pendentes</div></div>
+        </div>
+        <div class="card mb">
+            <div class="ch"><h3>💈 Equipe</h3></div>
+            <div class="cb">${D.barbers.map(b=>{
+                const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY()&&!l.returnTime);
+                const st=lr?'lunch':b.status;
+                return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                    <span>${stMap[st]||'🔴'}</span><span class="fw" style="font-size:.85rem">${esc(b.name)}</span>
+                    <span class="tm" style="font-size:.75rem;margin-left:auto">${b.specialty}</span></div>`;
+            }).join('')}</div>
+        </div>
+        <div class="g2">
+            <div class="card"><div class="ch"><h3>🕐 Próximos</h3></div><div class="cb">
+                ${ta.filter(a=>a.status!=='completed'&&a.status!=='cancelled').sort((a,b)=>a.time.localeCompare(b.time)).slice(0,5).map(a=>{
+                    const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
+                    return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'} · ${a.time}</div><div class="sd">💈 ${bb?.name||'?'}</div></div>
+                    <span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status==='confirmed'?'OK':'Pend'}</span></div>`;
+                }).join('')||'<p class="tm tc">Nenhum agendamento</p>'}
+            </div></div>
+            <div class="card"><div class="ch"><h3>🔔 Notificações</h3></div><div class="cb">
+                ${(D.notifications||[]).slice(0,5).map(n=>`<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                    <div style="width:6px;height:6px;border-radius:50%;background:${n.type==='danger'?'var(--danger)':'var(--success)'};margin-top:5px;flex-shrink:0"></div>
+                    <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.68rem">${n.time}</div></div></div>`).join('')||'<p class="tm tc">Sem notificações</p>'}
+            </div></div>
+        </div>
+    </div>`;
+}
+
+function pgAppts(){
+    const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||''));
+    const stL={confirmed:'Confirmado',pending:'Pendente',completed:'Concluído',cancelled:'Cancelado'};
+    const stB={confirmed:'b-suc',pending:'b-warn',completed:'b-inf',cancelled:'b-dan'};
+    return`<div class="page active">
+        <div class="ph"><div><h2>📋 <span>Agendamentos</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Novo</button></div></div>
+        <div class="card"><div class="tw"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Data/Hora</th><th>Status</th><th>Valor</th><th>Ações</th></tr></thead><tbody>
+        ${appts.map(a=>{
+            const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
+            return`<tr><td>${cl?.name||'?'}</td><td>${sv?.icon||''} ${sv?.name||'?'}</td><td>${bb?.name||'?'}</td>
+            <td>${fDt(a.date)} ${a.time}</td><td><span class="badge ${stB[a.status]||''}">${stL[a.status]||a.status}</span></td>
+            <td class="fw tg">${fmt(sv?.price)}</td><td><div style="display:flex;gap:3px">
+            ${a.status==='pending'?`<button class="btn-i" onclick="updAppt(${a.id},'confirmed')">✅</button>`:''}
+            ${a.status==='confirmed'?`<button class="btn-i" onclick="updAppt(${a.id},'completed')">✔️</button>`:''}
+            ${!['completed','cancelled'].includes(a.status)?`<button class="btn-i" onclick="updAppt(${a.id},'cancelled')">❌</button>`:''}
+            <button class="btn-i" onclick="delAppt(${a.id})">🗑️</button></div></td></tr>`;
+        }).join('')}</tbody></table></div></div></div>`;
+}
+
+async function updAppt(id,st){
+    const a=(D.appointments||[]).find(x=>x.id===id);if(!a)return;a.status=st;
+    if(st==='completed'){
+        D.completedServices.push({id:UID(),clientId:a.clientId,barberId:a.barberId,serviceId:a.serviceId,date:a.date,time:a.time});
+        const cl=GC(a.clientId),sv=GS(a.serviceId);
+        if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=a.date;cl.points=(cl.points||0)+1}
+    }
+    await save();renderPage(currentPage);toast(`Agendamento ${st==='confirmed'?'confirmado':st==='completed'?'concluído':'cancelado'}!`);
+}
+
+async function delAppt(id){D.appointments=D.appointments.filter(a=>a.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+
+function pgAgenda(){
+    const appts=(D.appointments||[]).filter(a=>a.date===TODAY()).sort((a,b)=>a.time.localeCompare(b.time));
+    return`<div class="page active">
+        <div class="ph"><div><h2>📅 <span>Agenda</span></h2><p class="ph-sub">${fDt(TODAY())}</p></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
+        <div class="card"><div class="cb">
+        ${timeOpts().map(t=>{
+            const a=appts.find(x=>x.time===t);
+            const cl=a?GC(a.clientId):null;const sv=a?GS(a.serviceId):null;const bb=a?GB(a.barberId):null;
+            return`<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <div style="width:50px;font-size:.8rem;color:var(--muted)">${t}</div>
+                <div style="flex:1">${a?`<div style="background:rgba(212,169,55,.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px">
+                    <div class="fw" style="font-size:.85rem">${cl?.name||'?'}</div>
+                    <div class="tm" style="font-size:.75rem">${sv?.icon||''} ${sv?.name||'?'} (${sv?.duration||0}min) · 💈 ${bb?.name||'?'}</div>
+                </div>`:''}</div></div>`;
+        }).join('')}
+        </div></div></div>`;
+}
+
+function pgBarbers(){
+    const stM={online:'🟢 Disponível',busy:'🟡 Ocupado',offline:'🔴 Ausente',lunch:'🔵 Almoço'};
+    const dtM={online:'d-on',busy:'d-busy',offline:'d-off',lunch:'d-lunch'};
+    return`<div class="page active">
+        <div class="ph"><div><h2>💈 <span>Barbeiros</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('barber')">＋ Adicionar</button></div></div>
+        <div class="g3">${D.barbers.map(b=>{
+            const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id);
+            const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+            const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY()&&!l.returnTime);
+            const st=lr?'lunch':b.status;const ini=b.name.split(' ').map(n=>n[0]).join('').substring(0,2);
+            return`<div class="bc"><div class="b-av ${b.avatar}">${ini}<div class="st-dot ${dtM[st]||'d-off'}"></div></div>
+                <h4>${esc(b.name)}</h4><div class="spec">${b.specialty} · ${stM[st]}</div>
+                <div class="tg" style="letter-spacing:2px;margin-bottom:8px;font-size:.85rem">${stars(b.rating)}</div>
+                <div class="bms">
+                    <div class="bm"><div class="v">${svcs.length}</div><div class="l">Serviços</div></div>
+                    <div class="bm"><div class="v">${fmt(rev)}</div><div class="l">Receita</div></div>
+                    <div class="bm"><div class="v">${b.commission}%</div><div class="l">Comissão</div></div>
+                    <div class="bm"><div class="v">${fmt(rev*(b.commission/100))}</div><div class="l">Ganhos</div></div>
+                </div>
+                <div style="display:flex;gap:5px;justify-content:center">
+                    <button class="btn btn-out btn-sm" onclick="openMod('editBarber',${b.id})">✏️ Editar</button>
+                    <button class="btn-i" onclick="delBarber(${b.id})">🗑️</button>
+                </div></div>`;
+        }).join('')}</div></div>`;
+}
+
+async function delBarber(id){if(D.barbers.length<=1){toast('Mantenha ao menos 1!','error');return}D.barbers=D.barbers.filter(b=>b.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+
+function pgClients(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>👥 <span>Clientes</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('client')">＋ Novo</button></div></div>
+        <div class="card"><div class="tw"><table><thead><tr><th>Cliente</th><th>Telefone</th><th>Visitas</th><th>Pontos</th><th>Total</th><th>Ações</th></tr></thead><tbody>
+        ${[...D.clients].sort((a,b)=>b.visits-a.visits).map(c=>`<tr><td class="fw">${esc(c.name)}</td><td>${c.phone||''}</td><td>${c.visits}</td>
+            <td><span class="badge b-gld">⭐ ${c.points||0}</span></td><td class="tg fw">${fmt(c.totalSpent)}</td>
+            <td><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editClient',${c.id})">✏️</button><button class="btn-i" onclick="delClient(${c.id})">🗑️</button></div></td></tr>`).join('')}
+        </tbody></table></div></div></div>`;
+}
+
+async function delClient(id){D.clients=D.clients.filter(c=>c.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+
+function pgSvcs(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>✂️ <span>Serviços</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('service')">＋ Novo</button></div></div>
+        <div class="card"><div class="cb">${D.services.map(s=>`<div class="svc"><div class="svc-ic">${s.icon}</div>
+            <div class="svc-i"><div class="sn">${esc(s.name)}</div><div class="sd">⏱️ ${s.duration} min</div></div>
+            <div class="svc-p">${fmt(s.price)}</div>
+            <div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editSvc',${s.id})">✏️</button><button class="btn-i" onclick="delSvc(${s.id})">🗑️</button></div>
+        </div>`).join('')}</div></div></div>`;
+}
+
+async function delSvc(id){if(!isAdm()){toast('Somente ADM!','error');return}if(D.services.length<=1){toast('Mantenha ao menos 1!','error');return}D.services=D.services.filter(s=>s.id!==id);await save();renderPage(currentPage);toast('Removido!','info')}
+
+// ===== FINANCEIRO COM FILTRO DE DATA =====
+function pgFin(){
+    const fSvcs=getFilteredSvcs();
+    const tRev=fSvcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const avg=fSvcs.length?tRev/fSvcs.length:0;
+    const tComm=D.barbers.reduce((s,b)=>{const r=fSvcs.filter(x=>x.barberId===b.id).reduce((s2,x)=>s2+(GS(x.serviceId)?.price||0),0);return s+r*(b.commission/100)},0);
+    const filterBtns=[
+        {t:'today',l:'Hoje'},{t:'yesterday',l:'Ontem'},{t:'week',l:'Semana'},{t:'lastweek',l:'Sem.Passada'},
+        {t:'month',l:'Mês'},{t:'lastmonth',l:'Mês Passado'},{t:'custom',l:'📅 Personalizado'}
+    ];
+
+    return`<div class="page active">
+        <div class="ph"><div><h2>💰 <span>Financeiro</span></h2></div>
+        <div class="ph-acts">${D.barbers.map(b=>`<button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${MK()}')">📲 ${b.name.split(' ')[0]}</button>`).join('')}</div></div>
+        <div class="date-filter">
+            ${filterBtns.map(f=>`<button class="df-btn ${dateFilter.type===f.t?'active':''}" onclick="setDateFilter('${f.t}')">${f.l}</button>`).join('')}
+            ${dateFilter.type==='custom'?`<input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.8rem" id="dfStart" value="${dateFilter.start||TODAY()}" onchange="setCustomDates()">
+            <span class="tm">até</span><input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.8rem" id="dfEnd" value="${dateFilter.end||TODAY()}" onchange="setCustomDates()">`:''}
+        </div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(tRev)}</div><div class="sl">Receita</div></div>
+            <div class="sc"><div class="si gr">✂️</div><div class="sv">${fSvcs.length}</div><div class="sl">Serviços</div></div>
+            <div class="sc"><div class="si bl">🎯</div><div class="sv">${fmt(avg)}</div><div class="sl">Ticket Médio</div></div>
+            <div class="sc"><div class="si pr">💳</div><div class="sv">${fmt(tComm)}</div><div class="sl">Comissões</div></div>
+        </div>
+        <div class="card"><div class="ch"><h3>💈 Por Barbeiro</h3></div><div class="cb">
+        ${D.barbers.map((b,i)=>{
+            const rev=fSvcs.filter(x=>x.barberId===b.id).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+            const comm=rev*(b.commission/100);const vl=getValesTotal(b.id,MK());const mx=Math.max(...D.barbers.map(x=>fSvcs.filter(s=>s.barberId===x.id).reduce((s2,s)=>s2+(GS(s.serviceId)?.price||0),0)),1);
+            return`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div>
+                <div class="rank-info"><div class="rank-nm">💈 ${esc(b.name)}</div>
+                <div class="rank-sub">Comissão: ${fmt(comm)} · Vales: -${fmt(vl)} · Líquido: ${fmt(comm-vl)}</div>
+                <div class="rank-bar"><div class="rank-fill" style="width:${(rev/mx)*100}%"></div></div></div>
+                <div class="rank-v">${fmt(rev)}</div></div>`;
+        }).join('')}</div></div>
+        <div class="card mt"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Hora</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Valor</th></tr></thead><tbody>
+        ${[...fSvcs].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,30).map(s=>{
+            const cl=GC(s.clientId),sv=GS(s.serviceId),bb=GB(s.barberId);
+            return`<tr><td>${fDt(s.date)}</td><td>${s.time||''}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td>${bb?.name||'?'}</td><td class="tg fw">${fmt(sv?.price)}</td></tr>`;
+        }).join('')}</tbody></table></div></div>
+    </div>`;
+}
+
+function setDateFilter(t){dateFilter.type=t;if(t==='custom'){dateFilter.start=TODAY();dateFilter.end=TODAY()}renderPage('financeiro')}
+function setCustomDates(){dateFilter.start=document.getElementById('dfStart')?.value;dateFilter.end=document.getElementById('dfEnd')?.value;renderPage('financeiro')}
+
+function pgCaixaAdm(){
+    const tc=(D.cashiers||[]).filter(c=>c.date===TODAY());
+    return`<div class="page active">
+        <div class="ph"><div><h2>🏦 <span>Caixas</span></h2></div></div>
+        <div class="g3">${D.barbers.map(b=>{
+            const c=tc.find(x=>x.barberId===b.id);const io=c&&!c.closedAt;
+            const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TODAY());
+            const exp=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
+            return`<div class="card"><div class="cb tc"><h4 style="margin-bottom:6px">${esc(b.name)}</h4>
+                <div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.3rem">${c?io?'🟢':'✅':'🔴'}</div>
+                <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não abriu'}</div>
+                <div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Sem caixa'}</div></div>
+                ${c?.closedAt?`<div class="tm" style="font-size:.78rem;margin-top:6px">Esperado: ${fmt(c.expectedAmount)} | Informado: ${fmt(c.closedAmount)}</div>
+                ${c.difference!==0?`<div class="badge b-dan mt">⚠️ Diferença: ${fmt(c.difference)}</div>`:`<div class="badge b-suc mt">✅ OK</div>`}`:''}
+            </div></div>`;
+        }).join('')}</div></div>`;
+}
+
+function pgVales(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>📥 <span>Vales / Débitos</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('vale')">＋ Registrar</button></div></div>
+        <div class="sg">${D.barbers.map(b=>{
+            const t=(D.vales||[]).filter(v=>v.barberId===b.id&&v.status!=='forgiven').reduce((s,v)=>s+v.amount,0);
+            return`<div class="sc"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">${esc(b.name)}</div></div>`;
+        }).join('')}</div>
+        <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Barbeiro</th><th>Tipo</th><th>Valor</th><th>Motivo</th><th>Status</th><th>Ações</th></tr></thead><tbody>
+        ${[...(D.vales||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(v=>{
+            const bb=GB(v.barberId);const stB=v.status==='pending'?'b-warn':v.status==='deducted'?'b-inf':'b-suc';
+            const stL=v.status==='pending'?'Pendente':v.status==='deducted'?'Descontado':'Perdoado';
+            return`<tr><td>${fDt(v.date)}</td><td>${bb?.name||'?'}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
+            <td class="fw td">${fmt(v.amount)}</td><td>${esc(v.reason||'-')}</td><td><span class="badge ${stB}">${stL}</span></td>
+            <td>${v.status==='pending'?`<button class="btn btn-sm btn-warn" onclick="updVale(${v.id},'deducted')">Descontar</button>
+            <button class="btn btn-sm btn-success" onclick="updVale(${v.id},'forgiven')">Perdoar</button>`:''}</td></tr>`;
+        }).join('')}</tbody></table></div></div></div>`;
+}
+
+async function updVale(id,st){const v=(D.vales||[]).find(x=>x.id===id);if(v){v.status=st;await save();renderPage(currentPage);toast(st==='deducted'?'Descontado':'Perdoado')}}
+
+// ===== RANKING =====
+function pgRank(){
+    const mk=MK();const rc=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};
+    const ranked=D.barbers.map(b=>({...b,revenue:getMonthRev(b.id,mk),svcs:getSvcCount(b.id,mk),wins:Object.values(D.rankings||{}).filter(r=>r.first===b.id).length})).sort((a,b)=>b.revenue-a.revenue);
+    const mx=Math.max(...ranked.map(r=>r.revenue),1);
+    const showVal=isAdm();
+
+    return`<div class="page active">
+        <div class="ph"><div><h2>🏆 <span>Ranking Mensal</span></h2><p class="ph-sub">${mk} · ${rc.premiados} premiado(s)</p></div>
+        ${isAdm()?`<div class="ph-acts"><button class="btn btn-out btn-sm" onclick="openMod('rankConfig')">⚙️ Configurar</button></div>`:''}</div>
+
+        ${ranked.length>=3?`<div class="podium">
+            <div class="pod-it">
+                <div class="pod-av p2">${ranked[1].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥈</span></div>
+                <div class="pod-name">${esc(ranked[1].name)}</div>
+                <div class="pod-svc">✂️ ${ranked[1].svcs} serviços</div>
+                ${showVal?`<div class="pod-val">${fmt(ranked[1].revenue)}</div>`:'<div class="hidden-val">████████</div>'}
+                ${rc.premiados>=2?`<div class="pod-prize">🎁 ${fmt(rc.prizes[2]||0)}</div>`:''}
+                <div class="pod-bar b2"></div>
+            </div>
+            <div class="pod-it">
+                <div class="pod-av p1">${ranked[0].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥇</span></div>
+                <div class="pod-name">${esc(ranked[0].name)}</div>
+                <div class="pod-svc">✂️ ${ranked[0].svcs} serviços</div>
+                ${showVal?`<div class="pod-val">${fmt(ranked[0].revenue)}</div>`:'<div class="hidden-val">████████</div>'}
+                <div class="pod-prize">🎁 ${fmt(rc.prizes[1]||0)}</div>
+                <div class="pod-bar b1"></div>
+            </div>
+            <div class="pod-it">
+                <div class="pod-av p3">${ranked[2].name.split(' ').map(n=>n[0]).join('').substring(0,2)}<span class="pod-trophy">🥉</span></div>
+                <div class="pod-name">${esc(ranked[2].name)}</div>
+                <div class="pod-svc">✂️ ${ranked[2].svcs} serviços</div>
+                ${showVal?`<div class="pod-val">${fmt(ranked[2].revenue)}</div>`:'<div class="hidden-val">████████</div>'}
+                ${rc.premiados>=3?`<div class="pod-prize">🎁 ${fmt(rc.prizes[3]||0)}</div>`:''}
+                <div class="pod-bar b3"></div>
+            </div>
+        </div>`:'' }
+
+        <div class="card"><div class="ch"><h3>📊 Classificação</h3></div><div class="cb">
+        ${ranked.map((r,i)=>`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div>
+            <div class="rank-info"><div class="rank-nm">${esc(r.name)} ${r.wins?`<span class="wins-b">🏆 ${r.wins}x</span>`:''}</div>
+            <div class="rank-sub">✂️ ${r.svcs} serviços ${i<rc.premiados?` · 🎁 Prêmio: ${fmt(rc.prizes[i+1]||0)}`:''}</div>
+            <div class="rank-bar"><div class="rank-fill" style="width:${(r.svcs/Math.max(...ranked.map(x=>x.svcs),1))*100}%"></div></div></div>
+            ${showVal?`<div class="rank-v">${fmt(r.revenue)}</div>`:'<div class="hidden-val">████████</div>'}
+        </div>`).join('')}
+        </div></div>
+    </div>`;
+}
+
+function pgMetas(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>🎯 <span>Metas</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Nova Meta</button></div></div>
+        <div class="g3">${D.barbers.map(b=>{
+            const mk=MK();const rev=getMonthRev(b.id,mk);
+            const g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===mk);const tgt=g?g.target:0;
+            const pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+            return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4>
+                <div class="tm" style="font-size:.78rem;margin:3px 0">Meta: ${tgt?fmt(tgt):'Não definida'}</div>
+                <div style="font-size:1.8rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'};margin:6px 0">${pct}%</div>
+                <div class="pb-w"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div>
+                <div style="margin-top:8px;font-size:.82rem">${fmt(rev)} / ${fmt(tgt)}</div>
+                ${pct>=100?'<div class="badge b-suc mt">🎉 Meta batida!</div>':tgt>0?`<div class="tm mt" style="font-size:.75rem">Faltam ${fmt(tgt-rev)}</div>`:''}</div></div>`;
+        }).join('')}</div></div>`;
+}
+
+function pgPonto(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>🕐 <span>Ponto</span></h2><p class="ph-sub">${fDt(TODAY())}</p></div></div>
+        <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço ↗</th><th>Almoço ↙</th><th>Saída</th><th>Status</th></tr></thead><tbody>
+        ${D.barbers.map(b=>{
+            const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TODAY());
+            const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY());
+            return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td>
+            <td><span class="badge ${tr?tr.clockOut?'b-inf':'b-suc':'b-dan'}">${tr?tr.clockOut?'Encerrado':'Ativo':'Ausente'}</span></td></tr>`;
+        }).join('')}</tbody></table></div></div></div>`;
+}
+
+function pgEstoque(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>📦 <span>Estoque</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div>
+        <div class="card"><div class="cb">${(D.stock||[]).map(s=>`<div class="stk">
+            <div class="sn">${esc(s.name)}</div>
+            <div class="stk-q ${s.qty<=s.min?'stk-low':'stk-ok'}">${s.qty} un ${s.qty<=s.min?'⚠️':''}</div>
+            <div class="tm" style="font-size:.75rem">Min: ${s.min}</div>
+            <div style="display:flex;gap:3px"><button class="btn-i" onclick="adjStk(${s.id},5)">➕</button><button class="btn-i" onclick="adjStk(${s.id},-1)">➖</button></div>
+        </div>`).join('')}</div></div></div>`;
+}
+
+async function adjStk(id,d){const s=(D.stock||[]).find(x=>x.id===id);if(s){s.qty=Math.max(0,s.qty+d);if(s.qty<=s.min)addNotif(`⚠️ Estoque baixo: ${s.name} (${s.qty})`,'warning');await save();renderPage(currentPage)}}
+
+function pgNotif(){
+    (D.notifications||[]).forEach(n=>n.read=true);save();updBell();
+    return`<div class="page active">
+        <div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div>
+        <div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`
+            <div style="display:flex;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <div style="width:6px;height:6px;border-radius:50%;background:${n.type==='danger'?'var(--danger)':'var(--success)'};margin-top:5px;flex-shrink:0"></div>
+                <div style="flex:1"><div style="font-size:.82rem">${esc(n.text)}</div><div class="tm" style="font-size:.68rem">${n.time} · ${fDt(n.date)}</div></div>
+            </div>`).join(''):'<p class="tm tc">Nenhuma notificação</p>'}</div></div></div>`;
+}
+
+// ===== CHAT SEPARADO =====
+function pgChat(){
+    if(isAdm()){
+        const contacts=[{id:'all',name:'📢 Mural Geral',avatar:'av2'},...D.barbers.map(b=>({id:b.id,name:b.name,avatar:b.avatar}))];
+        const active=activeChatId||'all';
+        const msgs=(D.chatMessages||[]).filter(m=>{
+            if(active==='all')return m.chatId==='all';
+            return m.chatId===active||( m.chatId===active&&(m.senderId==='admin'||m.senderId===active));
         });
-    });
 
-    window.excluirAg = async function(id) {
-        if(confirm("Concluído?")) await deleteDoc(doc(db, "agendamentos", id));
-    };
+        return`<div class="page active">
+            <div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
+            <div class="g2">
+                <div class="card"><div class="ch"><h3>Conversas</h3></div><div class="cb">
+                    <div class="chat-list">${contacts.map(c=>{
+                        const unread=(D.chatMessages||[]).filter(m=>m.chatId===(c.id==='all'?'all':c.id)&&!m.read&&m.senderId!=='admin').length;
+                        return`<div class="chat-contact ${active===c.id?'active':''}" onclick="selectChat('${c.id}')">
+                            <div class="cc-av ${c.avatar||'av2'}" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700">${c.id==='all'?'📢':c.name.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+                            <div class="cc-info"><div class="cc-name">${esc(c.name)}</div><div class="cc-last">${c.id==='all'?'Mensagem para todos':'Chat privado'}</div></div>
+                            ${unread?`<span class="cc-badge">${unread}</span>`:''}
+                        </div>`;
+                    }).join('')}</div>
+                </div></div>
+                <div class="card"><div class="ch"><h3>${active==='all'?'📢 Mural Geral':'💬 '+( GB(active)?.name||'Chat')}</h3></div><div class="cb">
+                    <div class="chat-msgs" id="chatMsgs">${msgs.map(m=>`<div class="chat-msg ${m.senderId==='admin'?'sent':'recv'}">
+                        <div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time} · ${fDt(m.date)}</div></div>`).join('')||'<p class="tm tc">Nenhuma mensagem</p>'}</div>
+                    <div class="chat-inp"><input type="text" class="fc" id="chatIn" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
+                    <button class="btn btn-gold" style="width:auto" onclick="sendMsg()">Enviar</button></div>
+                </div></div>
+            </div>
+        </div>`;
+    } else {
+        // Barbeiro vê: chat privado com ADM + mural
+        const contacts=[{id:'admin',name:'👑 Admin'},{id:'all',name:'📢 Mural Geral'}];
+        const active=activeChatId||'admin';
+        const msgs=(D.chatMessages||[]).filter(m=>{
+            if(active==='all')return m.chatId==='all';
+            return m.chatId===myId()&&(m.senderId==='admin'||m.senderId===myId());
+        });
+
+        return`<div class="page active">
+            <div class="ph"><div><h2>💬 <span>Mensagens</span></h2></div></div>
+            <div class="card mb"><div class="cb">
+                <div style="display:flex;gap:6px;margin-bottom:12px">
+                    ${contacts.map(c=>`<button class="btn ${active===c.id?'btn-gold':'btn-out'} btn-sm" onclick="selectChat('${c.id}')">${c.name}</button>`).join('')}
+                </div>
+                <div class="chat-msgs" id="chatMsgs">${msgs.map(m=>`<div class="chat-msg ${m.senderId===myId()?'sent':'recv'}">
+                    <div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time} · ${fDt(m.date)}</div></div>`).join('')||'<p class="tm tc">Sem mensagens</p>'}</div>
+                <div class="chat-inp"><input type="text" class="fc" id="chatIn" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
+                <button class="btn btn-gold" style="width:auto" onclick="sendMsg()">Enviar</button></div>
+            </div></div>
+        </div>`;
+    }
+}
+
+function selectChat(id){activeChatId=id;renderPage('chat');setTimeout(()=>{const el=document.getElementById('chatMsgs');if(el)el.scrollTop=el.scrollHeight},100)}
+
+async function sendMsg(){
+    const inp=document.getElementById('chatIn');const txt=inp?.value?.trim();if(!txt)return;
+    const chatId=isAdm()?(activeChatId||'all'):(activeChatId==='all'?'all':myId());
+    D.chatMessages.push({id:UID(),chatId,senderId:isAdm()?'admin':myId(),senderName:currentUser.name,text:txt,time:NOW(),date:TODAY(),read:false});
+    inp.value='';await save();renderPage('chat');
+    setTimeout(()=>{const el=document.getElementById('chatMsgs');if(el)el.scrollTop=el.scrollHeight},100);
+}
+
+function pgFid(){
+    const rules=D.fidelityRules||{visitsForReward:10,rewardDescription:'1 Corte Grátis'};
+    return`<div class="page active">
+        <div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
+        <div class="g3">${D.clients.map(c=>{
+            const pts=c.points||0;const tgt=rules.visitsForReward;const pct=Math.min(100,Math.round(pts/tgt*100));
+            return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
+                <div class="f-dots">${Array.from({length:tgt},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
+                <div style="font-size:.82rem">${pts}/${tgt}</div>
+                <div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
+                ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}</div></div>`;
+        }).join('')}</div></div>`;
+}
+
+// ===== LINK AGENDAMENTO ONLINE =====
+function pgBookLink(){
+    const url=getBookingURL();
+    return`<div class="page active">
+        <div class="ph"><div><h2>📱 <span>Agendamento Online</span></h2><p class="ph-sub">Compartilhe o link para seus clientes agendarem</p></div></div>
+        <div class="card"><div class="cb tc">
+            <div style="font-size:3rem;margin-bottom:12px">📱</div>
+            <h3 style="margin-bottom:8px">Link de Agendamento</h3>
+            <div style="background:var(--bg4);padding:12px;border-radius:var(--rx);margin:14px 0;word-break:break-all;font-size:.82rem;color:var(--gold)">${esc(url)}</div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                <button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Link copiado! 📋')">📋 Copiar Link</button>
+                <button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende seu horário na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button>
+            </div>
+        </div></div>
+    </div>`;
+}
+
+function pgConfig(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>⚙️ <span>Configurações</span></h2></div></div>
+        <div class="card"><div class="cb">
+            <div class="fg"><label>Nome da Barbearia</label><input type="text" class="fc" id="cfN" value="${esc(D.config.businessName)}"></div>
+            <div class="fr"><div class="fg"><label>Abertura</label><input type="time" class="fc" id="cfO" value="${D.config.openTime}"></div>
+            <div class="fg"><label>Fechamento</label><input type="time" class="fc" id="cfC" value="${D.config.closeTime}"></div></div>
+            <div class="fg"><label>Senha Admin</label><input type="password" class="fc" id="cfP" value="${D.config.adminPassword}"></div>
+            <div class="fr"><div class="fg"><label>Intervalo Buffer (min)</label><input type="number" class="fc" id="cfBuf" value="${D.config.bufferMinutes||10}"></div>
+            <div class="fg"><label>Visitas Fidelidade</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules.visitsForReward}"></div></div>
+            <div class="fg"><label>Recompensa Fidelidade</label><input type="text" class="fc" id="cfFR" value="${esc(D.fidelityRules.rewardDescription)}"></div>
+            <button class="btn btn-gold mt" style="width:auto" onclick="saveCfg()">💾 Salvar</button>
+            <div class="divider"></div>
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar TUDO?')){DOC_REF.delete();location.reload()}">🗑️ Resetar</button>
+        </div></div></div>`;
+}
+
+async function saveCfg(){
+    D.config.businessName=document.getElementById('cfN').value;D.config.openTime=document.getElementById('cfO').value;
+    D.config.closeTime=document.getElementById('cfC').value;D.config.adminPassword=document.getElementById('cfP').value;
+    D.config.bufferMinutes=Number(document.getElementById('cfBuf').value)||10;
+    D.fidelityRules.visitsForReward=Number(document.getElementById('cfFV').value)||10;
+    D.fidelityRules.rewardDescription=document.getElementById('cfFR').value;
+    await save();toast('Configurações salvas! ⚙️');
+}
+
+// ================================================================
+//                  BARBER PAGES
+// ================================================================
+function pgBarDash(){
+    const b=GB(myId());if(!b)return'<div class="page active">Erro</div>';
+    const mk=MK();const mySvcs=(D.completedServices||[]).filter(s=>s.barberId===b.id);
+    const mS=mySvcs.filter(s=>s.date?.startsWith(mk));const tS=mySvcs.filter(s=>s.date===TODAY());
+    const mRev=mS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const tRev=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
+    const comm=mRev*(b.commission/100);const vl=getValesTotal(b.id,mk);
+    const ranked=D.barbers.map(x=>({id:x.id,rev:getMonthRev(x.id,mk)})).sort((a,b)=>b.rev-a.rev);
+    const pos=ranked.findIndex(r=>r.id===b.id)+1;
+
+    return`<div class="page active">
+        <div class="ph"><div><h2>Olá, <span>${esc(b.name)}</span> 💈</h2><p class="ph-sub">${fDt(TODAY())}</p></div></div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(mRev)}</div><div class="sl">Faturamento Mês</div></div>
+            <div class="sc"><div class="si gr">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Comissão Líquida</div></div>
+            <div class="sc"><div class="si bl">✂️</div><div class="sv">${mS.length}</div><div class="sl">Serviços Mês</div></div>
+            <div class="sc"><div class="si pr">🏆</div><div class="sv">${pos}º</div><div class="sl">Ranking</div></div>
+        </div>
+        <div class="g2">
+            <div class="card"><div class="ch"><h3>📅 Hoje</h3></div><div class="cb tc">
+                <div style="font-size:2rem;font-weight:800;color:var(--gold)">${fmt(tRev)}</div>
+                <div class="tm">${tS.length} serviços</div></div></div>
+            <div class="card"><div class="ch"><h3>💳 Financeiro</h3></div><div class="cb">
+                <div class="fb mb"><span class="tm">Faturamento</span><span class="fw">${fmt(mRev)}</span></div>
+                <div class="fb mb"><span class="tm">Comissão (${b.commission}%)</span><span class="fw">${fmt(comm)}</span></div>
+                <div class="fb mb"><span class="tm">Vales</span><span class="fw td">-${fmt(vl)}</span></div>
+                <div class="divider"></div>
+                <div class="fb"><span class="fw">Líquido</span><span class="fw tg" style="font-size:1.1rem">${fmt(comm-vl)}</span></div>
+            </div></div>
+        </div></div>`;
+}
+
+function pgLancar(){
+    return`<div class="page active">
+        <div class="ph"><div><h2>✂️ <span>Lançar Serviço</span></h2></div></div>
+        <div class="card"><div class="cb">
+            <div class="fg"><label>Cliente</label><select class="fc" id="lcCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+            <div class="fg"><label>Serviço</label><select class="fc" id="lcSv">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)}</option>`).join('')}</select></div>
+            <button class="btn btn-gold mt" style="width:auto" onclick="launchSvc()">✂️ Lançar</button>
+        </div></div>
+        <div class="card mt"><div class="ch"><h3>📋 Hoje</h3></div><div class="cb">
+        ${(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TODAY()).map(s=>{
+            const cl=GC(s.clientId),sv=GS(s.serviceId);
+            return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} · ${s.time}</div></div><div class="svc-p">${fmt(sv?.price)}</div></div>`;
+        }).join('')||'<p class="tm tc">Nenhum serviço hoje</p>'}
+        </div></div></div>`;
+}
+
+async function launchSvc(){
+    const cid=Number(document.getElementById('lcCl').value);const sid=Number(document.getElementById('lcSv').value);
+    const sv=GS(sid);const cl=GC(cid);const b=GB(myId());
+    D.completedServices.push({id:UID(),clientId:cid,barberId:myId(),serviceId:sid,date:TODAY(),time:NOW()});
+    if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=TODAY();cl.points=(cl.points||0)+1}
+    addNotif(`🟢 ${b?.name} lançou: ${sv?.name} — ${fmt(sv?.price)} (${cl?.name})`);
+    await save();renderPage('lancar');toast('Serviço lançado! ✂️');
+}
+
+function pgBarAgenda(){
+    const appts=(D.appointments||[]).filter(a=>a.barberId===myId()&&a.date===TODAY()).sort((a,b)=>a.time.localeCompare(b.time));
+    return`<div class="page active">
+        <div class="ph"><div><h2>📅 <span>Minha Agenda</span></h2></div></div>
+        <div class="card"><div class="cb">${appts.length?appts.map(a=>{
+            const cl=GC(a.clientId),sv=GS(a.serviceId);
+            return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${a.time} — ${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} (${sv?.duration||0}min)</div></div>
+            <span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status}</span></div>`;
+        }).join(''):'<p class="tm tc">Sem agendamentos</p>'}</div></div></div>`;
+}
+
+function pgMeuFat(){
+    const b=GB(myId());if(!b)return'';const mk=MK();
+    const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date?.startsWith(mk));
+    const rev=svcs.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const comm=rev*(b.commission/100);const vl=getValesTotal(b.id,mk);
+    return`<div class="page active">
+        <div class="ph"><div><h2>💰 <span>Meu Faturamento</span></h2></div>
+        <div class="ph-acts"><button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${mk}')">📲 WhatsApp</button></div></div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(rev)}</div><div class="sl">Faturamento</div></div>
+            <div class="sc"><div class="si gr">💳</div><div class="sv">${fmt(comm)}</div><div class="sl">Comissão</div></div>
+            <div class="sc"><div class="si rd">📥</div><div class="sv td">${fmt(vl)}</div><div class="sl">Vales</div></div>
+            <div class="sc"><div class="si bl">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div>
+        </div>
+        <div class="card"><div class="ch"><h3>📋 Serviços (${mk})</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Hora</th><th>Cliente</th><th>Serviço</th><th>Valor</th></tr></thead><tbody>
+        ${svcs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
+            return`<tr><td>${fDt(s.date)}</td><td>${s.time||''}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td class="tg fw">${fmt(sv?.price)}</td></tr>`;}).join('')}
+        </tbody></table></div></div></div>`;
+}
+
+function pgMeuCaixa(){
+    const b=GB(myId());if(!b)return'';
+    const c=(D.cashiers||[]).find(x=>x.barberId===b.id&&x.date===TODAY());const io=c&&!c.closedAt;
+    const tS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TODAY());
+    const exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
+
+    return`<div class="page active">
+        <div class="ph"><div><h2>🏦 <span>Meu Caixa</span></h2></div></div>
+        <div class="card"><div class="cb tc">
+            <div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div>
+            <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div>
+            <div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Abra para começar'}</div></div>
+            ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div>
+                <button class="btn btn-gold" style="width:auto" onclick="openCx()">☀️ Abrir</button>`:''}
+            ${io?`<div class="fg mt"><label>Valor Contagem</label><input type="number" class="fc" id="cxC"></div>
+                <button class="btn btn-danger" style="width:auto" onclick="closeCx()">🌙 Fechar</button>`:''}
+            ${c?.closedAt?`<div class="mt"><div class="fb mb"><span>Inicial</span><span>${fmt(c.openAmount)}</span></div>
+                <div class="fb mb"><span>Esperado</span><span>${fmt(c.expectedAmount)}</span></div>
+                <div class="fb mb"><span>Informado</span><span>${fmt(c.closedAmount)}</span></div>
+                ${c.difference!==0?`<div class="badge b-dan mt">⚠️ Diferença: ${fmt(c.difference)}</div>`:`<div class="badge b-suc mt">✅ OK</div>`}</div>`:''}
+        </div></div></div>`;
+}
+
+async function openCx(){
+    const amt=parseFloat(document.getElementById('cxO')?.value)||0;
+    D.cashiers.push({id:UID(),barberId:myId(),date:TODAY(),openedAt:NOW(),openAmount:amt,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});
+    addNotif(`🏦 ${GB(myId())?.name} abriu caixa (${fmt(amt)})`);
+    await save();renderPage('meucaixa');toast('Caixa aberto! ☀️');
+}
+
+async function closeCx(){
+    const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TODAY()&&!x.closedAt);if(!c)return;
+    const ca=parseFloat(document.getElementById('cxC')?.value)||0;
+    const tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TODAY());
+    const sT=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const exp=sT+c.openAmount;const diff=ca-exp;
+    c.closedAt=NOW();c.closedAmount=ca;c.expectedAmount=exp;c.difference=diff;
+    const b=GB(myId());
+    if(diff!==0){
+        addNotif(`🔴 ${b?.name}: DIVERGÊNCIA caixa! ${fmt(diff)}`,'danger');
+        D.vales.push({id:UID(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo caixa ${fDt(TODAY())}`,date:TODAY(),status:'pending'});
+        toast('⚠️ Divergência! ADM notificado.','warning');
+    } else {addNotif(`✅ ${b?.name} fechou caixa OK`);toast('Caixa fechado! ✅')}
+    await save();renderPage('meucaixa');
+}
+
+function pgMeusVales(){
+    const b=GB(myId());if(!b)return'';
+    const mv=(D.vales||[]).filter(v=>v.barberId===b.id);const t=mv.filter(v=>v.status!=='forgiven').reduce((s,v)=>s+v.amount,0);
+    return`<div class="page active">
+        <div class="ph"><div><h2>📥 <span>Meus Vales</span></h2></div></div>
+        <div class="sc mb"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">Total Débitos</div></div>
+        <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Motivo</th><th>Status</th></tr></thead><tbody>
+        ${mv.map(v=>`<tr><td>${fDt(v.date)}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
+            <td class="fw td">${fmt(v.amount)}</td><td>${esc(v.reason||'-')}</td>
+            <td><span class="badge ${v.status==='pending'?'b-warn':v.status==='deducted'?'b-inf':'b-suc'}">${v.status==='pending'?'Pendente':v.status==='deducted'?'Descontado':'Perdoado'}</span></td></tr>`).join('')}
+        </tbody></table></div></div></div>`;
+}
+
+function pgBarMetas(){
+    const b=GB(myId());if(!b)return'';const mk=MK();const rev=getMonthRev(b.id,mk);
+    const g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===mk);const tgt=g?g.target:0;
+    const pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+    return`<div class="page active">
+        <div class="ph"><div><h2>🎯 <span>Minhas Metas</span></h2></div></div>
+        <div class="card"><div class="cb tc">
+            <div style="font-size:3.5rem;margin:16px 0">${pct>=100?'🎉':'🎯'}</div>
+            <div style="font-size:2.5rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}">${pct}%</div>
+            <div class="pb-w" style="height:8px;margin:14px auto;max-width:350px"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div>
+            <div style="font-size:1rem;margin:8px 0">${fmt(rev)} / ${fmt(tgt)}</div>
+            ${pct>=100?'<div class="badge b-suc" style="font-size:.9rem;padding:6px 16px">🏆 META BATIDA!</div>':tgt>0?`<div class="tm">Faltam ${fmt(tgt-rev)}</div>`:'<div class="tm">Meta não definida</div>'}
+        </div></div></div>`;
+}
+
+function pgMeuPonto(){
+    const b=GB(myId());if(!b)return'';
+    const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TODAY());
+    return`<div class="page active">
+        <div class="ph"><div><h2>🕐 <span>Meu Ponto</span></h2></div></div>
+        <div class="card"><div class="cb tc">
+            <div style="font-size:2.5rem;margin:16px 0">${tr?tr.clockOut?'✅':'🟢':'🔴'}</div>
+            <div style="font-size:1.1rem;font-weight:700;margin-bottom:14px">${tr?tr.clockOut?'Encerrado':'Trabalhando':'Não registrado'}</div>
+            ${tr?`<div class="fb mb" style="max-width:250px;margin:0 auto"><span>Entrada</span><span class="fw">${tr.clockIn}</span></div>`:''}
+            ${tr?.clockOut?`<div class="fb mb" style="max-width:250px;margin:0 auto"><span>Saída</span><span class="fw">${tr.clockOut}</span></div>`:''}
+            ${!tr?`<button class="btn btn-gold" style="width:auto" onclick="ckIn()">▶️ Entrada</button>`:''}
+            ${tr&&!tr.clockOut?`<button class="btn btn-danger" style="width:auto" onclick="ckOut()">⏹️ Saída</button>`:''}
+        </div></div></div>`;
+}
+
+async function ckIn(){D.timeRecords.push({id:UID(),barberId:myId(),date:TODAY(),clockIn:NOW(),clockOut:null});const b=GB(myId());if(b)b.status='online';addNotif(`▶️ ${b?.name} entrada ${NOW()}`);await save();renderPage('ponto');toast('Entrada! ▶️')}
+async function ckOut(){const tr=(D.timeRecords||[]).find(t=>t.barberId===myId()&&t.date===TODAY()&&!t.clockOut);if(tr){tr.clockOut=NOW();const b=GB(myId());if(b)b.status='offline';addNotif(`⏹️ ${b?.name} saída ${NOW()}`);await save();renderPage('ponto');toast('Saída! ⏹️')}}
+
+function pgAlmoco(){
+    const b=GB(myId());if(!b)return'';
+    const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TODAY());const io=lr&&!lr.returnTime;
+    return`<div class="page active">
+        <div class="ph"><div><h2>🍽️ <span>Almoço</span></h2></div></div>
+        <div class="card"><div class="cb tc">
+            <div style="font-size:3rem;margin:16px 0">${io?'🍽️':lr?'✅':'☕'}</div>
+            <div style="font-size:1.1rem;font-weight:700;margin-bottom:14px">${io?'No almoço':lr?'Concluído':'Pronto?'}</div>
+            ${lr?`<div class="fb mb" style="max-width:250px;margin:0 auto"><span>Saiu</span><span class="fw">${lr.leaveTime}</span></div>`:''}
+            ${lr?.returnTime?`<div class="fb mb" style="max-width:250px;margin:0 auto"><span>Voltou</span><span class="fw">${lr.returnTime}</span></div>`:''}
+            ${!lr?`<button class="btn btn-gold" style="width:auto" onclick="lOut()">🍽️ Saí</button>`:''}
+            ${io?`<button class="btn btn-success" style="width:auto" onclick="lIn()">✅ Voltei</button>`:''}
+        </div></div></div>`;
+}
+
+async function lOut(){D.lunchRecords.push({id:UID(),barberId:myId(),date:TODAY(),leaveTime:NOW(),returnTime:null});const b=GB(myId());if(b)b.status='lunch';addNotif(`🍽️ ${b?.name} almoço ${NOW()}`);await save();renderPage('almoco');toast('Bom almoço! 🍽️')}
+async function lIn(){const lr=(D.lunchRecords||[]).find(l=>l.barberId===myId()&&l.date===TODAY()&&!l.returnTime);if(lr){lr.returnTime=NOW();const b=GB(myId());if(b)b.status='online';addNotif(`✅ ${b?.name} voltou ${NOW()}`);await save();renderPage('almoco');toast('Bem-vindo! ✅')}}
+
+// ================================================================
+//                  MODALS
+// ================================================================
+function openMod(type,eid){
+    const ov=document.getElementById('mOv');const md=document.getElementById('modContent');let h='';
+
+    if(type==='appt'){
+        h=`<div class="mh"><h3>📅 Novo Agendamento</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd">
+            <div class="fg"><label>Cliente</label><select class="fc" id="mCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+            <div class="fg"><label>Serviço</label><select class="fc" id="mSv" onchange="updAvailSlots()">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)} (${s.duration}min)</option>`).join('')}</select></div>
+            <div class="fg"><label>Barbeiro</label><select class="fc" id="mBb" onchange="updAvailSlots()">${D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}</select></div>
+            <div class="fg"><label>Data</label><input type="date" class="fc" id="mDt" value="${TODAY()}" onchange="updAvailSlots()"></div>
+            <div class="fg"><label>Horário Disponível</label><div class="time-grid" id="timeGrid"></div></div>
+            <input type="hidden" id="mTm" value="">
+        </div>
+        <div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveAppt()">Agendar</button></div>`;
+    } else if(type==='client'||type==='editClient'){
+        const c=type==='editClient'?GC(eid):null;
+        h=`<div class="mh"><h3>${c?'✏️ Editar':'👤 Novo'} Cliente</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd"><input type="hidden" id="mCid" value="${c?.id||''}">
+            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mCn" value="${c?esc(c.name):''}" placeholder="Nome"></div>
+            <div class="fg"><label>Telefone</label><input type="text" class="fc" id="mCp" value="${c?.phone||''}" placeholder="(11)99999-0000"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveClMod()">Salvar</button></div>`;
+    } else if(type==='barber'||type==='editBarber'){
+        const b=type==='editBarber'?GB(eid):null;
+        h=`<div class="mh"><h3>${b?'✏️ Editar':'💈 Novo'} Barbeiro</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd"><input type="hidden" id="mBid" value="${b?.id||''}">
+            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mBn" value="${b?esc(b.name):''}" placeholder="Nome"></div>
+            <div class="fg"><label>Especialidade</label><input type="text" class="fc" id="mBs" value="${b?.specialty||''}" placeholder="Corte & Barba"></div>
+            <div class="fr"><div class="fg"><label>Comissão %</label><input type="number" class="fc" id="mBc" value="${b?.commission||50}"></div>
+            <div class="fg"><label>E-mail login</label><input type="email" class="fc" id="mBe" value="${b?.email||''}" placeholder="nome@mr.com"></div></div>
+            <div class="fg"><label>Avatar</label><select class="fc" id="mBav"><option value="av1" ${b?.avatar==='av1'?'selected':''}>🟣</option><option value="av2" ${b?.avatar==='av2'?'selected':''}>🟡</option><option value="av3" ${b?.avatar==='av3'?'selected':''}>🔵</option><option value="av4" ${b?.avatar==='av4'?'selected':''}>🔴</option><option value="av5" ${b?.avatar==='av5'?'selected':''}>🟢</option></select></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveBbMod()">Salvar</button></div>`;
+    } else if(type==='service'||type==='editSvc'){
+        if(!isAdm()){toast('Somente ADM!','error');return}
+        const s=type==='editSvc'?GS(eid):null;const icons=['✂️','🪒','💈','⭐','👁️','🧴','🎨','👦','💇','🧔'];
+        h=`<div class="mh"><h3>${s?'✏️ Editar':'✂️ Novo'} Serviço</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd"><input type="hidden" id="mSid" value="${s?.id||''}">
+            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSn" value="${s?esc(s.name):''}" placeholder="Nome"></div>
+            <div class="fr"><div class="fg"><label>Preço R$</label><input type="number" class="fc" id="mSp" value="${s?.price||''}" placeholder="0"></div>
+            <div class="fg"><label>Duração min</label><input type="number" class="fc" id="mSd" value="${s?.duration||30}"></div></div>
+            <div class="fg"><label>Ícone</label><select class="fc" id="mSi">${icons.map(i=>`<option value="${i}" ${s?.icon===i?'selected':''}>${i}</option>`).join('')}</select></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveSvMod()">Salvar</button></div>`;
+    } else if(type==='vale'){
+        h=`<div class="mh"><h3>📥 Registrar Vale</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd">
+            <div class="fg"><label>Barbeiro</label><select class="fc" id="mVb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+            <div class="fr"><div class="fg"><label>Tipo</label><select class="fc" id="mVt"><option value="vale">📥 Vale</option><option value="furo">🔴 Furo</option></select></div>
+            <div class="fg"><label>Valor R$</label><input type="number" class="fc" id="mVa" placeholder="0"></div></div>
+            <div class="fg"><label>Motivo</label><input type="text" class="fc" id="mVr" placeholder="Motivo"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveVlMod()">Registrar</button></div>`;
+    } else if(type==='goal'){
+        h=`<div class="mh"><h3>🎯 Meta</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd">
+            <div class="fg"><label>Barbeiro</label><select class="fc" id="mGb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+            <div class="fg"><label>Mês</label><input type="month" class="fc" id="mGm" value="${MK()}"></div>
+            <div class="fg"><label>Meta R$</label><input type="number" class="fc" id="mGv" placeholder="5000"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveGlMod()">Salvar</button></div>`;
+    } else if(type==='stock'){
+        h=`<div class="mh"><h3>📦 Produto</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd">
+            <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSkn" placeholder="Produto"></div>
+            <div class="fr"><div class="fg"><label>Qtd</label><input type="number" class="fc" id="mSkq" value="10"></div>
+            <div class="fg"><label>Mínimo</label><input type="number" class="fc" id="mSkm" value="5"></div></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveSkMod()">Salvar</button></div>`;
+    } else if(type==='rankConfig'){
+        const rc=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};
+        h=`<div class="mh"><h3>⚙️ Configurar Ranking</h3><button class="mx" onclick="closeMod()">✕</button></div>
+        <div class="mbd">
+            <div class="fg"><label>Quantos Premiados</label><select class="fc" id="mRcP">
+                <option value="1" ${rc.premiados===1?'selected':''}>1 premiado (só campeão)</option>
+                <option value="2" ${rc.premiados===2?'selected':''}>2 premiados</option>
+                <option value="3" ${rc.premiados===3?'selected':''}>3 premiados</option>
+            </select></div>
+            <div class="fg"><label>🥇 Prêmio 1º Lugar (R$)</label><input type="number" class="fc" id="mRc1" value="${rc.prizes[1]||0}"></div>
+            <div class="fg"><label>🥈 Prêmio 2º Lugar (R$)</label><input type="number" class="fc" id="mRc2" value="${rc.prizes[2]||0}"></div>
+            <div class="fg"><label>🥉 Prêmio 3º Lugar (R$)</label><input type="number" class="fc" id="mRc3" value="${rc.prizes[3]||0}"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="saveRcMod()">Salvar</button></div>`;
+    }
+
+    md.innerHTML=h;ov.classList.add('active');
+    if(type==='appt')setTimeout(updAvailSlots,100);
+}
+
+function closeMod(){document.getElementById('mOv').classList.remove('active')}
+
+function updAvailSlots(){
+    const bid=Number(document.getElementById('mBb')?.value);
+    const sid=Number(document.getElementById('mSv')?.value);
+    const date=document.getElementById('mDt')?.value;
+    const grid=document.getElementById('timeGrid');
+    if(!grid||!bid||!sid||!date)return;
+
+    const slots=getAvailableSlots(bid,date,sid);
+    const allTimes=timeOpts();
+
+    grid.innerHTML=allTimes.map(t=>{
+        const avail=slots.includes(t);
+        return`<div class="time-slot ${avail?'':'blocked'}" onclick="${avail?`selectTime('${t}')`:''}">
+            ${t} ${avail?'':'🔒'}
+        </div>`;
+    }).join('');
+}
+
+function selectTime(t){
+    document.querySelectorAll('.time-slot').forEach(el=>el.classList.remove('selected'));
+    event.target.classList.add('selected');
+    document.getElementById('mTm').value=t;
+}
+
+async function saveAppt(){
+    const tm=document.getElementById('mTm').value;if(!tm){toast('Selecione um horário!','error');return}
+    const bid=Number(document.getElementById('mBb').value);const sid=Number(document.getElementById('mSv').value);
+    if(!isSlotAvailable(bid,document.getElementById('mDt').value,tm,sid)){toast('Horário indisponível!','error');return}
+    D.appointments.push({id:UID(),clientId:Number(document.getElementById('mCl').value),barberId:bid,serviceId:sid,date:document.getElementById('mDt').value,time:tm,status:'pending'});
+    await save();closeMod();renderPage(currentPage);toast('Agendado! 📅');
+}
+
+async function saveClMod(){
+    const id=document.getElementById('mCid').value;const n=document.getElementById('mCn').value.trim();const p=document.getElementById('mCp').value.trim();
+    if(!n){toast('Nome!','error');return}
+    if(id){const c=GC(Number(id));if(c){c.name=n;c.phone=p}}
+    else D.clients.push({id:UID(),name:n,phone:p,visits:0,lastVisit:null,totalSpent:0,points:0});
+    await save();closeMod();renderPage(currentPage);toast(id?'Atualizado!':'Cadastrado! 👤');popLoginUsers();
+}
+
+async function saveBbMod(){
+    const id=document.getElementById('mBid').value;const n=document.getElementById('mBn').value.trim();if(!n){toast('Nome!','error');return}
+    const obj={name:n,specialty:document.getElementById('mBs').value||'Corte',commission:Number(document.getElementById('mBc').value)||50,email:document.getElementById('mBe').value||'',avatar:document.getElementById('mBav').value};
+    if(id){const b=GB(Number(id));if(b)Object.assign(b,obj)}
+    else D.barbers.push({id:UID(),status:'offline',rating:5,phone:'',...obj});
+    await save();closeMod();renderPage(currentPage);toast(id?'Atualizado!':'Adicionado! 💈');popLoginUsers();
+}
+
+async function saveSvMod(){
+    if(!isAdm()){toast('Somente ADM!','error');return}
+    const id=document.getElementById('mSid').value;const n=document.getElementById('mSn').value.trim();
+    const p=parseFloat(document.getElementById('mSp').value)||0;if(!n||p<=0){toast('Preencha!','error');return}
+    const obj={name:n,price:p,duration:Number(document.getElementById('mSd').value)||30,icon:document.getElementById('mSi').value};
+    if(id){const s=GS(Number(id));if(s)Object.assign(s,obj)}else D.services.push({id:UID(),...obj});
+    await save();closeMod();renderPage(currentPage);toast(id?'Atualizado!':'Adicionado! ✂️');
+}
+
+async function saveVlMod(){
+    const a=parseFloat(document.getElementById('mVa').value)||0;if(a<=0){toast('Valor!','error');return}
+    const bid=Number(document.getElementById('mVb').value);const b=GB(bid);
+    D.vales.push({id:UID(),barberId:bid,type:document.getElementById('mVt').value,amount:a,reason:document.getElementById('mVr').value,date:TODAY(),status:'pending'});
+    addNotif(`📥 Vale: ${b?.name} — ${fmt(a)}`,'warning');
+    await save();closeMod();renderPage(currentPage);toast('Registrado! 📥');
+}
+
+async function saveGlMod(){
+    const bid=Number(document.getElementById('mGb').value);const m=document.getElementById('mGm').value;const v=parseFloat(document.getElementById('mGv').value)||0;
+    if(v<=0){toast('Valor!','error');return}
+    const ex=(D.goals||[]).findIndex(g=>g.barberId===bid&&g.month===m);
+    if(ex>=0)D.goals[ex].target=v;else D.goals.push({id:UID(),barberId:bid,month:m,target:v});
+    await save();closeMod();renderPage(currentPage);toast('Meta definida! 🎯');
+}
+
+async function saveSkMod(){
+    const n=document.getElementById('mSkn').value.trim();if(!n){toast('Nome!','error');return}
+    D.stock.push({id:UID(),name:n,qty:Number(document.getElementById('mSkq').value)||0,min:Number(document.getElementById('mSkm').value)||5});
+    await save();closeMod();renderPage(currentPage);toast('Adicionado! 📦');
+}
+
+async function saveRcMod(){
+    D.rankConfig={premiados:Number(document.getElementById('mRcP').value),prizes:{1:parseFloat(document.getElementById('mRc1').value)||0,2:parseFloat(document.getElementById('mRc2').value)||0,3:parseFloat(document.getElementById('mRc3').value)||0}};
+    await save();closeMod();renderPage(currentPage);toast('Ranking configurado! 🏆');
+}
+
+// ================================================================
+//                  BOOKING PAGE (CLIENT)
+// ================================================================
+function initBooking(){
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('bookingPage').classList.remove('hidden');
+    renderBooking();
+}
+
+function renderBooking(step=1,data={}){
+    const bc=document.getElementById('bookingContent');
+    if(step===1){
+        bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>MR Barbearia</h2><p>Agende seu horário online</p></div>
+            <div class="fg"><label>Seu Nome</label><input type="text" class="fc" id="bkName" placeholder="Nome completo"></div>
+            <div class="fg"><label>Telefone</label><input type="text" class="fc" id="bkPhone" placeholder="(11) 99999-0000"></div>
+            <div class="fg"><label>Serviço</label><select class="fc" id="bkSvc">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)} (${s.duration}min)</option>`).join('')}</select></div>
+            <div class="fg"><label>Barbeiro</label><select class="fc" id="bkBb"><option value="">Sem preferência</option>${D.barbers.filter(b=>b.status!=='offline').map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}</select></div>
+            <div class="fg"><label>Data</label><input type="date" class="fc" id="bkDate" value="${TODAY()}" min="${TODAY()}"></div>
+            <button class="btn btn-gold full mt" onclick="bookStep2()">Ver Horários →</button>`;
+    } else if(step===2){
+        const slots=getAvailableSlots(data.barberId,data.date,data.serviceId);
+        bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>Horários Disponíveis</h2><p>${fDt(data.date)} · ${GS(data.serviceId)?.name||''}</p></div>
+            <div class="time-grid" id="bkTimeGrid">${slots.length?slots.map(t=>`<div class="time-slot" onclick="bookStep3('${t}')">${t}</div>`).join(''):'<p class="tm tc" style="grid-column:1/-1;padding:20px">Nenhum horário disponível nesta data</p>'}</div>
+            <button class="btn btn-out full mt" onclick="renderBooking(1)">← Voltar</button>`;
+        window._bookData=data;
+    } else if(step===3){
+        bc.innerHTML=`<div class="booking-success"><div class="check">✅</div><h2 class="tg">Agendamento Solicitado!</h2>
+            <p class="tm mt">Aguarde a confirmação da barbearia</p>
+            <div class="card mt"><div class="cb" style="text-align:left">
+                <div class="fb mb"><span class="tm">Cliente</span><span class="fw">${esc(data.name)}</span></div>
+                <div class="fb mb"><span class="tm">Serviço</span><span class="fw">${GS(data.serviceId)?.name||''}</span></div>
+                <div class="fb mb"><span class="tm">Data</span><span class="fw">${fDt(data.date)}</span></div>
+                <div class="fb mb"><span class="tm">Horário</span><span class="fw">${data.time}</span></div>
+                <div class="fb"><span class="tm">Valor</span><span class="fw tg">${fmt(GS(data.serviceId)?.price)}</span></div>
+            </div></div>
+            <button class="btn btn-gold full mt" onclick="renderBooking(1)">Novo Agendamento</button>
+        </div>`;
+    }
+}
+
+function bookStep2(){
+    const name=document.getElementById('bkName')?.value?.trim();const phone=document.getElementById('bkPhone')?.value?.trim();
+    if(!name){toast('Informe seu nome!','error');return}
+    const sid=Number(document.getElementById('bkSvc').value);let bid=Number(document.getElementById('bkBb').value)||D.barbers[0]?.id;
+    const date=document.getElementById('bkDate').value;
+    renderBooking(2,{name,phone,serviceId:sid,barberId:bid,date});
+}
+
+async function bookStep3(time){
+    const d=window._bookData;if(!d)return;
+    // Find or create client
+    let cl=D.clients.find(c=>c.phone===d.phone);
+    if(!cl){cl={id:UID(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
+    D.appointments.push({id:UID(),clientId:cl.id,barberId:d.barberId,serviceId:d.serviceId,date:d.date,time,status:'pending',source:'online'});
+    addNotif(`📱 Agendamento ONLINE: ${d.name} · ${GS(d.serviceId)?.name} · ${fDt(d.date)} ${time}`);
+    await save();
+    renderBooking(3,{...d,time});
+}
+
+// ================================================================
+//                  INIT
+// ================================================================
+async function init(){
+    // Check if booking page
+    if(window.location.search.includes('booking=1')){
+        await loadData();
+        initBooking();
+        listenData();
+        return;
+    }
+
+    await loadData();
+    popLoginUsers();
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    listenData();
+
+    // Auto-login if session exists
+    auth.onAuthStateChanged(user=>{
+        if(user&&!currentUser){
+            // Session exists but page refreshed - show login
+        }
+    });
+}
+
+init();
 </script>
 </body>
 </html>
