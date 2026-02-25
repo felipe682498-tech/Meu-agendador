@@ -197,16 +197,11 @@ const MK=(d)=>(d||TD()).substring(0,7);
 
 const DEF={barbers:[
     {id:1,name:'Carlos Silva',specialty:'Corte & Barba',status:'offline',avatar:'av1',rating:5,phone:'(11)99999-0001',email:'carlos@mr.com',commission:50,photo:'',active:true},
-    {id:2,name:'Ricardo Santos',specialty:'Degradê',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50,photo:'',active:true},
-    {id:3,name:'André Lima',specialty:'Barba & Tratamento',status:'offline',avatar:'av3',rating:5,phone:'(11)99999-0003',email:'andre@mr.com',commission:45,photo:'',active:true},
-    {id:4,name:'Felipe Costa',specialty:'Corte Infantil',status:'offline',avatar:'av4',rating:4,phone:'(11)99999-0004',email:'felipe@mr.com',commission:45,photo:'',active:true}],
-    clients:[{id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2},{id:2,name:'Pedro Almeida',phone:'(11)98888-2222',visits:8,lastVisit:'2025-01-12',totalSpent:480,points:8},{id:3,name:'Lucas Ferreira',phone:'(11)98888-3333',visits:15,lastVisit:'2025-01-13',totalSpent:1050,points:5},{id:4,name:'Marcos Oliveira',phone:'(11)98888-4444',visits:5,lastVisit:'2025-01-11',totalSpent:275,points:5},{id:5,name:'Bruno Souza',phone:'(11)98888-5555',visits:20,lastVisit:'2025-01-13',totalSpent:1400,points:0},{id:6,name:'Gabriel Rocha',phone:'(11)98888-6666',visits:3,lastVisit:'2025-01-09',totalSpent:135,points:3}],
-    services:[{id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},{id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'},{id:3,name:'Corte + Barba',duration:50,price:70,icon:'💈'},{id:4,name:'Degradê Premium',duration:40,price:55,icon:'⭐'},{id:5,name:'Sobrancelha',duration:15,price:20,icon:'👁️'},{id:6,name:'Tratamento',duration:45,price:80,icon:'🧴'},{id:7,name:'Pigmentação',duration:35,price:60,icon:'🎨'},{id:8,name:'Corte Infantil',duration:25,price:35,icon:'👦'}],
-    appointments:[],completedServices:[],cashiers:[],vales:[],notifications:[],rankings:{},
-    stock:[{id:1,name:'Pomada',qty:15,min:5},{id:2,name:'Lâmina',qty:50,min:20},{id:3,name:'Creme Pós-Barba',qty:8,min:3},{id:4,name:'Óleo Barba',qty:12,min:4}],
-    chatMessages:[],goals:[],timeRecords:[],lunchRecords:[],
-    fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},
-    rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},
+    {id:2,name:'Ricardo Santos',specialty:'Degradê',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50,photo:'',active:true}],
+    clients:[{id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2}],
+    services:[{id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},{id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'}],
+    appointments:[],completedServices:[],cashiers:[],vales:[],notifications:[],rankings:{},stock:[],chatMessages:[],goals:[],timeRecords:[],lunchRecords:[],
+    fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},
     config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10}};
 
 async function loadData(){try{const s=await DOC.get();if(s.exists){D=s.data()}else{D=JSON.parse(JSON.stringify(DEF));await DOC.set(D)}}catch(e){D=JSON.parse(JSON.stringify(DEF));try{await DOC.set(D)}catch(e2){}}
@@ -257,7 +252,6 @@ function getBookURL(){return window.location.href.split('?')[0]+'?booking=1'}
 function payIcon(m){return{dinheiro:'💵',cartao:'💳',pix:'📱'}[m]||'💰'}
 function payLabel(m){return{dinheiro:'Dinheiro',cartao:'Cartão',pix:'PIX'}[m]||m}
 
-// NAV
 const AN=[{s:'Principal'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'agendamentos',ic:'📋',lb:'Agendamentos'},
     {s:'Cadastros'},{id:'barbeiros',ic:'💈',lb:'Barbeiros'},{id:'clientes',ic:'👥',lb:'Clientes'},{id:'servicos',ic:'✂️',lb:'Serviços'},
     {s:'Financeiro'},{id:'financeiro',ic:'💰',lb:'Financeiro'},{id:'caixa',ic:'🏦',lb:'Caixas'},{id:'vales',ic:'📥',lb:'Vales'},
@@ -277,7 +271,6 @@ function navigate(p,btn){CP=p;document.querySelectorAll('.nav-it').forEach(n=>n.
     document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').classList.remove('show');renderPage(p)}
 function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:isA()?pgMts:pgBMt,ponto:isA()?pgPt:pgMPt,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,almoco:pgAlm};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
 
-// === PAGES ===
 function pgAD(){const ta=(D.appointments||[]).filter(a=>a.date===TD()),ts=(D.completedServices||[]).filter(s=>s.date===TD()),tR=ts.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),mR=(D.completedServices||[]).filter(s=>(s.date||'').startsWith(MK())).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);
     const payStats={dinheiro:0,cartao:0,pix:0};ts.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
     return`<div class="page active"><div class="ph"><div><h2>${new Date().getHours()<12?'Bom dia':new Date().getHours()<18?'Boa tarde':'Boa noite'}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TD())}</p></div>
@@ -300,10 +293,8 @@ function pgAD(){const ta=(D.appointments||[]).filter(a=>a.date===TD()),ts=(D.com
             <div class="card"><div class="ch"><h3>💈 Equipe</h3></div><div class="cb">
                 ${D.barbers.map(b=>{const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()&&!l.returnTime);const st=lr?'lunch':b.status;
                     return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
-                        <span>${{online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'}[st]||'🔴'}</span>
-                        <span class="fw" style="font-size:.82rem">${esc(b.name)}</span>
-                        ${!b.active?'<span class="badge b-dan" style="margin-left:auto">Desativado</span>':''}
-                    </div>`}).join('')}</div></div>
+                        <span>${{online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'}[st]||'🔴'}</span><span class="fw" style="font-size:.82rem">${esc(b.name)}</span>
+                        ${!b.active?'<span class="badge b-dan" style="margin-left:auto">Desativado</span>':''}</div>`}).join('')}</div></div>
         </div></div>`}
 
 function pgApts(){const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -352,6 +343,7 @@ function pgSvs(){return`<div class="page active"><div class="ph"><div><h2>✂️
 async function delSv(id){if(!isA()){toast('Somente ADM!','error');return}if(D.services.length<=1){toast('Mínimo 1!','error');return}D.services=D.services.filter(s=>s.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
 function pgFin(){const fS=getFS(),tR=fS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0),avg=fS.length?tR/fS.length:0;
+    const tC=D.barbers.reduce((s,b)=>{const r=fS.filter(x=>x.barberId===b.id).reduce((s2,x)=>s2+(GS(x.serviceId)?.price||0),0);return s+r*(b.commission/100)},0);
     const payStats={dinheiro:0,cartao:0,pix:0};fS.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+(GS(s.serviceId)?.price||0)});
     const fBtns=[{t:'today',l:'Hoje'},{t:'week',l:'Semana'},{t:'month',l:'Mês'},{t:'custom',l:'📅 Custom'}];
     return`<div class="page active"><div class="ph"><div><h2>💰 <span>Financeiro</span></h2></div>
@@ -362,15 +354,21 @@ function pgFin(){const fS=getFS(),tR=fS.reduce((s,x)=>s+(GS(x.serviceId)?.price|
             <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Receita</div></div>
             <div class="sc"><div class="si gr">✂️</div><div class="sv">${fS.length}</div><div class="sl">Serviços</div></div>
             <div class="sc"><div class="si bl">🎯</div><div class="sv">${fmt(avg)}</div><div class="sl">Ticket</div></div>
+            <div class="sc"><div class="si pr">💳</div><div class="sv">${fmt(tC)}</div><div class="sl">Comissões</div></div>
         </div>
         <div class="card mb"><div class="ch"><h3>💳 Por Método</h3></div><div class="cb">
             <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
         </div></div>
-        <div class="card"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Pagto</th><th>Valor</th></tr></thead><tbody>
+        <div class="card"><div class="ch"><h3>💈 Por Barbeiro</h3></div><div class="cb">
+        ${D.barbers.map((b,i)=>{const rev=fS.filter(x=>x.barberId===b.id).reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0);const mx=Math.max(...D.barbers.map(x=>fS.filter(s=>s.barberId===x.id).reduce((s2,s)=>s2+(GS(s.serviceId)?.price||0),0)),1);
+            return`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div><div class="rank-info"><div class="rank-nm">💈 ${esc(b.name)}</div>
+            <div class="rank-sub">Comissão: ${fmt(rev*(b.commission/100))}</div><div class="rank-bar"><div class="rank-fill" style="width:${(rev/mx)*100}%"></div></div></div>
+            <div class="rank-v">${fmt(rev)}</div></div>`}).join('')}</div></div>
+        <div class="card mt"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Pagto</th><th>Valor</th><th>Ações</th></tr></thead><tbody>
         ${[...fS].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,30).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId),bb=GB(s.barberId);
             return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td>${bb?.name||'?'}</td>
             <td><span class="badge b-gld">${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}</span></td>
-            <td class="tg fw">${fmt(sv?.price)}</td></tr>`}).join('')}</tbody></table></div></div></div>`}
+            <td class="tg fw">${fmt(sv?.price)}</td><td><button class="btn-i" onclick="openMod('editTrans',${s.id})">✏️</button></td></tr>`}).join('')}</tbody></table></div></div></div>`}
 function setDF(t){DF.type=t;if(t==='custom'){DF.start=TD();DF.end=TD()}renderPage('financeiro')}
 function setCD(){DF.start=document.getElementById('dfS')?.value;DF.end=document.getElementById('dfE')?.value;renderPage('financeiro')}
 
@@ -406,13 +404,15 @@ function pgRk(){const mk=MK(),rc=D.rankConfig,ranked=D.barbers.map(b=>({...b,rev
 
 function pgMts(){return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Meta</button></div></div>
     <div class="g3">${D.barbers.map(b=>{const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
-        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div style="font-size:1.6rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}; margin:6px 0">${pct}%</div>
+        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="tm" style="font-size:.76rem">Meta: ${tgt?fmt(tgt):'N/A'}</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}; margin:6px 0">${pct}%</div>
             <div class="pb-w"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div><div style="font-size:.8rem;margin-top:6px">${fmt(rev)}/${fmt(tgt)}</div></div></div>`}).join('')}</div></div>`}
 
 function pgPt(){return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
-    <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço↗</th><th>Almoço↙</th><th>Saída</th></tr></thead><tbody>
+    <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço↗</th><th>Almoço↙</th><th>Saída</th><th>Status</th></tr></thead><tbody>
     ${D.barbers.map(b=>{const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TD()),lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD());
-        return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td></tr>`}).join('')}
+        return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td>
+        <td><span class="badge ${tr?tr.clockOut?'b-inf':'b-suc':'b-dan'}">${tr?tr.clockOut?'Fim':'Ativo':'Ausente'}</span></td></tr>`}).join('')}
     </tbody></table></div></div></div>`}
 
 function pgEst(){return`<div class="page active"><div class="ph"><div><h2>📦 <span>Estoque</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div>
@@ -423,9 +423,9 @@ async function adjS(id,d){const s=(D.stock||[]).find(x=>x.id===id);if(s){s.qty=M
 
 function pgNt(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();
     return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div>
-    <div class="card"><div class="cb">${(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+    <div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
         <div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div>
-        <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''}</div></div></div>`).join('')||'<p class="tm tc">Vazio</p>'}</div></div></div>`}
+        <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''} · ${fDt(n.date)}</div></div></div>`).join(''):'<p class="tm tc">Vazio</p>'}</div></div></div>`}
 
 function pgCh(){if(isA()){const contacts=[{id:'all',name:'📢 Mural'},...D.barbers.map(b=>({id:b.id,name:b.name,avatar:b.avatar,photo:b.photo}))],ac=ACI||'all',msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===ac);
     return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
@@ -450,23 +450,25 @@ function pgFid(){const rules=D.fidelityRules;
         return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
             <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
             <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
-            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}</div></div>`}).join('')}</div></div>`}
+            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}
+            <div style="display:flex;gap:4px;justify-content:center;margin-top:10px">
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},1)">＋1</button>
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},-1)">−1</button>
+                ${pts>=tgt?`<button class="btn btn-success btn-xs" onclick="redeemPts(${c.id})">🎁 Resgatar</button>`:''}
+            </div></div></div>`}).join('')}</div></div>`}
 
-// FIDELIDADE - BARBEIRO (editável)
+async function adjPts(cid,d){const c=GC(cid);if(c){c.points=Math.max(0,(c.points||0)+d);await save();renderPage(CP);toast(d>0?'Ponto adicionado!':'Ponto removido!')}}
+async function redeemPts(cid){const c=GC(cid);if(c){c.points=0;await save();renderPage(CP);toast('🎁 Resgatado!')}}
+
+// FIDELIDADE - BARBEIRO (VISUALIZAÇÃO SOMENTE)
 function pgBFid(){const rules=D.fidelityRules;
     return`<div class="page active"><div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
     <div class="g3">${D.clients.map(c=>{const pts=c.points||0,tgt=rules.visitsForReward,pct=Math.min(100,Math.round(pts/tgt*100));
         return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
             <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
             <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
-            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}
-            <div style="display:flex;gap:4px;justify-content:center;margin-top:10px">
-                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},1)">＋1 Ponto</button>
-                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},-1)">−1 Ponto</button>
-                ${pts>=tgt?`<button class="btn btn-success btn-xs" onclick="redeemPts(${c.id})">🎁 Resgatar</button>`:''}
-            </div></div></div>`}).join('')}</div></div>`}
-async function adjPts(cid,d){const c=GC(cid);if(c){c.points=Math.max(0,(c.points||0)+d);await save();renderPage(CP);toast(d>0?'Ponto adicionado!':'Ponto removido!')}}
-async function redeemPts(cid){const c=GC(cid);if(c){c.points=0;await save();renderPage(CP);toast('🎁 Resgatado!')}}
+            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Cliente pode resgatar!</div>':''}
+            </div></div>`}).join('')}</div></div>`}
 
 function pgBkL(){const url=getBookURL();return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div>
     <div class="card"><div class="cb tc"><div style="font-size:3rem;margin-bottom:12px">📱</div><h3 style="margin-bottom:8px">Link de Agendamento</h3>
@@ -555,14 +557,20 @@ function pgMF(){const b=GB(myId());if(!b)return'';const mk=MK(),svcs=(D.complete
 
 function pgMCx(){const b=GB(myId());if(!b)return'';const c=(D.cashiers||[]).find(x=>x.barberId===b.id&&x.date===TD()),io=c&&!c.closedAt,tS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+(c?.openAmount||0);
     return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixa</span></h2></div></div>
-    <div class="card"><div class="cb tc"><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div><div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div></div>
-        ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div><button class="btn btn-gold" style="width:auto" onclick="oCx()">☀️ Abrir</button>`:''}
-        ${io?`<div class="fg mt"><label>Contagem</label><input type="number" class="fc" id="cxC"></div><button class="btn btn-danger" style="width:auto" onclick="cCx()">🌙 Fechar</button>`:''}
-        ${c?.closedAt?`${c.difference!==0?`<div class="badge b-dan mt">⚠️ Dif: ${fmt(c.difference)}</div>`:`<div class="badge b-suc mt">✅ OK</div>`}`:''}</div></div></div>`}
-async function oCx(){const a=parseFloat(document.getElementById('cxO')?.value)||0;D.cashiers.push({id:UI(),barberId:myId(),date:TD(),openedAt:NW(),openAmount:a,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});addN(`🏦 ${GB(myId())?.name} abriu caixa`);await save();renderPage('meucaixa');toast('Aberto! ☀️')}
-async function cCx(){const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TD()&&!x.closedAt);if(!c)return;const ca=parseFloat(document.getElementById('cxC')?.value)||0,tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD()),exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+c.openAmount,diff=ca-exp;
+    <div class="card"><div class="cb tc"><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div>
+        <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div><div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Abra para iniciar'}</div></div>
+        ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div><button class="btn btn-gold" style="width:auto" onclick="openCx()">☀️ Abrir</button>`:''}
+        ${io?`<div class="fg mt"><label>Contagem</label><input type="number" class="fc" id="cxC"></div><button class="btn btn-danger" style="width:auto" onclick="closeCx()">🌙 Fechar</button>`:''}
+        ${c?.closedAt?`<div class="mt">${c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:'<div class="badge b-suc">✅ OK</div>'}</div>`:''}</div></div></div>`}
+async function openCx(){const amt=parseFloat(document.getElementById('cxO')?.value)||0;
+    D.cashiers.push({id:UI(),barberId:myId(),date:TD(),openedAt:NW(),openAmount:amt,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});
+    addN(`🏦 ${GB(myId())?.name} abriu caixa`);await save();renderPage('meucaixa');toast('Aberto! ☀️')}
+async function closeCx(){const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TD()&&!x.closedAt);if(!c)return;
+    const ca=parseFloat(document.getElementById('cxC')?.value)||0;const tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD());
+    const exp=tS.reduce((s,x)=>s+(GS(x.serviceId)?.price||0),0)+c.openAmount;const diff=ca-exp;
     c.closedAt=NW();c.closedAmount=ca;c.expectedAmount=exp;c.difference=diff;
-    if(diff!==0){addN(`🔴 ${GB(myId())?.name}: DIVERGÊNCIA ${fmt(diff)}`,'danger');D.vales.push({id:UI(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo ${fDt(TD())}`,date:TD(),status:'pending'});toast('⚠️ Divergência!','warning')}else{addN(`✅ ${GB(myId())?.name} caixa OK`);toast('Fechado! ✅')}
+    if(diff!==0){addN(`🔴 ${GB(myId())?.name}: DIVERGÊNCIA ${fmt(diff)}`,'danger');D.vales.push({id:UI(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo ${fDt(TD())}`,date:TD(),status:'pending'});toast('⚠️ Divergência!','warning')}
+    else{addN(`✅ ${GB(myId())?.name} caixa OK`);toast('Fechado! ✅')}
     await save();renderPage('meucaixa')}
 
 function pgMV(){const b=GB(myId());if(!b)return'';const mv=(D.vales||[]).filter(v=>v.barberId===b.id),t=mv.filter(v=>v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0);
@@ -570,7 +578,8 @@ function pgMV(){const b=GB(myId());if(!b)return'';const mv=(D.vales||[]).filter(
     <div class="sc mb"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">Débitos</div></div>
     <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Status</th></tr></thead><tbody>
     ${mv.map(v=>`<tr><td>${fDt(v.date)}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td><td class="fw td">${fmt(v.amount)}</td>
-        <td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pend':'OK'}</span></td></tr>`).join('')}</tbody></table></div></div></div>`}
+        <td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pend':'OK'}</span></td></tr>`).join('')}
+    </tbody></table></div></div></div>`}
 
 function pgBMt(){const b=GB(myId());if(!b)return'';const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
     return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div></div>
@@ -651,7 +660,19 @@ function openMod(type,eid){const ov=document.getElementById('mOv'),md=document.g
         <div class="fg"><label>🥇 1º R$</label><input type="number" class="fc" id="mRc1" value="${rc.prizes?.[1]||0}"></div>
         <div class="fg"><label>🥈 2º R$</label><input type="number" class="fc" id="mRc2" value="${rc.prizes?.[2]||0}"></div>
         <div class="fg"><label>🥉 3º R$</label><input type="number" class="fc" id="mRc3" value="${rc.prizes?.[3]||0}"></div>
-        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sRcM()">Salvar</button></div>`}
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sRcM()">Salvar</button></div>`
+    }else if(type==='editTrans'){
+        const s=D.completedServices.find(x=>x.id===eid);if(!s)return;
+        h=`<div class="mh"><h3>✏️ Editar Transação</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mTrId" value="${s.id}">
+        <div class="fg"><label>Serviço</label><select class="fc" id="mTrS">${D.services.map(x=>`<option value="${x.id}" ${x.id===s.serviceId?'selected':''}>${x.name}</option>`).join('')}</select></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="mTrD" value="${s.date}"></div>
+        <div class="fg"><label>Método</label><select class="fc" id="mTrP">
+            <option value="dinheiro" ${s.payMethod==='dinheiro'?'selected':''}>Dinheiro</option>
+            <option value="cartao" ${s.payMethod==='cartao'?'selected':''}>Cartão</option>
+            <option value="pix" ${s.payMethod==='pix'?'selected':''}>Pix</option>
+        </select></div></div>
+        <div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sTrM()">Salvar</button></div>`
+    }
     md.innerHTML=h;ov.classList.add('active');if(type==='appt')setTimeout(uSl,100)}
 
 function closeMod(){document.getElementById('mOv').classList.remove('active')}
@@ -683,8 +704,10 @@ async function sGlM(){const bid=Number(document.getElementById('mGb').value),m=d
     const ex=(D.goals||[]).findIndex(g=>g.barberId===bid&&g.month===m);if(ex>=0)D.goals[ex].target=v;else D.goals.push({id:UI(),barberId:bid,month:m,target:v});await save();closeMod();renderPage(CP);toast('Meta! 🎯')}
 async function sSkM(){const n=document.getElementById('mSkn').value.trim();if(!n){toast('Nome!','error');return}D.stock.push({id:UI(),name:n,qty:Number(document.getElementById('mSkq').value)||0,min:Number(document.getElementById('mSkm').value)||5});await save();closeMod();renderPage(CP);toast('Adicionado!')}
 async function sRcM(){D.rankConfig={premiados:Number(document.getElementById('mRcP').value),prizes:{1:parseFloat(document.getElementById('mRc1').value)||0,2:parseFloat(document.getElementById('mRc2').value)||0,3:parseFloat(document.getElementById('mRc3').value)||0}};await save();closeMod();renderPage(CP);toast('Ranking OK! 🏆')}
+async function sTrM(){const id=Number(document.getElementById('mTrId').value),s=D.completedServices.find(x=>x.id===id);
+    if(s){s.serviceId=Number(document.getElementById('mTrS').value);s.date=document.getElementById('mTrD').value;s.payMethod=document.getElementById('mTrP').value;
+    await save();closeMod();renderPage(CP);toast('Transação Editada!')}}
 
-// BOOKING
 function initBk(){document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('bookingPage').classList.remove('hidden');rBk()}
 function rBk(step=1,bd={}){const bc=document.getElementById('bookingContent');
     if(step===1){bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>MR Barbearia</h2><p>Agende online</p></div>
@@ -703,7 +726,6 @@ function bk2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toas
 async function bk3(time){const d=window._bd;if(!d)return;let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UI(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
     D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await save();rBk(3,d)}
 
-// INIT
 async function init(){try{if(window.location.search.includes('booking=1')){await loadData();initBk();listen();return}await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}}
 init();
 </script>
