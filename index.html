@@ -674,7 +674,7 @@ function openMod(type,eid){const ov=document.getElementById('mOv'),md=document.g
             <option value="cartao" ${s.payMethod==='cartao'?'selected':''}>Cartão</option>
             <option value="pix" ${s.payMethod==='pix'?'selected':''}>Pix</option>
         </select></div></div>
-        <div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sTrM()">Salvar</button></div>`
+        <div class="mft" style="justify-content:space-between"><button class="btn btn-danger" onclick="delTr(${s.id})">🗑️ Excluir</button><div style="display:flex;gap:8px"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sTrM()">Salvar</button></div></div>`
     }
     md.innerHTML=h;ov.classList.add('active');if(type==='appt')setTimeout(uSl,100)}
 
@@ -711,6 +711,7 @@ async function sTrM(){const id=Number(document.getElementById('mTrId').value),s=
     if(s){s.serviceId=Number(document.getElementById('mTrS').value);s.date=document.getElementById('mTrD').value;s.payMethod=document.getElementById('mTrP').value;
     s.price=parseFloat(document.getElementById('mTrV').value)||0;
     await save();closeMod();renderPage(CP);toast('Transação Editada!')}}
+async function delTr(id){if(!confirm('Excluir este lançamento?'))return;D.completedServices=D.completedServices.filter(x=>x.id!==id);await save();closeMod();renderPage(CP);toast('Excluído!','info')}
 
 function initBk(){document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('bookingPage').classList.remove('hidden');rBk()}
 function rBk(step=1,bd={}){const bc=document.getElementById('bookingContent');
@@ -730,7 +731,10 @@ function bk2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toas
 async function bk3(time){const d=window._bd;if(!d)return;let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UI(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
     D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await save();rBk(3,d)}
 
-async function init(){try{if(window.location.search.includes('booking=1')){await loadData();initBk();listen();return}await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}}
+async function init(){
+    if(window.location.search.includes('booking=1')){try{await loadData();initBk();listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}return}
+    setTimeout(()=>{const ls=document.getElementById('loadingScreen');if(!ls.classList.contains('hidden')){ls.classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');if(!D)D=JSON.parse(JSON.stringify(DEF));popLU()}},4000);
+    try{await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){console.log("Auth wait");if(!D)D=JSON.parse(JSON.stringify(DEF));popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden')}}
 init();
 </script>
 </body>
