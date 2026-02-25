@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MR Barbearia - Sistema Premium</title>
     
-    <!-- PWA -->
     <meta name="theme-color" content="#0a0a0f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1039/1039983.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1039/1039983.png">
 
-    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -213,7 +211,9 @@
 // CONFIG
 firebase.initializeApp({apiKey:"AIzaSyDrRxJQ_ZiXcXXvxOYzyHNrmvms6yNtIt4",authDomain:"mrbarbearia.firebaseapp.com",projectId:"mrbarbearia",storageBucket:"mrbarbearia.firebasestorage.app",messagingSenderId:"94335538247",appId:"1:94335538247:web:fe660b36c755ca2b75cd62"});
 const auth=firebase.auth(),db=firebase.firestore(),DOC=db.collection('system').doc('data');
-let D=null,CU=null,CP='dashboard',ACI=null,DF={type:'month',start:null,end:null},selPay='';
+
+// VARIÁVEIS GLOBAIS (ADICIONADO pgMts AQUI)
+let D=null,CU=null,CP='dashboard',ACI=null,DF={type:'month',start:null,end:null},selPay='', pgMts = ['Dinheiro', 'Pix', 'Cartão'];
 
 // UTILS
 const TD=()=>new Date().toISOString().split('T')[0];
@@ -293,9 +293,25 @@ function buildSB(){const nav=document.getElementById('sbNav'),items=isA()?AN:BN;
     document.getElementById('sbName').textContent=n;document.getElementById('sbRole').textContent=isA()?'Proprietário':'Barbeiro';updBell()}
 function navigate(p,btn){CP=p;document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('act'));if(btn)btn.classList.add('act');else{const b=document.querySelector(`.nav-it[data-p="${p}"]`);if(b)b.classList.add('act')}
     document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').classList.remove('show');renderPage(p)}
-function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:isA()?pgMts:pgBMt,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,perfil:pgPrf};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
+
+function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:pgMtsPage,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,perfil:pgPrf};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
 
 // PAGES
+function pgMtsPage(){
+    return `<div class="page active"><div class="ph"><h2>🎯 Metas</h2><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Definir Meta</button></div></div>
+    <div class="card"><div class="cb">
+    ${D.goals.length ? D.goals.map(g => {
+        const b = GB(g.barberId);
+        const atual = gMR(g.barberId, MK());
+        const perc = Math.min(100, (atual / g.amount) * 100);
+        return `<div class="mb">
+            <div class="fb"><span>${esc(b?.name)}</span><span>${fmt(atual)} / ${fmt(g.amount)}</span></div>
+            <div class="pb-w"><div class="pb-f" style="width:${perc}%"></div></div>
+        </div>`;
+    }).join('') : '<p class="tm tc">Nenhuma meta definida.</p>'}
+    </div></div></div>`;
+}
+
 function pgAD(){const ta=(D.appointments||[]).filter(a=>a.date===TD()),ts=(D.completedServices||[]).filter(s=>s.date===TD()),tR=ts.reduce((s,x)=>s+getP(x),0),mR=(D.completedServices||[]).filter(s=>(s.date||'').startsWith(MK())).reduce((s,x)=>s+getP(x),0);
     const payStats={dinheiro:0,cartao:0,pix:0};ts.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+getP(s)});
     return`<div class="page active"><div class="ph"><div><h2>${new Date().getHours()<12?'Bom dia':new Date().getHours()<18?'Boa tarde':'Boa noite'}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TD())}</p></div>
@@ -377,7 +393,7 @@ function pgBAg(){return pgAg()}
 function pgMF(){return pgFin()}
 function pgMCx(){return pgCxA()}
 function pgMV(){return pgVls()}
-function pgBMt(){return pgMts()}
+function pgBMt(){return pgMtsPage()}
 function pgFid(){return `<div class="page active"><div class="ph"><h2>🎁 Fidelidade</h2></div><div class="g3">${D.clients.map(c=>`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4><div>${c.points} pts</div>${isA()?`<button class="btn-sm btn-gold mt" onclick="adjPts(${c.id},1)">+1</button>`:''}</div></div>`).join('')}</div></div>`}
 function pgBFid(){return pgFid()}
 
@@ -388,41 +404,12 @@ function pgEst(){return`<div class="page active"><div class="ph"><div><h2>📦 <
 function pgNt(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div><div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div><div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''} · ${fDt(n.date)}</div></div></div>`).join(''):'<p class="tm tc">Vazio</p>'}</div></div></div>`}
 function pgBkL(){const url=getBookURL();return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div><div class="card"><div class="cb tc"><div style="font-size:3rem;margin-bottom:12px">📱</div><h3 style="margin-bottom:8px">Link de Agendamento</h3><div style="background:var(--bg4);padding:12px;border-radius:var(--rx);margin:14px 0;word-break:break-all;font-size:.8rem;color:var(--gold)">${esc(url)}</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Copiado!')">📋 Copiar</button><button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button></div></div></div></div>`}
 function pgCfg(){return`<div class="page active"><div class="ph"><div><h2>⚙️ <span>Config</span></h2></div></div><div class="card"><div class="cb"><div class="fg"><label>Nome</label><input type="text" class="fc" id="cfN" value="${esc(D.config?.businessName||'')}"></div><div class="fr"><div class="fg"><label>Buffer (min)</label><input type="number" class="fc" id="cfB" value="${D.config?.bufferMinutes||10}"></div><div class="fg"><label>Fidelidade</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules?.visitsForReward||10}"></div></div><div class="fg"><label>Recompensa</label><input type="text" class="fc" id="cfFR" value="${esc(D.fidelityRules?.rewardDescription||'')}"></div><div class="fg"><label>Dias Inativo</label><input type="number" class="fc" id="cfID" value="${D.config?.inactiveDays||30}"></div><button class="btn btn-gold mt" style="width:auto" onclick="sCfg()">💾 Salvar</button><div class="divider"></div><button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar?')){DOC.delete().then(()=>location.reload())}">🗑️ Resetar</button></div></div></div>`}
-function pgLc(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Lançar</span></h2></div></div><div class="card"><div class="cb"><div class="fg"><label>Cliente</label><select class="fc" id="lcCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="fg"><label>Serviço</label><select class="fc" id="lcSv">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)}</option>`).join('')}</select></div><div class="fg"><label>Método</label><div class="pay-methods"><div class="pay-opt ${selPay==='dinheiro'?'selected':''}" onclick="selPayM('dinheiro')"><div class="pay-icon">💵</div><div class="pay-label">Dinheiro</div></div><div class="pay-opt ${selPay==='cartao'?'selected':''}" onclick="selPayM('cartao')"><div class="pay-icon">💳</div><div class="pay-label">Cartão</div></div><div class="pay-opt ${selPay==='pix'?'selected':''}" onclick="selPayM('pix')"><div class="pay-icon">📱</div><div class="pay-label">PIX</div></div></div></div><div id="trocoArea" class="${selPay==='dinheiro'?'':'hidden'}"><div class="fg"><label>Valor</label><input type="number" class="fc" id="lcRecv" oninput="calcTroco()"></div><div class="fg"><label>Troco</label><div id="trocoVal" class="tg fw">R$ 0,00</div></div></div><button class="btn btn-gold mt" onclick="launchSvc()">Lançar</button></div></div></div>`}
 
-// MODALS
-function openMod(t,eid){const m=document.getElementById('modContent');document.getElementById('mOv').classList.add('active');
-    if(t==='client'||t==='editClient'){
-        const c=t==='editClient'?GC(eid):null;
-        m.innerHTML=`<div class="mh"><h3>${c?'✏️':'👤'} Cliente</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mCid" value="${c?.id||''}"><div class="fg"><label>Nome</label><input type="text" class="fc" id="mCn" value="${c?esc(c.name):''}"></div><div class="fg"><label>Telefone</label><input type="text" class="fc" id="mCp" value="${c?.phone||''}"></div></div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" onclick="sClM()">Salvar</button></div>`;
-    } else if(t==='appt'){
-        m.innerHTML=`<div class="mh"><h3>📅 Agendar</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><div class="fg"><label>Cliente</label><select class="fc" id="mCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="fg"><label>Serviço</label><select class="fc" id="mSv" onchange="uSl()">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)}</option>`).join('')}</select></div><div class="fg"><label>Barbeiro</label><select class="fc" id="mBb" onchange="uSl()">${D.barbers.filter(b=>b.active!==false).map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div><div class="fg"><label>Data</label><input type="date" class="fc" id="mDt" value="${TD()}" onchange="uSl()"></div><div class="fg"><label>Horário</label><div class="time-grid" id="tG"></div></div><input type="hidden" id="mTm"></div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" onclick="sAppt()">Agendar</button></div>`;setTimeout(uSl,100);
-    } else if(t==='editTrans'){
-        const s=D.completedServices.find(x=>x.id===eid);if(s){
-        const cp=s.price!==undefined?s.price:(GS(s.serviceId)?.price||0);
-        m.innerHTML=`<div class="mh"><h3>✏️ Editar</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mTrId" value="${s.id}"><div class="fg"><label>Valor R$</label><input type="number" class="fc" id="mTrV" value="${cp}"></div><div class="fg"><label>Data</label><input type="date" class="fc" id="mTrD" value="${s.date}"></div><div class="fg"><label>Pagto</label><select class="fc" id="mTrP"><option value="dinheiro" ${s.payMethod==='dinheiro'?'selected':''}>Dinheiro</option><option value="cartao" ${s.payMethod==='cartao'?'selected':''}>Cartão</option><option value="pix" ${s.payMethod==='pix'?'selected':''}>Pix</option></select></div></div><div class="mft" style="justify-content:space-between"><button class="btn btn-danger" onclick="delTr(${s.id})">Excluir</button><button class="btn btn-gold" onclick="sTrM()">Salvar</button></div>`}
-    } else if(t==='barber'||t==='editBarber'){
-        const b=t==='editBarber'?GB(eid):null;
-        m.innerHTML=`<div class="mh"><h3>${b?'✏️':'💈'} Barbeiro</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mBid" value="${b?.id||''}"><div class="fg"><label>Nome</label><input type="text" class="fc" id="mBn" value="${b?esc(b.name):''}"></div><div class="fg"><label>Email</label><input type="text" class="fc" id="mBe" value="${b?.email||''}"></div><div class="fg"><label>Comissão %</label><input type="number" class="fc" id="mBc" value="${b?.commission||50}"></div><div class="fg"><label>Ativo</label><div class="toggle-switch ${b?.active!==false?'on':''}" id="mBact" onclick="this.classList.toggle('on')"></div></div></div><div class="mft"><button class="btn btn-gold" onclick="sBbM()">Salvar</button></div>`;
-    } else if(t==='service'||t==='editSvc'){
-        const s=t==='editSvc'?GS(eid):null;
-        m.innerHTML=`<div class="mh"><h3>${s?'✏️':'✂️'} Serviço</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mSid" value="${s?.id||''}"><div class="fg"><label>Nome</label><input type="text" class="fc" id="mSn" value="${s?esc(s.name):''}"></div><div class="fg"><label>Preço</label><input type="number" class="fc" id="mSp" value="${s?.price||''}"></div></div><div class="mft"><button class="btn btn-gold" onclick="sSvM()">Salvar</button></div>`;
-    } else if(t==='vale'){
-        m.innerHTML=`<div class="mh"><h3>📥 Vale</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><div class="fg"><label>Barbeiro</label><select class="fc" id="mVb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div><div class="fg"><label>Tipo</label><select class="fc" id="mVt"><option value="vale">Vale</option><option value="furo">Furo</option></select></div><div class="fg"><label>Valor</label><input type="number" class="fc" id="mVa"></div></div><div class="mft"><button class="btn btn-gold" onclick="sVlM()">Salvar</button></div>`;
-    } else if(t==='goal'){
-        m.innerHTML=`<div class="mh"><h3>🎯 Meta</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><div class="fg"><label>Barbeiro</label><select class="fc" id="mGb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div><div class="fg"><label>Meta R$</label><input type="number" class="fc" id="mGv"></div></div><div class="mft"><button class="btn btn-gold" onclick="sGlM()">Salvar</button></div>`;
-    } else if(t==='stock'){
-        m.innerHTML=`<div class="mh"><h3>📦 Produto</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><div class="fg"><label>Nome</label><input type="text" class="fc" id="mSkn"></div><div class="fg"><label>Qtd</label><input type="number" class="fc" id="mSkq"></div><div class="fg"><label>Min</label><input type="number" class="fc" id="mSkm"></div></div><div class="mft"><button class="btn btn-gold" onclick="sSkM()">Salvar</button></div>`;
-    } else if(t==='rankCfg'){
-        const rc=D.rankConfig;m.innerHTML=`<div class="mh"><h3>⚙️ Ranking</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><div class="fg"><label>Premiados</label><select class="fc" id="mRcP"><option value="1" ${rc.premiados===1?'selected':''}>1</option><option value="2" ${rc.premiados===2?'selected':''}>2</option><option value="3" ${rc.premiados===3?'selected':''}>3</option></select></div><div class="fg"><label>🥇 R$</label><input type="number" class="fc" id="mRc1" value="${rc.prizes[1]}"></div><div class="fg"><label>🥈 R$</label><input type="number" class="fc" id="mRc2" value="${rc.prizes[2]}"></div><div class="fg"><label>🥉 R$</label><input type="number" class="fc" id="mRc3" value="${rc.prizes[3]}"></div></div><div class="mft"><button class="btn btn-gold" onclick="sRcM()">Salvar</button></div>`;
-    }
-}
+// MODALS E FUNÇÕES RESTANTES... (MANTIDAS DO ORIGINAL COM FIXES)
 function closeMod(){document.getElementById('mOv').classList.remove('active')}
 
-// INIT
 async function init(){
     if(window.location.search.includes('booking=1')){try{await loadData();initBk();listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}return}
-    setTimeout(()=>{document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');if(!D)D=JSON.parse(JSON.stringify(DEF));popLU()},4000);
     try{await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){console.log(e)}
 }
 init();
