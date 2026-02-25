@@ -728,4 +728,10 @@ function rBk(step=1,bd={}){const bc=document.getElementById('bookingContent');
         <button class="btn btn-gold full mt" onclick="rBk()">Novo</button>`}}
 function bk2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toast('Nome!','error');return}rBk(2,{name:n,phone:document.getElementById('bkP')?.value,sid:Number(document.getElementById('bkS').value),bid:Number(document.getElementById('bkB').value)||D.barbers.filter(b=>b.active!==false)[0]?.id,date:document.getElementById('bkD').value})}
 async function bk3(time){const d=window._bd;if(!d)return;let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UI(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
-    D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await 
+    D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await save();rBk(3,d)}
+
+async function init(){try{if(window.location.search.includes('booking=1')){await loadData();initBk();listen();return}await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}}
+init();
+</script>
+</body>
+</html>
