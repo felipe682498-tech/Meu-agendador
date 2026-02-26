@@ -2,26 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MR Barbearia - Sistema Premium</title>
-    
-    <meta name="theme-color" content="#0a0a0f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1039/1039983.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1039/1039983.png">
-
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-
     <style>
         :root{--gold:#d4a937;--gold-l:#f0d078;--gold-d:#b8912e;--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a25;--bg4:#22222e;--sidebar:#0e0e16;--text:#f0f0f0;--muted:#7a7a8a;--dim:#44445a;--border:#2a2a3a;--success:#2ecc71;--warn:#f39c12;--danger:#e74c3c;--info:#3498db;--purple:#6c5ce7;--r:14px;--rs:10px;--rx:6px;--shadow:0 8px 32px rgba(0,0,0,.5);--shadow-g:0 4px 24px rgba(212,169,55,.2);--tr:.3s ease;--sw:250px}
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
         ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-        .hidden{display:none!important}button{font-family:inherit;user-select:none}
-        
-        /* LOGIN */
+        .hidden{display:none!important}button{font-family:inherit}
         .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a0a0f,#1a1020);padding:20px}
         .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:40px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
         .login-card .logo{font-size:3.5rem;margin-bottom:8px;display:block}.login-card h1{font-size:1.8rem;font-weight:800;color:var(--gold);margin-bottom:4px}
@@ -29,14 +19,12 @@
         .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
         .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}.lt{color:var(--gold);font-weight:600;font-size:.9rem}
-        
-        /* UI */
         .fg{margin-bottom:14px;text-align:left}.fg label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
         .fc{width:100%;padding:12px 14px;background:var(--bg4);border:1.5px solid var(--border);border-radius:var(--rx);color:var(--text);font-size:.92rem;outline:none;transition:var(--tr)}
         .fc:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,55,.08)}.fc::placeholder{color:var(--dim)}
         select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7a8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
         .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .btn{padding:11px 20px;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+        .btn{padding:11px 20px;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;justify-content:center;font-family:inherit}
         .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}.btn-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow-g)}
         .btn-gold.full{width:100%;padding:14px;font-size:1rem}.btn-gold:disabled{opacity:.5;transform:none;cursor:not-allowed}
         .btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text)}.btn-out:hover{border-color:var(--gold);color:var(--gold)}
@@ -44,8 +32,6 @@
         .btn-danger{background:var(--danger);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-info{background:var(--info);color:#fff}.btn-warn{background:var(--warn);color:#000}
         .btn-i{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--rx);background:var(--bg4);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:var(--tr);font-size:.95rem}
         .btn-i:hover{color:var(--gold);border-color:var(--gold)}
-        
-        /* APP */
         .app{display:none;min-height:100vh}.app.active{display:flex}
         .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform var(--tr)}
         .sb-brand{padding:18px 16px 16px;border-bottom:1px solid var(--border)}.sb-brand h1{font-size:1.15rem;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:8px}
@@ -60,14 +46,12 @@
         .u-av img{width:100%;height:100%;object-fit:cover}
         .u-info{flex:1;min-width:0}.u-info .n{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.u-info .r{font-size:.68rem;color:var(--muted)}
         .lo-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:1rem;padding:4px;transition:var(--tr)}.lo-btn:hover{color:var(--danger)}
-        
         .main{margin-left:var(--sw);flex:1;min-height:100vh;padding:24px}
         .page{display:none;animation:fadeIn .25s ease}.page.active{display:block}
         @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        
-        /* COMPONENTS */
         .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
-        .ph h2{font-size:1.5rem;font-weight:800}.ph h2 span{color:var(--gold)}.ph-sub{color:var(--muted);font-size:.83rem;margin-top:3px}.ph-acts{display:flex;gap:8px;flex-wrap:wrap}
+        .ph h2{font-size:1.5rem;font-weight:800}.ph h2 span{color:var(--gold)}.ph-sub{color:var(--muted);font-size:.83rem;margin-top:3px}
+        .ph-acts{display:flex;gap:8px;flex-wrap:wrap}
         .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:22px}
         .sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:var(--tr);position:relative;overflow:hidden}
         .sc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
@@ -86,8 +70,6 @@
         .b-suc{background:rgba(46,204,113,.15);color:var(--success)}.b-warn{background:rgba(243,156,18,.15);color:var(--warn)}
         .b-dan{background:rgba(231,76,60,.15);color:var(--danger)}.b-inf{background:rgba(52,152,219,.15);color:var(--info)}
         .b-gld{background:rgba(212,169,55,.15);color:var(--gold)}.b-pur{background:rgba(108,92,231,.15);color:var(--purple)}
-        
-        /* PODIUM */
         .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:30px 20px 10px;margin-bottom:20px}
         .pod-it{text-align:center;transition:var(--tr)}.pod-it:hover{transform:translateY(-4px)}
         .pod-av{width:60px;height:60px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;position:relative;overflow:hidden}
@@ -108,11 +90,11 @@
         .rank-info{flex:1}.rank-nm{font-weight:600;font-size:.85rem}.rank-sub{font-size:.7rem;color:var(--muted)}
         .rank-bar{height:4px;background:var(--bg4);border-radius:4px;margin-top:3px;overflow:hidden}.rank-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .5s ease}
         .rank-v{font-weight:700;color:var(--gold);font-size:.88rem}.wins-b{font-size:.65rem;color:var(--gold);background:rgba(212,169,55,.1);padding:2px 6px;border-radius:10px;margin-left:4px}
-        
         .bc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;transition:var(--tr)}.bc:hover{border-color:rgba(212,169,55,.3);transform:translateY(-2px)}
         .b-av{width:65px;height:65px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;position:relative;overflow:hidden}
         .b-av img{width:100%;height:100%;object-fit:cover}
-        .av1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}.av2{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}.av3{background:linear-gradient(135deg,#00cec9,#0984e3)}.av4{background:linear-gradient(135deg,#e17055,#d63031)}.av5{background:linear-gradient(135deg,#2ecc71,#27ae60)}
+        .av1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}.av2{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#000}
+        .av3{background:linear-gradient(135deg,#00cec9,#0984e3)}.av4{background:linear-gradient(135deg,#e17055,#d63031)}.av5{background:linear-gradient(135deg,#2ecc71,#27ae60)}
         .st-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--bg2);position:absolute;bottom:0;right:0;z-index:2}
         .d-on{background:var(--success)}.d-off{background:var(--dim)}.d-busy{background:var(--warn)}.d-lunch{background:var(--info)}
         .bc h4{font-size:.95rem;margin-bottom:3px}.bc .spec{color:var(--muted);font-size:.76rem;margin-bottom:8px}
@@ -121,11 +103,9 @@
         .svc{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg4);border-radius:var(--rs);margin-bottom:7px;transition:var(--tr)}.svc:hover{background:var(--bg3)}
         .svc-ic{width:38px;height:38px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(212,169,55,.1);flex-shrink:0}
         .svc-i{flex:1;min-width:0}.svc-i .sn{font-weight:600;font-size:.85rem}.svc-i .sd{font-size:.72rem;color:var(--muted)}.svc-p{font-weight:700;color:var(--gold);white-space:nowrap}
-        
         .cx-st{padding:18px;border-radius:var(--r);text-align:center;margin-bottom:14px}
         .cx-st.cx-o{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2)}.cx-st.cx-c{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2)}
         .cx-big{font-size:1.8rem;font-weight:800;margin:6px 0 3px}.cx-lbl{font-size:.8rem;color:var(--muted)}
-        
         .chat-msgs{max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding:4px}
         .chat-msg{padding:9px 13px;border-radius:var(--rs);max-width:80%;font-size:.83rem;line-height:1.4}
         .chat-msg.sent{background:rgba(212,169,55,.12);align-self:flex-end}.chat-msg.recv{background:var(--bg4);align-self:flex-start}
@@ -137,11 +117,9 @@
         .cc-av img{width:100%;height:100%;object-fit:cover}
         .cc-info{flex:1;min-width:0}.cc-name{font-weight:600;font-size:.85rem}.cc-last{font-size:.72rem;color:var(--muted)}
         .cc-badge{background:var(--gold);color:#000;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px}
-        
         .f-dots{display:flex;gap:6px;justify-content:center;margin:14px 0;flex-wrap:wrap}
         .f-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:var(--tr)}
         .f-dot.filled{background:var(--gold);border-color:var(--gold);color:#000}
-        
         .pb-w{height:6px;background:var(--bg4);border-radius:10px;overflow:hidden;margin-top:5px}
         .pb-f{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .5s ease}
         .divider{height:1px;background:var(--border);margin:14px 0}
@@ -208,30 +186,32 @@
 <div class="toast-c" id="toastC"></div>
 
 <script>
-// CONFIG
 firebase.initializeApp({apiKey:"AIzaSyDrRxJQ_ZiXcXXvxOYzyHNrmvms6yNtIt4",authDomain:"mrbarbearia.firebaseapp.com",projectId:"mrbarbearia",storageBucket:"mrbarbearia.firebasestorage.app",messagingSenderId:"94335538247",appId:"1:94335538247:web:fe660b36c755ca2b75cd62"});
 const auth=firebase.auth(),db=firebase.firestore(),DOC=db.collection('system').doc('data');
+let D=null,CU=null,CP='dashboard',ACI=null,DF={type:'month',start:null,end:null},selPay='';
 
-// VARIÁVEIS GLOBAIS (ADICIONADO pgMts AQUI)
-let D=null,CU=null,CP='dashboard',ACI=null,DF={type:'month',start:null,end:null},selPay='', pgMts = ['Dinheiro', 'Pix', 'Cartão'];
-
-// UTILS
 const TD=()=>new Date().toISOString().split('T')[0];
 const NW=()=>{const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
 const UI=()=>Date.now()+Math.floor(Math.random()*9999);
 const MK=(d)=>(d||TD()).substring(0,7);
-const DEF={barbers:[{id:1,name:'Carlos',specialty:'Corte',status:'online',avatar:'av1',rating:5,commission:50,active:true}],clients:[{id:1,name:'João',phone:'',visits:0,lastVisit:TD(),active:true}],services:[{id:1,name:'Corte',duration:30,price:40,icon:'✂️'}],appointments:[],completedServices:[],cashiers:[],vales:[],notifications:[],rankings:{},stock:[],chatMessages:[],goals:[],fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10,inactiveDays:30}};
 
-// FIREBASE
+const DEF={barbers:[
+    {id:1,name:'Carlos Silva',specialty:'Corte & Barba',status:'offline',avatar:'av1',rating:5,phone:'(11)99999-0001',email:'carlos@mr.com',commission:50,photo:'',active:true},
+    {id:2,name:'Ricardo Santos',specialty:'Degradê',status:'offline',avatar:'av2',rating:4,phone:'(11)99999-0002',email:'ricardo@mr.com',commission:50,photo:'',active:true}],
+    clients:[{id:1,name:'João Mendes',phone:'(11)98888-1111',visits:12,lastVisit:'2025-01-10',totalSpent:720,points:2}],
+    services:[{id:1,name:'Corte Masculino',duration:30,price:45,icon:'✂️'},{id:2,name:'Barba Completa',duration:25,price:35,icon:'🪒'}],
+    appointments:[],completedServices:[],cashiers:[],vales:[],notifications:[],rankings:{},stock:[],chatMessages:[],goals:[],timeRecords:[],lunchRecords:[],
+    fidelityRules:{visitsForReward:10,rewardDescription:'1 Corte Grátis'},rankConfig:{premiados:3,prizes:{1:500,2:250,3:100}},
+    config:{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10}};
+
 async function loadData(){try{const s=await DOC.get();if(s.exists){D=s.data()}else{D=JSON.parse(JSON.stringify(DEF));await DOC.set(D)}}catch(e){D=JSON.parse(JSON.stringify(DEF));try{await DOC.set(D)}catch(e2){}}
-    ['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','barbers','clients','services'].forEach(k=>{D[k]=D[k]||[]});
-    D.rankings=D.rankings||{};D.rankConfig=D.rankConfig||DEF.rankConfig;D.fidelityRules=D.fidelityRules||DEF.fidelityRules;D.config=D.config||DEF.config;
-    D.barbers.forEach(b=>{if(b.active===undefined)b.active=true;if(!b.photo)b.photo=''});
-    D.clients.forEach(c=>{if(c.active===undefined)c.active=true})}
+    ['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','timeRecords','lunchRecords','barbers','clients','services'].forEach(k=>{D[k]=D[k]||[]});
+    D.rankings=D.rankings||{};D.rankConfig=D.rankConfig||{premiados:3,prizes:{1:500,2:250,3:100}};D.fidelityRules=D.fidelityRules||{visitsForReward:10,rewardDescription:'1 Corte Grátis'};
+    D.config=D.config||{businessName:'MR Barbearia',openTime:'08:00',closeTime:'20:00',adminPassword:'123456',bufferMinutes:10};
+    D.barbers.forEach(b=>{if(b.active===undefined)b.active=true;if(!b.photo)b.photo=''})}
 async function save(){try{await DOC.set(D)}catch(e){toast('Erro!','error')}}
-function listen(){DOC.onSnapshot(s=>{if(s.exists&&CU){const n=s.data();['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','barbers','clients','services'].forEach(k=>{n[k]=n[k]||[]});n.rankings=n.rankings||{};n.rankConfig=n.rankConfig||D.rankConfig;n.fidelityRules=n.fidelityRules||D.fidelityRules;n.config=n.config||D.config;D=n;renderPage(CP)}},e=>{})}
+function listen(){DOC.onSnapshot(s=>{if(s.exists&&CU){const n=s.data();['appointments','completedServices','cashiers','vales','notifications','stock','chatMessages','goals','timeRecords','lunchRecords','barbers','clients','services'].forEach(k=>{n[k]=n[k]||[]});n.rankings=n.rankings||{};n.rankConfig=n.rankConfig||D.rankConfig;n.fidelityRules=n.fidelityRules||D.fidelityRules;n.config=n.config||D.config;D=n;renderPage(CP)}},e=>{})}
 
-// AUTH
 async function doLogin(){const sel=document.getElementById('loginUser').value,pass=document.getElementById('loginPass').value,err=document.getElementById('loginError'),btn=document.getElementById('loginBtn');
     err.textContent='';if(pass.length<6){err.textContent='Mínimo 6 caracteres!';return}btn.disabled=true;btn.textContent='Entrando...';
     let email,isA=false,bid=null;if(sel==='admin'){email='admin@mrbarbearia.com';isA=true}else{bid=Number(sel);const b=GB(bid);if(!b){err.textContent='Não encontrado!';btn.disabled=false;btn.textContent='Entrar';return}email=b.email||`b${b.id}@mr.com`}
@@ -242,7 +222,6 @@ async function doLogin(){const sel=document.getElementById('loginUser').value,pa
 async function doLogout(){if(CU?.type==='barber'){const b=GB(CU.id);if(b)b.status='offline';await save()}try{await auth.signOut()}catch(e){}CU=null;document.getElementById('appContainer').classList.remove('active');document.getElementById('loginScreen').classList.remove('hidden');popLU()}
 function popLU(){if(!D)return;document.getElementById('loginUser').innerHTML='<option value="admin">👑 Administrador</option>'+D.barbers.map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}
 
-// HELPER
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function fmt(v){return'R$ '+Number(v||0).toFixed(2).replace('.',',')}
 function fDt(s){if(!s)return'-';const p=s.split('-');return`${p[2]}/${p[1]}/${p[0]}`}
@@ -273,18 +252,16 @@ function shareWA(bid,p){const b=GB(bid);if(!b)return;let t=`💈 MR BARBEARIA\n$
 function getBookURL(){return window.location.href.split('?')[0]+'?booking=1'}
 function payIcon(m){return{dinheiro:'💵',cartao:'💳',pix:'📱'}[m]||'💰'}
 function payLabel(m){return{dinheiro:'Dinheiro',cartao:'Cartão',pix:'PIX'}[m]||m}
-function diffDays(d){if(!d)return 0;const now=new Date(),past=new Date(d);return Math.floor((now-past)/(1000*60*60*24))}
 
-// NAV
 const AN=[{s:'Principal'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'agendamentos',ic:'📋',lb:'Agendamentos'},
     {s:'Cadastros'},{id:'barbeiros',ic:'💈',lb:'Barbeiros'},{id:'clientes',ic:'👥',lb:'Clientes'},{id:'servicos',ic:'✂️',lb:'Serviços'},
     {s:'Financeiro'},{id:'financeiro',ic:'💰',lb:'Financeiro'},{id:'caixa',ic:'🏦',lb:'Caixas'},{id:'vales',ic:'📥',lb:'Vales'},
-    {s:'Gestão'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'estoque',ic:'📦',lb:'Estoque'},
+    {s:'Gestão'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'estoque',ic:'📦',lb:'Estoque'},
     {s:'Comunicação'},{id:'notif',ic:'🔔',lb:'Notificações',bg:1},{id:'chat',ic:'💬',lb:'Chat'},
     {s:'Extra'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'},{id:'booking',ic:'📱',lb:'Link Online'},{id:'config',ic:'⚙️',lb:'Config'}];
-const BN=[{s:'Meu Painel'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'lancar',ic:'✂️',lb:'Lançar Serviço'},{id:'agenda',ic:'📅',lb:'Agenda'},{id:'clientes',ic:'👥',lb:'Clientes'},
+const BN=[{s:'Meu Painel'},{id:'dashboard',ic:'📊',lb:'Dashboard'},{id:'lancar',ic:'✂️',lb:'Lançar Serviço'},{id:'agenda',ic:'📅',lb:'Agenda'},
     {s:'Financeiro'},{id:'meufat',ic:'💰',lb:'Faturamento'},{id:'meucaixa',ic:'🏦',lb:'Caixa'},{id:'meusvales',ic:'📥',lb:'Vales'},
-    {s:'Geral'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'chat',ic:'💬',lb:'Chat'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'},{id:'perfil',ic:'👤',lb:'Meu Perfil'}];
+    {s:'Geral'},{id:'ranking',ic:'🏆',lb:'Ranking'},{id:'metas',ic:'🎯',lb:'Metas'},{id:'ponto',ic:'🕐',lb:'Ponto'},{id:'chat',ic:'💬',lb:'Chat'},{id:'almoco',ic:'🍽️',lb:'Almoço'},{id:'fidelidade',ic:'🎁',lb:'Fidelidade'}];
 
 function buildSB(){const nav=document.getElementById('sbNav'),items=isA()?AN:BN;
     nav.innerHTML=items.map(it=>it.s?`<div class="nav-sec">${it.s}</div>`:`<button class="nav-it" data-p="${it.id}" onclick="navigate('${it.id}',this)"><span class="nav-ic">${it.ic}</span>${it.lb}${it.bg?'<span class="nav-bg">0</span>':''}</button>`).join('');
@@ -293,39 +270,33 @@ function buildSB(){const nav=document.getElementById('sbNav'),items=isA()?AN:BN;
     document.getElementById('sbName').textContent=n;document.getElementById('sbRole').textContent=isA()?'Proprietário':'Barbeiro';updBell()}
 function navigate(p,btn){CP=p;document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('act'));if(btn)btn.classList.add('act');else{const b=document.querySelector(`.nav-it[data-p="${p}"]`);if(b)b.classList.add('act')}
     document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').classList.remove('show');renderPage(p)}
-
-function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:pgMtsPage,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,perfil:pgPrf};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
-
-// PAGES
-function pgMtsPage(){
-    return `<div class="page active"><div class="ph"><h2>🎯 Metas</h2><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Definir Meta</button></div></div>
-    <div class="card"><div class="cb">
-    ${D.goals.length ? D.goals.map(g => {
-        const b = GB(g.barberId);
-        const atual = gMR(g.barberId, MK());
-        const perc = Math.min(100, (atual / g.amount) * 100);
-        return `<div class="mb">
-            <div class="fb"><span>${esc(b?.name)}</span><span>${fmt(atual)} / ${fmt(g.amount)}</span></div>
-            <div class="pb-w"><div class="pb-f" style="width:${perc}%"></div></div>
-        </div>`;
-    }).join('') : '<p class="tm tc">Nenhuma meta definida.</p>'}
-    </div></div></div>`;
-}
+function renderPage(p){const m=document.getElementById('mainContent');try{const pages={dashboard:isA()?pgAD:pgBD,agenda:isA()?pgAg:pgBAg,agendamentos:pgApts,barbeiros:pgBbs,clientes:pgCls,servicos:pgSvs,financeiro:pgFin,caixa:pgCxA,vales:pgVls,ranking:pgRk,metas:isA()?pgMts:pgBMt,ponto:isA()?pgPt:pgMPt,estoque:pgEst,notif:pgNt,chat:pgCh,fidelidade:isA()?pgFid:pgBFid,booking:pgBkL,config:pgCfg,lancar:pgLc,meufat:pgMF,meucaixa:pgMCx,meusvales:pgMV,almoco:pgAlm};m.innerHTML=(pages[p]||pgAD)()}catch(e){m.innerHTML=`<div class="page active"><p class="td tc">Erro: ${e.message}</p></div>`}}
 
 function pgAD(){const ta=(D.appointments||[]).filter(a=>a.date===TD()),ts=(D.completedServices||[]).filter(s=>s.date===TD()),tR=ts.reduce((s,x)=>s+getP(x),0),mR=(D.completedServices||[]).filter(s=>(s.date||'').startsWith(MK())).reduce((s,x)=>s+getP(x),0);
     const payStats={dinheiro:0,cartao:0,pix:0};ts.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+getP(s)});
     return`<div class="page active"><div class="ph"><div><h2>${new Date().getHours()<12?'Bom dia':new Date().getHours()<18?'Boa tarde':'Boa noite'}, <span>Admin</span> 👋</h2><p class="ph-sub">${fDt(TD())}</p></div>
         <div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
-        <div class="sg"><div class="sc"><div class="si gd">📅</div><div class="sv">${ta.length}</div><div class="sl">Agendamentos</div></div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">📅</div><div class="sv">${ta.length}</div><div class="sl">Agendamentos</div></div>
             <div class="sc"><div class="si gr">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Hoje</div></div>
             <div class="sc"><div class="si bl">📊</div><div class="sv">${fmt(mR)}</div><div class="sl">Mês</div></div>
-            <div class="sc"><div class="si rd">⏳</div><div class="sv">${ta.filter(a=>a.status==='pending').length}</div><div class="sl">Pendentes</div></div></div>
-        <div class="card mb"><div class="ch"><h3>💳 Pagamentos Hoje</h3></div><div class="cb"><div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div></div></div>
-        <div class="g2"><div class="card"><div class="ch"><h3>🕐 Próximos</h3></div><div class="cb">
+            <div class="sc"><div class="si rd">⏳</div><div class="sv">${ta.filter(a=>a.status==='pending').length}</div><div class="sl">Pendentes</div></div>
+        </div>
+        <div class="card mb"><div class="ch"><h3>💳 Pagamentos Hoje</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
+        </div></div>
+        <div class="g2">
+            <div class="card"><div class="ch"><h3>🕐 Próximos</h3></div><div class="cb">
                 ${ta.filter(a=>!['completed','cancelled'].includes(a.status)).sort((a,b)=>(a.time||'').localeCompare(b.time||'')).slice(0,5).map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId),bb=GB(a.barberId);
-                    return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'} · ${a.time}</div><div class="sd">💈 ${bb?.name||'?'}</div></div><span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status==='confirmed'?'OK':'Pend'}</span></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
+                    return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'} · ${a.time}</div><div class="sd">💈 ${bb?.name||'?'}</div></div>
+                    <span class="badge ${a.status==='confirmed'?'b-suc':'b-warn'}">${a.status==='confirmed'?'OK':'Pend'}</span></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
             </div></div>
-            <div class="card"><div class="ch"><h3>💈 Equipe</h3></div><div class="cb">${D.barbers.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span>${b.status==='online'?'🟢':'🔴'}</span><span class="fw" style="font-size:.82rem">${esc(b.name)}</span>${!b.active?'<span class="badge b-dan" style="margin-left:auto">Desativado</span>':''}</div>`).join('')}</div></div></div></div>`}
+            <div class="card"><div class="ch"><h3>💈 Equipe</h3></div><div class="cb">
+                ${D.barbers.map(b=>{const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()&&!l.returnTime);const st=lr?'lunch':b.status;
+                    return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                        <span>${{online:'🟢',offline:'🔴',busy:'🟡',lunch:'🔵'}[st]||'🔴'}</span><span class="fw" style="font-size:.82rem">${esc(b.name)}</span>
+                        ${!b.active?'<span class="badge b-dan" style="margin-left:auto">Desativado</span>':''}</div>`}).join('')}</div></div>
+        </div></div>`}
 
 function pgApts(){const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     return`<div class="page active"><div class="ph"><div><h2>📋 <span>Agendamentos</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Novo</button></div></div>
@@ -335,83 +306,435 @@ function pgApts(){const appts=[...(D.appointments||[])].sort((a,b)=>(b.date||'')
             <td><span class="badge ${({confirmed:'b-suc',pending:'b-warn',completed:'b-inf',cancelled:'b-dan'})[a.status]||''}">${stL[a.status]||''}</span></td><td class="fw tg">${fmt(sv?.price)}</td>
             <td><div style="display:flex;gap:3px">${a.status==='pending'?`<button class="btn-i" onclick="uA(${a.id},'confirmed')">✅</button>`:''}${a.status==='confirmed'?`<button class="btn-i" onclick="uA(${a.id},'completed')">✔️</button>`:''}${!['completed','cancelled'].includes(a.status)?`<button class="btn-i" onclick="uA(${a.id},'cancelled')">❌</button>`:''}
             <button class="btn-i" onclick="dA(${a.id})">🗑️</button></div></td></tr>`}).join('')}</tbody></table></div></div></div>`}
-async function uA(id,st){const a=(D.appointments||[]).find(x=>x.id===id);if(!a)return;a.status=st;if(st==='completed'){D.completedServices.push({id:UI(),clientId:a.clientId,barberId:a.barberId,serviceId:a.serviceId,date:a.date,time:a.time,payMethod:'dinheiro',change:0});const cl=GC(a.clientId),sv=GS(a.serviceId);if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=a.date;cl.points=(cl.points||0)+1}}await save();renderPage(CP);toast('OK!')}
-async function dA(id){D.appointments=D.appointments.filter(a=>a.id!==id);await save();renderPage(CP)}
+async function uA(id,st){const a=(D.appointments||[]).find(x=>x.id===id);if(!a)return;a.status=st;if(st==='completed'){D.completedServices.push({id:UI(),clientId:a.clientId,barberId:a.barberId,serviceId:a.serviceId,date:a.date,time:a.time,payMethod:'dinheiro',change:0});const cl=GC(a.clientId),sv=GS(a.serviceId);if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=a.date;cl.points=(cl.points||0)+1}}await save();renderPage(CP);toast('Atualizado!')}
+async function dA(id){D.appointments=(D.appointments||[]).filter(a=>a.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
 function pgAg(){const appts=(D.appointments||[]).filter(a=>a.date===TD()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     return`<div class="page active"><div class="ph"><div><h2>📅 <span>Agenda</span></h2><p class="ph-sub">${fDt(TD())}</p></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('appt')">＋ Agendar</button></div></div>
-    <div class="card"><div class="cb">${tOpts().map(t=>{const a=appts.find(x=>x.time===t);const cl=a?GC(a.clientId):null,sv=a?GS(a.serviceId):null,bb=a?GB(a.barberId):null;
-        return`<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="width:50px;font-size:.78rem;color:var(--muted)">${t}</div><div style="flex:1">${a?`<div style="background:rgba(212,169,55,.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px"><div class="fw" style="font-size:.83rem">${cl?.name||'?'}</div><div class="tm" style="font-size:.73rem">${sv?.name||'?'} · 💈 ${bb?.name||'?'}</div></div>`:''}</div></div>`}).join('')}</div></div></div>`}
+        <div class="card"><div class="cb">${tOpts().map(t=>{const a=appts.find(x=>x.time===t);const cl=a?GC(a.clientId):null,sv=a?GS(a.serviceId):null,bb=a?GB(a.barberId):null;
+            return`<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="width:50px;font-size:.78rem;color:var(--muted)">${t}</div>
+                <div style="flex:1">${a?`<div style="background:rgba(212,169,55,.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px">
+                    <div class="fw" style="font-size:.83rem">${cl?.name||'?'}</div><div class="tm" style="font-size:.73rem">${sv?.icon||''} ${sv?.name||'?'} (${sv?.duration||0}min) · 💈 ${bb?.name||'?'}</div></div>`:''}</div></div>`}).join('')}
+        </div></div></div>`}
 
 function pgBbs(){return`<div class="page active"><div class="ph"><div><h2>💈 <span>Barbeiros</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('barber')">＋ Adicionar</button></div></div>
-    <div class="g3">${D.barbers.map(b=>`<div class="bc" style="${!b.active?'opacity:.5':''}"><div class="b-av ${b.avatar}">${bAvatar(b)}</div><h4>${esc(b.name)}</h4><div class="spec">${b.specialty}</div><div class="tm">${b.active?'Ativo':'Inativo'}</div>
-        <div style="display:flex;gap:5px;justify-content:center;margin-top:10px"><button class="btn btn-out btn-sm" onclick="openMod('editBarber',${b.id})">✏️</button><button class="btn-i" onclick="delBb(${b.id})">🗑️</button></div></div>`).join('')}</div></div>`}
-async function delBb(id){D.barbers=D.barbers.filter(b=>b.id!==id);await save();renderPage(CP)}
+    <div class="g3">${D.barbers.map(b=>{const svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id),rev=svcs.reduce((s,x)=>s+getP(x),0);
+        const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()&&!l.returnTime),st=lr?'lunch':b.status;
+        return`<div class="bc" style="${!b.active?'opacity:.5':''}"><div class="b-av ${b.avatar}">${bAvatar(b)}<div class="st-dot ${({online:'d-on',offline:'d-off',busy:'d-busy',lunch:'d-lunch'})[st]||'d-off'}"></div></div>
+            <h4>${esc(b.name)}</h4><div class="spec">${b.specialty} ${!b.active?'· <span class="td">Desativado</span>':''}</div>
+            <div class="bms"><div class="bm"><div class="v">${svcs.length}</div><div class="l">Serviços</div></div><div class="bm"><div class="v">${fmt(rev)}</div><div class="l">Receita</div></div>
+            <div class="bm"><div class="v">${b.commission}%</div><div class="l">Comissão</div></div><div class="bm"><div class="v">${fmt(rev*(b.commission/100))}</div><div class="l">Ganhos</div></div></div>
+            <div style="display:flex;gap:5px;justify-content:center">
+                <button class="btn btn-out btn-sm" onclick="openMod('editBarber',${b.id})">✏️</button>
+                <button class="btn ${b.active?'btn-warn':'btn-success'} btn-sm" onclick="toggleBarberActive(${b.id})">${b.active?'Desativar':'Ativar'}</button>
+                <button class="btn-i" onclick="delBb(${b.id})">🗑️</button></div></div>`}).join('')}</div></div>`}
+async function toggleBarberActive(id){const b=GB(id);if(b){b.active=!b.active;await save();renderPage(CP);toast(b.active?'Barbeiro ativado!':'Barbeiro desativado!')}}
+async function delBb(id){if(D.barbers.length<=1){toast('Mínimo 1!','error');return}D.barbers=D.barbers.filter(b=>b.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-function pgCls(){const iD=D.config?.inactiveDays||30;
-    return`<div class="page active"><div class="ph"><div><h2>👥 <span>Clientes</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('client')">＋ Novo</button></div></div>
-    <div class="card"><div class="tw"><table><thead><tr><th>Nome</th><th>Tel</th><th>Visitas</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-    ${[...D.clients].sort((a,b)=>b.visits-a.visits).map(c=>{const d=diffDays(c.lastVisit),bad=d>iD;
-        return`<tr><td class="fw">${esc(c.name)}</td><td>${c.phone||''}</td><td>${c.visits}</td>
-        <td>${!c.active?'<span class="badge b-dan">Bloqueado</span>':bad?`<span class="badge b-warn">⚠️ ${d}d ausente</span>`:'<span class="badge b-suc">Ativo</span>'}</td>
-        <td><div style="display:flex;gap:3px">
-            ${bad?`<button class="btn-i" onclick="window.open('https://wa.me/?text=Olá ${encodeURIComponent(c.name)}, sumiu!','_blank')" title="Chamar">📲</button>`:''}
-            <button class="btn-i" onclick="tglCl(${c.id})">${c.active?'🚫':'✅'}</button>
-            <button class="btn-i" onclick="openMod('editClient',${c.id})">✏️</button>
-            ${isA()?`<button class="btn-i" onclick="delCl(${c.id})">🗑️</button>`:''}
-        </div></td></tr>`}).join('')}</tbody></table></div></div></div>`}
-async function tglCl(id){const c=GC(id);if(c){c.active=!c.active;await save();renderPage(CP);toast(c.active?'Ativado':'Desativado')}}
-async function delCl(id){D.clients=D.clients.filter(c=>c.id!==id);await save();renderPage(CP)}
+function pgCls(){return`<div class="page active"><div class="ph"><div><h2>👥 <span>Clientes</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('client')">＋ Novo</button></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Nome</th><th>Tel</th><th>Visitas</th><th>Pontos</th><th>Total</th><th>Ações</th></tr></thead><tbody>
+    ${[...D.clients].sort((a,b)=>b.visits-a.visits).map(c=>`<tr><td class="fw">${esc(c.name)}</td><td>${c.phone||''}</td><td>${c.visits}</td><td><span class="badge b-gld">⭐${c.points||0}</span></td><td class="tg fw">${fmt(c.totalSpent)}</td>
+        <td><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editClient',${c.id})">✏️</button><button class="btn-i" onclick="delCl(${c.id})">🗑️</button></div></td></tr>`).join('')}
+    </tbody></table></div></div></div>`}
+async function delCl(id){D.clients=D.clients.filter(c=>c.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
 function pgSvs(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Serviços</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('service')">＋ Novo</button></div></div>
-    <div class="card"><div class="cb">${D.services.map(s=>`<div class="svc"><div class="svc-ic">${s.icon}</div><div class="svc-i"><div class="sn">${esc(s.name)}</div><div class="sd">⏱️ ${s.duration}min</div></div><div class="svc-p">${fmt(s.price)}</div>
-        <div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editSvc',${s.id})">✏️</button><button class="btn-i" onclick="delSv(${s.id})">🗑️</button></div></div>`).join('')}</div></div></div>`}
-async function delSv(id){D.services=D.services.filter(s=>s.id!==id);await save();renderPage(CP)}
+    <div class="card"><div class="cb">${D.services.map(s=>`<div class="svc"><div class="svc-ic">${s.icon}</div><div class="svc-i"><div class="sn">${esc(s.name)}</div><div class="sd">⏱️ ${s.duration}min</div></div>
+        <div class="svc-p">${fmt(s.price)}</div><div style="display:flex;gap:3px"><button class="btn-i" onclick="openMod('editSvc',${s.id})">✏️</button><button class="btn-i" onclick="delSv(${s.id})">🗑️</button></div></div>`).join('')}</div></div></div>`}
+async function delSv(id){if(!isA()){toast('Somente ADM!','error');return}if(D.services.length<=1){toast('Mínimo 1!','error');return}D.services=D.services.filter(s=>s.id!==id);await save();renderPage(CP);toast('Removido!','info')}
 
-function pgFin(){const fS=getFS(),tR=fS.reduce((s,x)=>s+getP(x),0);
-    return`<div class="page active"><div class="ph"><div><h2>💰 <span>Financeiro</span></h2></div><div class="ph-acts">${D.barbers.map(b=>`<button class="btn btn-out btn-xs" onclick="shareWA(${b.id},'${MK()}')">📲${b.name.split(' ')[0]}</button>`).join('')}</div></div>
-    <div class="date-filter"><button class="df-btn" onclick="setDF('today')">Hoje</button><button class="df-btn" onclick="setDF('month')">Mês</button></div>
-    <div class="sg"><div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Total</div></div></div>
-    <div class="card"><div class="ch"><h3>Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Valor</th><th>Ação</th></tr></thead><tbody>
-    ${fS.map(s=>`<tr><td>${fDt(s.date)}</td><td>${GC(s.clientId)?.name}</td><td>${GS(s.serviceId)?.name}</td><td>${GB(s.barberId)?.name}</td><td class="tg fw">${fmt(getP(s))}</td><td><div style="display:flex;gap:4px"><button class="btn-i" onclick="openMod('editTrans',${s.id})">✏️</button><button class="btn-i" onclick="delTr(${s.id})" style="color:var(--danger);border-color:var(--danger)">🗑️</button></div></td></tr>`).join('')}</tbody></table></div></div></div>`}
-function setDF(t){DF.type=t;renderPage('financeiro')}
-async function delTr(id){if(confirm('Excluir?')){D.completedServices=D.completedServices.filter(x=>x.id!==id);await save();renderPage(CP)}}
+function pgFin(){const fS=getFS(),tR=fS.reduce((s,x)=>s+getP(x),0),avg=fS.length?tR/fS.length:0;
+    const tC=D.barbers.reduce((s,b)=>{const r=fS.filter(x=>x.barberId===b.id).reduce((s2,x)=>s2+getP(x),0);return s+r*(b.commission/100)},0);
+    const payStats={dinheiro:0,cartao:0,pix:0};fS.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+getP(s)});
+    const fBtns=[{t:'today',l:'Hoje'},{t:'week',l:'Semana'},{t:'month',l:'Mês'},{t:'custom',l:'📅 Custom'}];
+    return`<div class="page active"><div class="ph"><div><h2>💰 <span>Financeiro</span></h2></div>
+        <div class="ph-acts">${D.barbers.map(b=>`<button class="btn btn-out btn-xs" onclick="shareWA(${b.id},'${MK()}')">📲${b.name.split(' ')[0]}</button>`).join('')}</div></div>
+        <div class="date-filter">${fBtns.map(f=>`<button class="df-btn ${DF.type===f.t?'active':''}" onclick="setDF('${f.t}')">${f.l}</button>`).join('')}
+            ${DF.type==='custom'?`<input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfS" value="${DF.start||TD()}" onchange="setCD()"><span class="tm">até</span><input type="date" class="fc" style="width:auto;padding:6px 10px;font-size:.78rem" id="dfE" value="${DF.end||TD()}" onchange="setCD()">`:''}</div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(tR)}</div><div class="sl">Receita</div></div>
+            <div class="sc"><div class="si gr">✂️</div><div class="sv">${fS.length}</div><div class="sl">Serviços</div></div>
+            <div class="sc"><div class="si bl">🎯</div><div class="sv">${fmt(avg)}</div><div class="sl">Ticket</div></div>
+            <div class="sc"><div class="si pr">💳</div><div class="sv">${fmt(tC)}</div><div class="sl">Comissões</div></div>
+        </div>
+        <div class="card mb"><div class="ch"><h3>💳 Por Método</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:12px"><div style="font-size:1.2rem">${payIcon(k)}</div><div class="sv" style="font-size:1.2rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
+        </div></div>
+        <div class="card"><div class="ch"><h3>💈 Por Barbeiro</h3></div><div class="cb">
+        ${D.barbers.map((b,i)=>{const rev=fS.filter(x=>x.barberId===b.id).reduce((s,x)=>s+getP(x),0);const mx=Math.max(...D.barbers.map(x=>fS.filter(s=>s.barberId===x.id).reduce((s2,s)=>s2+getP(s),0)),1);
+            return`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div><div class="rank-info"><div class="rank-nm">💈 ${esc(b.name)}</div>
+            <div class="rank-sub">Comissão: ${fmt(rev*(b.commission/100))}</div><div class="rank-bar"><div class="rank-fill" style="width:${(rev/mx)*100}%"></div></div></div>
+            <div class="rank-v">${fmt(rev)}</div></div>`}).join('')}</div></div>
+        <div class="card mt"><div class="ch"><h3>📋 Transações</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Pagto</th><th>Valor</th><th>Ações</th></tr></thead><tbody>
+        ${[...fS].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,30).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId),bb=GB(s.barberId);
+            return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td>${bb?.name||'?'}</td>
+            <td><span class="badge b-gld">${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}</span></td>
+            <td class="tg fw">${fmt(getP(s))}</td><td><button class="btn-i" onclick="openMod('editTrans',${s.id})">✏️</button></td></tr>`}).join('')}</tbody></table></div></div></div>`}
+function setDF(t){DF.type=t;if(t==='custom'){DF.start=TD();DF.end=TD()}renderPage('financeiro')}
+function setCD(){DF.start=document.getElementById('dfS')?.value;DF.end=document.getElementById('dfE')?.value;renderPage('financeiro')}
 
-function pgPrf(){const b=GB(myId());
-    return`<div class="page active"><div class="ph"><div><h2>👤 <span>Meu Perfil</span></h2></div></div>
-    <div class="card"><div class="cb tc">
-        <div class="photo-upload" onclick="document.getElementById('pfIn').click()">${b.photo?`<img src="${b.photo}">`:'📸'} <input type="file" id="pfIn" accept="image/*" onchange="updPf(this)" style="display:none"></div>
-        <h3>${esc(b.name)}</h3><p class="tm">${b.specialty}</p>
-        <button class="btn btn-gold mt" onclick="sPf()">💾 Salvar Foto</button>
+function pgCxA(){const tc=(D.cashiers||[]).filter(c=>c.date===TD());return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixas</span></h2></div></div>
+    <div class="g3">${D.barbers.map(b=>{const c=tc.find(x=>x.barberId===b.id),io=c&&!c.closedAt,svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=svcs.reduce((s,x)=>s+getP(x),0)+(c?.openAmount||0);
+        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.3rem">${c?io?'🟢':'✅':'🔴'}</div>
+            <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não abriu'}</div></div>
+            ${c?.closedAt&&c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:c?.closedAt?`<div class="badge b-suc">✅ OK</div>`:''}</div></div>`}).join('')}</div></div>`}
+
+function pgVls(){return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('vale')">＋ Registrar</button></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Barbeiro</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>
+    ${[...(D.vales||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(v=>{const bb=GB(v.barberId);
+        return`<tr><td>${fDt(v.date)}</td><td>${bb?.name||'?'}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td>
+        <td class="fw td">${fmt(v.amount)}</td><td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pendente':'OK'}</span></td>
+        <td>${v.status==='pending'?`<button class="btn btn-xs btn-warn" onclick="uV(${v.id},'deducted')">Desc</button><button class="btn btn-xs btn-success" onclick="uV(${v.id},'forgiven')">Perdoar</button>`:''}</td></tr>`}).join('')}
+    </tbody></table></div></div></div>`}
+async function uV(id,st){const v=(D.vales||[]).find(x=>x.id===id);if(v){v.status=st;await save();renderPage(CP);toast('OK!')}}
+
+function pgRk(){const mk=MK(),rc=D.rankConfig,ranked=D.barbers.map(b=>({...b,revenue:gMR(b.id,mk),svcs:gSC(b.id,mk),wins:Object.values(D.rankings||{}).filter(r=>r.first===b.id).length})).sort((a,b)=>b.revenue-a.revenue),sv=isA();
+    return`<div class="page active"><div class="ph"><div><h2>🏆 <span>Ranking</span></h2><p class="ph-sub">${mk}</p></div>
+        ${isA()?`<div class="ph-acts"><button class="btn btn-out btn-sm" onclick="openMod('rankCfg')">⚙️ Config</button></div>`:''}</div>
+        ${ranked.length>=3?`<div class="podium">
+            <div class="pod-it"><div class="pod-av p2">${bAvatar(ranked[1])}<span class="pod-trophy">🥈</span></div><div class="pod-name">${esc(ranked[1].name)}</div><div class="pod-svc">✂️ ${ranked[1].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[1].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=2?`<div class="pod-prize">🎁 ${fmt(rc.prizes[2]||0)}</div>`:''}<div class="pod-bar b2"></div></div>
+            <div class="pod-it"><div class="pod-av p1">${bAvatar(ranked[0])}<span class="pod-trophy">🥇</span></div><div class="pod-name">${esc(ranked[0].name)}</div><div class="pod-svc">✂️ ${ranked[0].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[0].revenue)}</div>`:'<div class="hidden-val">████</div>'}<div class="pod-prize">🎁 ${fmt(rc.prizes[1]||0)}</div><div class="pod-bar b1"></div></div>
+            <div class="pod-it"><div class="pod-av p3">${bAvatar(ranked[2])}<span class="pod-trophy">🥉</span></div><div class="pod-name">${esc(ranked[2].name)}</div><div class="pod-svc">✂️ ${ranked[2].svcs}</div>
+                ${sv?`<div class="pod-val">${fmt(ranked[2].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=3?`<div class="pod-prize">🎁 ${fmt(rc.prizes[3]||0)}</div>`:''}<div class="pod-bar b3"></div></div>
+        </div>`:''}<div class="card"><div class="cb">${ranked.map((r,i)=>`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div>
+            <div class="rank-info"><div class="rank-nm">${esc(r.name)} ${r.wins?`<span class="wins-b">🏆${r.wins}x</span>`:''}</div>
+            <div class="rank-sub">✂️ ${r.svcs} serviços ${i<rc.premiados?`· 🎁 ${fmt(rc.prizes[i+1]||0)}`:''}</div></div>
+            ${sv?`<div class="rank-v">${fmt(r.revenue)}</div>`:'<div class="hidden-val">████</div>'}</div>`).join('')}</div></div></div>`}
+
+function pgMts(){return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('goal')">＋ Meta</button></div></div>
+    <div class="g3">${D.barbers.map(b=>{const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+        return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="tm" style="font-size:.76rem">Meta: ${tgt?fmt(tgt):'N/A'}</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}; margin:6px 0">${pct}%</div>
+            <div class="pb-w"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div><div style="font-size:.8rem;margin-top:6px">${fmt(rev)}/${fmt(tgt)}</div></div></div>`}).join('')}</div></div>`}
+
+function pgPt(){return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Barbeiro</th><th>Entrada</th><th>Almoço↗</th><th>Almoço↙</th><th>Saída</th><th>Status</th></tr></thead><tbody>
+    ${D.barbers.map(b=>{const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TD()),lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD());
+        return`<tr><td class="fw">${esc(b.name)}</td><td>${tr?.clockIn||'-'}</td><td>${lr?.leaveTime||'-'}</td><td>${lr?.returnTime||'-'}</td><td>${tr?.clockOut||'-'}</td>
+        <td><span class="badge ${tr?tr.clockOut?'b-inf':'b-suc':'b-dan'}">${tr?tr.clockOut?'Fim':'Ativo':'Ausente'}</span></td></tr>`}).join('')}
+    </tbody></table></div></div></div>`}
+
+function pgEst(){return`<div class="page active"><div class="ph"><div><h2>📦 <span>Estoque</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div>
+    <div class="card"><div class="cb">${(D.stock||[]).map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+        <div style="flex:1;font-size:.85rem">${esc(s.name)}</div><div class="fw ${s.qty<=s.min?'td':'ts'}">${s.qty}un ${s.qty<=s.min?'⚠️':''}</div>
+        <div style="display:flex;gap:3px"><button class="btn-i" onclick="adjS(${s.id},5)">➕</button><button class="btn-i" onclick="adjS(${s.id},-1)">➖</button></div></div>`).join('')}</div></div></div>`}
+async function adjS(id,d){const s=(D.stock||[]).find(x=>x.id===id);if(s){s.qty=Math.max(0,s.qty+d);if(s.qty<=s.min)addN(`⚠️ Estoque: ${s.name} (${s.qty})`,'warning');await save();renderPage(CP)}}
+
+function pgNt(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();
+    return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div>
+    <div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div>
+        <div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''} · ${fDt(n.date)}</div></div></div>`).join(''):'<p class="tm tc">Vazio</p>'}</div></div></div>`}
+
+function pgCh(){if(isA()){const contacts=[{id:'all',name:'📢 Mural'},...D.barbers.map(b=>({id:b.id,name:b.name,avatar:b.avatar,photo:b.photo}))],ac=ACI||'all',msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===ac);
+    return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
+        <div class="g2"><div class="card"><div class="ch"><h3>Conversas</h3></div><div class="cb">${contacts.map(c=>`<div class="chat-contact ${ac===c.id?'active':''}" onclick="ACI='${c.id}';renderPage('chat')">
+            <div class="cc-av ${c.avatar||'av2'}">${c.id==='all'?'📢':c.photo?`<img src="${c.photo}">`:(c.name||'').split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+            <div class="cc-info"><div class="cc-name">${esc(c.name)}</div></div></div>`).join('')}</div></div>
+        <div class="card"><div class="ch"><h3>${ac==='all'?'📢 Mural':'💬 '+(GB(ac)?.name||'')}</h3></div><div class="cb">
+            <div class="chat-msgs" id="cM">${msgs.map(m=>`<div class="chat-msg ${m.senderId==='admin'?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem msgs</p>'}</div>
+            <div class="chat-inp"><input type="text" class="fc" id="cI" placeholder="Msg..." onkeypress="if(event.key==='Enter')sM()"><button class="btn btn-gold" style="width:auto" onclick="sM()">Enviar</button></div></div></div></div></div>`
+    }else{const ac=ACI||'admin',msgs=(D.chatMessages||[]).filter(m=>ac==='all'?m.chatId==='all':m.chatId===myId());
+    return`<div class="page active"><div class="ph"><div><h2>💬 <span>Chat</span></h2></div></div>
+        <div class="card"><div class="cb"><div style="display:flex;gap:6px;margin-bottom:12px"><button class="btn ${ac==='admin'?'btn-gold':'btn-out'} btn-sm" onclick="ACI='admin';renderPage('chat')">👑 Admin</button><button class="btn ${ac==='all'?'btn-gold':'btn-out'} btn-sm" onclick="ACI='all';renderPage('chat')">📢 Mural</button></div>
+            <div class="chat-msgs" id="cM">${msgs.map(m=>`<div class="chat-msg ${m.senderId===myId()?'sent':'recv'}"><div class="cm-s">${esc(m.senderName)}</div>${esc(m.text)}<div class="cm-t">${m.time||''}</div></div>`).join('')||'<p class="tm tc">Sem msgs</p>'}</div>
+            <div class="chat-inp"><input type="text" class="fc" id="cI" placeholder="Msg..." onkeypress="if(event.key==='Enter')sM()"><button class="btn btn-gold" style="width:auto" onclick="sM()">Enviar</button></div></div></div></div>`}}
+async function sM(){const inp=document.getElementById('cI'),txt=inp?.value?.trim();if(!txt)return;const cid=isA()?(ACI||'all'):(ACI==='all'?'all':myId());
+    D.chatMessages.push({id:UI(),chatId:cid,senderId:isA()?'admin':myId(),senderName:CU.name,text:txt,time:NW(),date:TD(),read:false});inp.value='';await save();renderPage('chat');setTimeout(()=>{const el=document.getElementById('cM');if(el)el.scrollTop=el.scrollHeight},100)}
+
+// FIDELIDADE - ADM
+function pgFid(){const rules=D.fidelityRules;
+    return`<div class="page active"><div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
+    <div class="g3">${D.clients.map(c=>{const pts=c.points||0,tgt=rules.visitsForReward,pct=Math.min(100,Math.round(pts/tgt*100));
+        return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
+            <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
+            <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
+            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Resgate!</div>':''}
+            <div style="display:flex;gap:4px;justify-content:center;margin-top:10px">
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},1)">＋1</button>
+                <button class="btn btn-out btn-xs" onclick="adjPts(${c.id},-1)">−1</button>
+                ${pts>=tgt?`<button class="btn btn-success btn-xs" onclick="redeemPts(${c.id})">🎁 Resgatar</button>`:''}
+            </div></div></div>`}).join('')}</div></div>`}
+
+async function adjPts(cid,d){const c=GC(cid);if(c){c.points=Math.max(0,(c.points||0)+d);await save();renderPage(CP);toast(d>0?'Ponto adicionado!':'Ponto removido!')}}
+async function redeemPts(cid){const c=GC(cid);if(c){c.points=0;await save();renderPage(CP);toast('🎁 Resgatado!')}}
+
+// FIDELIDADE - BARBEIRO (VISUALIZAÇÃO SOMENTE)
+function pgBFid(){const rules=D.fidelityRules;
+    return`<div class="page active"><div class="ph"><div><h2>🎁 <span>Fidelidade</span></h2><p class="ph-sub">${rules.visitsForReward} visitas = ${rules.rewardDescription}</p></div></div>
+    <div class="g3">${D.clients.map(c=>{const pts=c.points||0,tgt=rules.visitsForReward,pct=Math.min(100,Math.round(pts/tgt*100));
+        return`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4>
+            <div class="f-dots">${Array.from({length:Math.min(tgt,15)},(_,i)=>`<div class="f-dot ${i<pts?'filled':''}">${i<pts?'⭐':i+1}</div>`).join('')}</div>
+            <div style="font-size:.8rem">${pts}/${tgt}</div><div class="pb-w"><div class="pb-f" style="width:${pct}%"></div></div>
+            ${pts>=tgt?'<div class="badge b-suc mt">🎉 Cliente pode resgatar!</div>':''}
+            </div></div>`}).join('')}</div></div>`}
+
+function pgBkL(){const url=getBookURL();return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div>
+    <div class="card"><div class="cb tc"><div style="font-size:3rem;margin-bottom:12px">📱</div><h3 style="margin-bottom:8px">Link de Agendamento</h3>
+        <div style="background:var(--bg4);padding:12px;border-radius:var(--rx);margin:14px 0;word-break:break-all;font-size:.8rem;color:var(--gold)">${esc(url)}</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Copiado!')">📋 Copiar</button>
+            <button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button></div>
     </div></div></div>`}
-function updPf(i){const f=i.files[0];if(f){const r=new FileReader();r.onload=e=>{document.querySelector('.photo-upload').innerHTML=`<img src="${e.target.result}"><input type="file" id="pfIn" onchange="updPf(this)" style="display:none">`;document.getElementById('pfIn').setAttribute('data-val',e.target.result)};r.readAsDataURL(f)}}
-async function sPf(){const v=document.getElementById('pfIn').getAttribute('data-val');if(v){const b=GB(myId());b.photo=v;await save();renderPage('perfil');buildSB();toast('Foto atualizada!')}}
 
-function pgBD(){return pgAD()}
-function pgLC(){return pgLc()}
-function pgBAg(){return pgAg()}
-function pgMF(){return pgFin()}
-function pgMCx(){return pgCxA()}
-function pgMV(){return pgVls()}
-function pgBMt(){return pgMtsPage()}
-function pgFid(){return `<div class="page active"><div class="ph"><h2>🎁 Fidelidade</h2></div><div class="g3">${D.clients.map(c=>`<div class="card"><div class="cb tc"><h4>${esc(c.name)}</h4><div>${c.points} pts</div>${isA()?`<button class="btn-sm btn-gold mt" onclick="adjPts(${c.id},1)">+1</button>`:''}</div></div>`).join('')}</div></div>`}
-function pgBFid(){return pgFid()}
+function pgCfg(){return`<div class="page active"><div class="ph"><div><h2>⚙️ <span>Config</span></h2></div></div>
+    <div class="card"><div class="cb">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="cfN" value="${esc(D.config?.businessName||'')}"></div>
+        <div class="fr"><div class="fg"><label>Buffer (min)</label><input type="number" class="fc" id="cfB" value="${D.config?.bufferMinutes||10}"></div>
+        <div class="fg"><label>Fidelidade</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules?.visitsForReward||10}"></div></div>
+        <div class="fg"><label>Recompensa</label><input type="text" class="fc" id="cfFR" value="${esc(D.fidelityRules?.rewardDescription||'')}"></div>
+        <button class="btn btn-gold mt" style="width:auto" onclick="sCfg()">💾 Salvar</button>
+        <div class="divider"></div><button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar?')){DOC.delete().then(()=>location.reload())}">🗑️ Resetar</button>
+    </div></div></div>`}
+async function sCfg(){D.config.businessName=document.getElementById('cfN').value;D.config.bufferMinutes=Number(document.getElementById('cfB').value)||10;D.fidelityRules.visitsForReward=Number(document.getElementById('cfFV').value)||10;D.fidelityRules.rewardDescription=document.getElementById('cfFR').value;await save();toast('Salvo! ⚙️')}
 
-function pgCxA(){const tc=(D.cashiers||[]).filter(c=>c.date===TD());return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixas</span></h2></div></div><div class="g3">${D.barbers.map(b=>{const c=tc.find(x=>x.barberId===b.id),io=c&&!c.closedAt,svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=svcs.reduce((s,x)=>s+getP(x),0)+(c?.openAmount||0);return`<div class="card"><div class="cb tc"><h4>${esc(b.name)}</h4><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.3rem">${c?io?'🟢':'✅':'🔴'}</div><div class="cx-big">${c?io?fmt(exp):'Fechado':'Não abriu'}</div></div>${c?.closedAt&&c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:c?.closedAt?`<div class="badge b-suc">✅ OK</div>`:''}</div></div>`}).join('')}</div></div>`}
-function pgVls(){return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('vale')">＋ Registrar</button></div></div><div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Barbeiro</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${[...(D.vales||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(v=>{const bb=GB(v.barberId);return`<tr><td>${fDt(v.date)}</td><td>${bb?.name||'?'}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td><td class="fw td">${fmt(v.amount)}</td><td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pendente':'OK'}</span></td><td>${v.status==='pending'?`<button class="btn btn-xs btn-warn" onclick="uV(${v.id},'deducted')">Desc</button><button class="btn btn-xs btn-success" onclick="uV(${v.id},'forgiven')">Perdoar</button>`:''}</td></tr>`}).join('')}</tbody></table></div></div></div>`}
-function pgRk(){const mk=MK(),rc=D.rankConfig,ranked=D.barbers.map(b=>({...b,revenue:gMR(b.id,mk),svcs:gSC(b.id,mk),wins:Object.values(D.rankings||{}).filter(r=>r.first===b.id).length})).sort((a,b)=>b.revenue-a.revenue),sv=isA();return`<div class="page active"><div class="ph"><div><h2>🏆 <span>Ranking</span></h2><p class="ph-sub">${mk}</p></div>${isA()?`<div class="ph-acts"><button class="btn btn-out btn-sm" onclick="openMod('rankCfg')">⚙️ Config</button></div>`:''}</div>${ranked.length>=3?`<div class="podium"><div class="pod-it"><div class="pod-av p2">${bAvatar(ranked[1])}<span class="pod-trophy">🥈</span></div><div class="pod-name">${esc(ranked[1].name)}</div><div class="pod-svc">✂️ ${ranked[1].svcs}</div>${sv?`<div class="pod-val">${fmt(ranked[1].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=2?`<div class="pod-prize">🎁 ${fmt(rc.prizes[2]||0)}</div>`:''}<div class="pod-bar b2"></div></div><div class="pod-it"><div class="pod-av p1">${bAvatar(ranked[0])}<span class="pod-trophy">🥇</span></div><div class="pod-name">${esc(ranked[0].name)}</div><div class="pod-svc">✂️ ${ranked[0].svcs}</div>${sv?`<div class="pod-val">${fmt(ranked[0].revenue)}</div>`:'<div class="hidden-val">████</div>'}<div class="pod-prize">🎁 ${fmt(rc.prizes[1]||0)}</div><div class="pod-bar b1"></div></div><div class="pod-it"><div class="pod-av p3">${bAvatar(ranked[2])}<span class="pod-trophy">🥉</span></div><div class="pod-name">${esc(ranked[2].name)}</div><div class="pod-svc">✂️ ${ranked[2].svcs}</div>${sv?`<div class="pod-val">${fmt(ranked[2].revenue)}</div>`:'<div class="hidden-val">████</div>'}${rc.premiados>=3?`<div class="pod-prize">🎁 ${fmt(rc.prizes[3]||0)}</div>`:''}<div class="pod-bar b3"></div></div></div>`:''}<div class="card"><div class="cb">${ranked.map((r,i)=>`<div class="rank-row"><div class="rank-pos ${i<3?'rp'+(i+1):''}">${i+1}</div><div class="rank-info"><div class="rank-nm">${esc(r.name)} ${r.wins?`<span class="wins-b">🏆${r.wins}x</span>`:''}</div><div class="rank-sub">✂️ ${r.svcs} serviços ${i<rc.premiados?`· 🎁 ${fmt(rc.prizes[i+1]||0)}`:''}</div></div>${sv?`<div class="rank-v">${fmt(r.revenue)}</div>`:'<div class="hidden-val">████</div>'}</div>`).join('')}</div></div></div>`}
-function pgEst(){return`<div class="page active"><div class="ph"><div><h2>📦 <span>Estoque</span></h2></div><div class="ph-acts"><button class="btn btn-gold" onclick="openMod('stock')">＋ Produto</button></div></div><div class="card"><div class="cb">${(D.stock||[]).map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="flex:1;font-size:.85rem">${esc(s.name)}</div><div class="fw ${s.qty<=s.min?'td':'ts'}">${s.qty}un ${s.qty<=s.min?'⚠️':''}</div><div style="display:flex;gap:3px"><button class="btn-i" onclick="adjS(${s.id},5)">➕</button><button class="btn-i" onclick="adjS(${s.id},-1)">➖</button></div></div>`).join('')}</div></div></div>`}
-function pgNt(){(D.notifications||[]).forEach(n=>n.read=true);save();updBell();return`<div class="page active"><div class="ph"><div><h2>🔔 <span>Notificações</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="D.notifications=[];save();renderPage('notif')">Limpar</button></div></div><div class="card"><div class="cb">${(D.notifications||[]).length?(D.notifications||[]).map(n=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)"><div style="width:6px;height:6px;border-radius:50%;background:var(--success);margin-top:5px;flex-shrink:0"></div><div><div style="font-size:.8rem">${esc(n.text)}</div><div class="tm" style="font-size:.65rem">${n.time||''} · ${fDt(n.date)}</div></div></div>`).join(''):'<p class="tm tc">Vazio</p>'}</div></div></div>`}
-function pgBkL(){const url=getBookURL();return`<div class="page active"><div class="ph"><div><h2>📱 <span>Link Online</span></h2></div></div><div class="card"><div class="cb tc"><div style="font-size:3rem;margin-bottom:12px">📱</div><h3 style="margin-bottom:8px">Link de Agendamento</h3><div style="background:var(--bg4);padding:12px;border-radius:var(--rx);margin:14px 0;word-break:break-all;font-size:.8rem;color:var(--gold)">${esc(url)}</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-gold" onclick="navigator.clipboard.writeText('${url}');toast('Copiado!')">📋 Copiar</button><button class="btn btn-success" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Agende na MR Barbearia! 💈\\n${url}'),'_blank')">📲 WhatsApp</button></div></div></div></div>`}
-function pgCfg(){return`<div class="page active"><div class="ph"><div><h2>⚙️ <span>Config</span></h2></div></div><div class="card"><div class="cb"><div class="fg"><label>Nome</label><input type="text" class="fc" id="cfN" value="${esc(D.config?.businessName||'')}"></div><div class="fr"><div class="fg"><label>Buffer (min)</label><input type="number" class="fc" id="cfB" value="${D.config?.bufferMinutes||10}"></div><div class="fg"><label>Fidelidade</label><input type="number" class="fc" id="cfFV" value="${D.fidelityRules?.visitsForReward||10}"></div></div><div class="fg"><label>Recompensa</label><input type="text" class="fc" id="cfFR" value="${esc(D.fidelityRules?.rewardDescription||'')}"></div><div class="fg"><label>Dias Inativo</label><input type="number" class="fc" id="cfID" value="${D.config?.inactiveDays||30}"></div><button class="btn btn-gold mt" style="width:auto" onclick="sCfg()">💾 Salvar</button><div class="divider"></div><button class="btn btn-danger btn-sm" onclick="if(confirm('Resetar?')){DOC.delete().then(()=>location.reload())}">🗑️ Resetar</button></div></div></div>`}
+// === BARBER PAGES ===
+function pgBD(){const b=GB(myId());if(!b)return'<div class="page active">Erro</div>';const mk=MK(),mS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk)),tS=mS.filter(s=>s.date===TD());
+    const mR=mS.reduce((s,x)=>s+getP(x),0),tR=tS.reduce((s,x)=>s+getP(x),0),comm=mR*(b.commission/100),vl=gVT(b.id,mk);
+    const payStats={dinheiro:0,cartao:0,pix:0};tS.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+getP(s)});
+    return`<div class="page active"><div class="ph"><div><h2>Olá, <span>${esc(b.name)}</span> 💈</h2></div></div>
+        <div class="sg">
+            <div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(mR)}</div><div class="sl">Mês</div></div>
+            <div class="sc"><div class="si gr">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div>
+            <div class="sc"><div class="si bl">✂️</div><div class="sv">${mS.length}</div><div class="sl">Serviços</div></div>
+        </div>
+        <div class="card mb"><div class="ch"><h3>💳 Pagamentos Hoje</h3></div><div class="cb">
+            <div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:10px"><div style="font-size:1rem">${payIcon(k)}</div><div class="sv" style="font-size:1.1rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div>
+        </div></div></div>`}
 
-// MODALS E FUNÇÕES RESTANTES... (MANTIDAS DO ORIGINAL COM FIXES)
+// LANÇAR SERVIÇO COM PAGAMENTO
+function pgLc(){return`<div class="page active"><div class="ph"><div><h2>✂️ <span>Lançar Serviço</span></h2></div></div>
+    <div class="card"><div class="cb">
+        <div class="fg"><label>Cliente</label><select class="fc" id="lcCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Serviço</label><select class="fc" id="lcSv">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} — ${fmt(s.price)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Método de Pagamento</label>
+            <div class="pay-methods">
+                <div class="pay-opt ${selPay==='dinheiro'?'selected':''}" onclick="selPayM('dinheiro')"><div class="pay-icon">💵</div><div class="pay-label">Dinheiro</div></div>
+                <div class="pay-opt ${selPay==='cartao'?'selected':''}" onclick="selPayM('cartao')"><div class="pay-icon">💳</div><div class="pay-label">Cartão</div></div>
+                <div class="pay-opt ${selPay==='pix'?'selected':''}" onclick="selPayM('pix')"><div class="pay-icon">📱</div><div class="pay-label">PIX</div></div>
+            </div>
+        </div>
+        <div id="trocoArea" class="${selPay==='dinheiro'?'':'hidden'}">
+            <div class="fg"><label>Valor Recebido (R$)</label><input type="number" class="fc" id="lcRecv" placeholder="0.00" oninput="calcTroco()"></div>
+            <div class="fg"><label>Troco</label><div id="trocoVal" style="font-size:1.2rem;font-weight:800;color:var(--gold);padding:8px 0">R$ 0,00</div></div>
+        </div>
+        <button class="btn btn-gold mt" style="width:auto" onclick="launchSvc()">✂️ Lançar Serviço</button>
+    </div></div>
+    <div class="card mt"><div class="ch"><h3>📋 Hoje</h3></div><div class="cb">
+    ${(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD()).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
+        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} · ${s.time} · ${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}${s.change>0?' · Troco: '+fmt(s.change):''}</div></div><div class="svc-p">${fmt(getP(s))}</div></div>`}).join('')||'<p class="tm tc">Nenhum</p>'}
+    </div></div></div>`}
+
+function selPayM(m){selPay=m;renderPage('lancar')}
+function calcTroco(){const sid=Number(document.getElementById('lcSv')?.value),sv=GS(sid),recv=parseFloat(document.getElementById('lcRecv')?.value)||0,price=sv?.price||0,troco=Math.max(0,recv-price);
+    document.getElementById('trocoVal').textContent=fmt(troco)}
+async function launchSvc(){const cid=Number(document.getElementById('lcCl').value),sid=Number(document.getElementById('lcSv').value);
+    if(!selPay){toast('Selecione o pagamento!','error');return}
+    const sv=GS(sid),cl=GC(cid),b=GB(myId());let change=0;
+    if(selPay==='dinheiro'){const recv=parseFloat(document.getElementById('lcRecv')?.value)||0;change=Math.max(0,recv-(sv?.price||0))}
+    D.completedServices.push({id:UI(),clientId:cid,barberId:myId(),serviceId:sid,date:TD(),time:NW(),payMethod:selPay,change});
+    if(cl){cl.visits++;cl.totalSpent+=(sv?.price||0);cl.lastVisit=TD();cl.points=(cl.points||0)+1}
+    addN(`🟢 ${b?.name}: ${sv?.name} ${fmt(sv?.price)} · ${payIcon(selPay)} ${payLabel(selPay)}${change>0?' · Troco: '+fmt(change):''}`);
+    await save();renderPage('lancar');toast('Lançado! ✂️')}
+
+function pgBAg(){const appts=(D.appointments||[]).filter(a=>a.barberId===myId()&&a.date===TD()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    return`<div class="page active"><div class="ph"><div><h2>📅 <span>Agenda</span></h2></div></div>
+    <div class="card"><div class="cb">${appts.length?appts.map(a=>{const cl=GC(a.clientId),sv=GS(a.serviceId);
+        return`<div class="svc"><div class="svc-ic">${sv?.icon||'✂️'}</div><div class="svc-i"><div class="sn">${a.time} — ${cl?.name||'?'}</div><div class="sd">${sv?.name||'?'} (${sv?.duration||0}min)</div></div></div>`}).join(''):'<p class="tm tc">Sem agenda</p>'}</div></div></div>`}
+
+function pgMF(){const b=GB(myId());if(!b)return'';const mk=MK(),svcs=(D.completedServices||[]).filter(s=>s.barberId===b.id&&(s.date||'').startsWith(mk)),rev=svcs.reduce((s,x)=>s+getP(x),0),comm=rev*(b.commission/100),vl=gVT(b.id,mk);
+    const payStats={dinheiro:0,cartao:0,pix:0};svcs.forEach(s=>{const m=s.payMethod||'dinheiro';payStats[m]=(payStats[m]||0)+getP(s)});
+    return`<div class="page active"><div class="ph"><div><h2>💰 <span>Faturamento</span></h2></div><div class="ph-acts"><button class="btn btn-out btn-sm" onclick="shareWA(${b.id},'${mk}')">📲 WhatsApp</button></div></div>
+    <div class="sg"><div class="sc"><div class="si gd">💰</div><div class="sv">${fmt(rev)}</div><div class="sl">Faturamento</div></div>
+        <div class="sc"><div class="si gr">💳</div><div class="sv">${fmt(comm)}</div><div class="sl">Comissão</div></div>
+        <div class="sc"><div class="si bl">💵</div><div class="sv">${fmt(comm-vl)}</div><div class="sl">Líquido</div></div></div>
+    <div class="card mb"><div class="ch"><h3>💳 Por Método</h3></div><div class="cb"><div class="sg" style="margin-bottom:0">${Object.entries(payStats).map(([k,v])=>`<div class="sc" style="padding:10px"><div style="font-size:1rem">${payIcon(k)}</div><div class="sv" style="font-size:1.1rem">${fmt(v)}</div><div class="sl">${payLabel(k)}</div></div>`).join('')}</div></div></div>
+    <div class="card"><div class="ch"><h3>📋 Serviços</h3></div><div class="tw"><table><thead><tr><th>Data</th><th>Cliente</th><th>Serviço</th><th>Pagto</th><th>Valor</th></tr></thead><tbody>
+    ${svcs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(s=>{const cl=GC(s.clientId),sv=GS(s.serviceId);
+        return`<tr><td>${fDt(s.date)}</td><td>${cl?.name||'?'}</td><td>${sv?.name||'?'}</td><td><span class="badge b-gld">${payIcon(s.payMethod||'dinheiro')} ${payLabel(s.payMethod||'dinheiro')}</span></td><td class="tg fw">${fmt(getP(s))}</td></tr>`}).join('')}
+    </tbody></table></div></div></div>`}
+
+function pgMCx(){const b=GB(myId());if(!b)return'';const c=(D.cashiers||[]).find(x=>x.barberId===b.id&&x.date===TD()),io=c&&!c.closedAt,tS=(D.completedServices||[]).filter(s=>s.barberId===b.id&&s.date===TD()),exp=tS.reduce((s,x)=>s+getP(x),0)+(c?.openAmount||0);
+    return`<div class="page active"><div class="ph"><div><h2>🏦 <span>Caixa</span></h2></div></div>
+    <div class="card"><div class="cb tc"><div class="cx-st ${c?io?'cx-o':'':'cx-c'}"><div style="font-size:1.8rem">${c?io?'🟢':'✅':'🔴'}</div>
+        <div class="cx-big">${c?io?fmt(exp):'Fechado':'Não aberto'}</div><div class="cx-lbl">${c?io?'Aberto '+c.openedAt:'Fechado '+c.closedAt:'Abra para iniciar'}</div></div>
+        ${!c?`<div class="fg mt"><label>Valor Inicial</label><input type="number" class="fc" id="cxO" value="0"></div><button class="btn btn-gold" style="width:auto" onclick="openCx()">☀️ Abrir</button>`:''}
+        ${io?`<div class="fg mt"><label>Contagem</label><input type="number" class="fc" id="cxC"></div><button class="btn btn-danger" style="width:auto" onclick="closeCx()">🌙 Fechar</button>`:''}
+        ${c?.closedAt?`<div class="mt">${c.difference!==0?`<div class="badge b-dan">⚠️ Dif: ${fmt(c.difference)}</div>`:'<div class="badge b-suc">✅ OK</div>'}</div>`:''}</div></div></div>`}
+async function openCx(){const amt=parseFloat(document.getElementById('cxO')?.value)||0;
+    D.cashiers.push({id:UI(),barberId:myId(),date:TD(),openedAt:NW(),openAmount:amt,closedAt:null,closedAmount:null,expectedAmount:null,difference:null});
+    addN(`🏦 ${GB(myId())?.name} abriu caixa`);await save();renderPage('meucaixa');toast('Aberto! ☀️')}
+async function closeCx(){const c=(D.cashiers||[]).find(x=>x.barberId===myId()&&x.date===TD()&&!x.closedAt);if(!c)return;
+    const ca=parseFloat(document.getElementById('cxC')?.value)||0;const tS=(D.completedServices||[]).filter(s=>s.barberId===myId()&&s.date===TD());
+    const exp=tS.reduce((s,x)=>s+getP(x),0)+c.openAmount;const diff=ca-exp;
+    c.closedAt=NW();c.closedAmount=ca;c.expectedAmount=exp;c.difference=diff;
+    if(diff!==0){addN(`🔴 ${GB(myId())?.name}: DIVERGÊNCIA ${fmt(diff)}`,'danger');D.vales.push({id:UI(),barberId:myId(),type:'furo',amount:Math.abs(diff),reason:`Furo ${fDt(TD())}`,date:TD(),status:'pending'});toast('⚠️ Divergência!','warning')}
+    else{addN(`✅ ${GB(myId())?.name} caixa OK`);toast('Fechado! ✅')}
+    await save();renderPage('meucaixa')}
+
+function pgMV(){const b=GB(myId());if(!b)return'';const mv=(D.vales||[]).filter(v=>v.barberId===b.id),t=mv.filter(v=>v.status!=='forgiven').reduce((s,v)=>s+(v.amount||0),0);
+    return`<div class="page active"><div class="ph"><div><h2>📥 <span>Vales</span></h2></div></div>
+    <div class="sc mb"><div class="si rd">📥</div><div class="sv td">${fmt(t)}</div><div class="sl">Débitos</div></div>
+    <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Status</th></tr></thead><tbody>
+    ${mv.map(v=>`<tr><td>${fDt(v.date)}</td><td><span class="badge ${v.type==='vale'?'b-warn':'b-dan'}">${v.type==='vale'?'Vale':'Furo'}</span></td><td class="fw td">${fmt(v.amount)}</td>
+        <td><span class="badge ${v.status==='pending'?'b-warn':'b-inf'}">${v.status==='pending'?'Pend':'OK'}</span></td></tr>`).join('')}
+    </tbody></table></div></div></div>`}
+
+function pgBMt(){const b=GB(myId());if(!b)return'';const rev=gMR(b.id,MK()),g=(D.goals||[]).find(x=>x.barberId===b.id&&x.month===MK()),tgt=g?g.target:0,pct=tgt>0?Math.min(100,Math.round(rev/tgt*100)):0;
+    return`<div class="page active"><div class="ph"><div><h2>🎯 <span>Metas</span></h2></div></div>
+    <div class="card"><div class="cb tc"><div style="font-size:2.5rem;margin:14px 0">${pct>=100?'🎉':'🎯'}</div>
+        <div style="font-size:2.2rem;font-weight:800;color:${pct>=100?'var(--success)':'var(--gold)'}">${pct}%</div>
+        <div class="pb-w" style="height:8px;margin:12px auto;max-width:300px"><div class="pb-f" style="width:${pct}%;${pct>=100?'background:var(--success)':''}"></div></div>
+        <div style="font-size:.95rem">${fmt(rev)}/${fmt(tgt)}</div></div></div></div>`}
+
+function pgMPt(){const b=GB(myId());if(!b)return'';const tr=(D.timeRecords||[]).find(t=>t.barberId===b.id&&t.date===TD());
+    return`<div class="page active"><div class="ph"><div><h2>🕐 <span>Ponto</span></h2></div></div>
+    <div class="card"><div class="cb tc"><div style="font-size:2.2rem;margin:14px 0">${tr?tr.clockOut?'✅':'🟢':'🔴'}</div>
+        ${tr?`<div class="fb mb" style="max-width:220px;margin:0 auto"><span>Entrada</span><span class="fw">${tr.clockIn}</span></div>`:''}
+        ${!tr?`<button class="btn btn-gold" onclick="ckI()">▶️ Entrada</button>`:''}
+        ${tr&&!tr.clockOut?`<button class="btn btn-danger" onclick="ckO()">⏹️ Saída</button>`:''}</div></div></div>`}
+async function ckI(){D.timeRecords.push({id:UI(),barberId:myId(),date:TD(),clockIn:NW(),clockOut:null});const b=GB(myId());if(b)b.status='online';addN(`▶️ ${b?.name} entrada`);await save();renderPage('ponto');toast('Entrada! ▶️')}
+async function ckO(){const tr=(D.timeRecords||[]).find(t=>t.barberId===myId()&&t.date===TD()&&!t.clockOut);if(tr){tr.clockOut=NW();const b=GB(myId());if(b)b.status='offline';addN(`⏹️ ${b?.name} saída`);await save();renderPage('ponto');toast('Saída! ⏹️')}}
+
+function pgAlm(){const b=GB(myId());if(!b)return'';const lr=(D.lunchRecords||[]).find(l=>l.barberId===b.id&&l.date===TD()),io=lr&&!lr.returnTime;
+    return`<div class="page active"><div class="ph"><div><h2>🍽️ <span>Almoço</span></h2></div></div>
+    <div class="card"><div class="cb tc"><div style="font-size:2.5rem;margin:14px 0">${io?'🍽️':lr?'✅':'☕'}</div>
+        ${!lr?`<button class="btn btn-gold" onclick="lO()">🍽️ Saí</button>`:''}
+        ${io?`<button class="btn btn-success" onclick="lI()">✅ Voltei</button>`:''}</div></div></div>`}
+async function lO(){D.lunchRecords.push({id:UI(),barberId:myId(),date:TD(),leaveTime:NW(),returnTime:null});const b=GB(myId());if(b)b.status='lunch';addN(`🍽️ ${b?.name} almoço`);await save();renderPage('almoco');toast('Bom almoço!')}
+async function lI(){const lr=(D.lunchRecords||[]).find(l=>l.barberId===myId()&&l.date===TD()&&!l.returnTime);if(lr){lr.returnTime=NW();const b=GB(myId());if(b)b.status='online';addN(`✅ ${b?.name} voltou`);await save();renderPage('almoco');toast('Bem-vindo!')}}
+
+// === MODALS ===
+function openMod(type,eid){const ov=document.getElementById('mOv'),md=document.getElementById('modContent');let h='';
+    if(type==='appt'){h=`<div class="mh"><h3>📅 Agendar</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Cliente</label><select class="fc" id="mCl">${D.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Serviço</label><select class="fc" id="mSv" onchange="uSl()">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} (${s.duration}min) ${fmt(s.price)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mBb" onchange="uSl()">${D.barbers.filter(b=>b.active!==false).map(b=>`<option value="${b.id}">💈 ${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="mDt" value="${TD()}" onchange="uSl()"></div>
+        <div class="fg"><label>Horário</label><div class="time-grid" id="tG"></div></div><input type="hidden" id="mTm">
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sAppt()">Agendar</button></div>`
+    }else if(type==='client'||type==='editClient'){const c=type==='editClient'?GC(eid):null;
+        h=`<div class="mh"><h3>${c?'✏️':'👤'} Cliente</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mCid" value="${c?.id||''}">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mCn" value="${c?esc(c.name):''}"></div>
+        <div class="fg"><label>Telefone</label><input type="text" class="fc" id="mCp" value="${c?.phone||''}"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sClM()">Salvar</button></div>`
+    }else if(type==='barber'||type==='editBarber'){const b=type==='editBarber'?GB(eid):null;
+        h=`<div class="mh"><h3>${b?'✏️':'💈'} Barbeiro</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mBid" value="${b?.id||''}">
+        <div class="photo-upload" onclick="document.getElementById('photoIn').click()">
+            ${b?.photo?`<img src="${b.photo}">`:'<div class="ph-text">📸<br>Foto</div>'}
+            <input type="file" id="photoIn" accept="image/*" onchange="handlePhoto(this)" style="display:none">
+        </div>
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mBn" value="${b?esc(b.name):''}"></div>
+        <div class="fg"><label>Especialidade</label><input type="text" class="fc" id="mBs" value="${b?.specialty||''}"></div>
+        <div class="fr"><div class="fg"><label>Comissão %</label><input type="number" class="fc" id="mBc" value="${b?.commission||50}"></div>
+        <div class="fg"><label>E-mail</label><input type="email" class="fc" id="mBe" value="${b?.email||''}"></div></div>
+        <div class="fg"><label>Avatar (cor)</label><select class="fc" id="mBav"><option value="av1" ${b?.avatar==='av1'?'selected':''}>🟣</option><option value="av2" ${b?.avatar==='av2'?'selected':''}>🟡</option><option value="av3" ${b?.avatar==='av3'?'selected':''}>🔵</option><option value="av4" ${b?.avatar==='av4'?'selected':''}>🔴</option><option value="av5" ${b?.avatar==='av5'?'selected':''}>🟢</option></select></div>
+        <div class="fg"><label>Ativo para agendamento</label><div style="display:flex;align-items:center;gap:10px"><div class="toggle-switch ${b?.active!==false?'on':''}" id="mBact" onclick="this.classList.toggle('on')"></div><span class="tm" style="font-size:.8rem">${b?.active!==false?'Sim':'Não'}</span></div></div>
+        <input type="hidden" id="mBphoto" value="${b?.photo||''}">
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sBbM()">Salvar</button></div>`
+    }else if(type==='service'||type==='editSvc'){if(!isA()){toast('Somente ADM!','error');return}const s=type==='editSvc'?GS(eid):null;
+        h=`<div class="mh"><h3>${s?'✏️':'✂️'} Serviço</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mSid" value="${s?.id||''}">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSn" value="${s?esc(s.name):''}"></div>
+        <div class="fr"><div class="fg"><label>Preço</label><input type="number" class="fc" id="mSp" value="${s?.price||''}"></div><div class="fg"><label>Duração min</label><input type="number" class="fc" id="mSd" value="${s?.duration||30}"></div></div>
+        <div class="fg"><label>Ícone</label><select class="fc" id="mSi">${['✂️','🪒','💈','⭐','👁️','🧴','🎨','👦'].map(i=>`<option value="${i}" ${s?.icon===i?'selected':''}>${i}</option>`).join('')}</select></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sSvM()">Salvar</button></div>`
+    }else if(type==='vale'){h=`<div class="mh"><h3>📥 Vale</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mVb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fr"><div class="fg"><label>Tipo</label><select class="fc" id="mVt"><option value="vale">Vale</option><option value="furo">Furo</option></select></div>
+        <div class="fg"><label>Valor</label><input type="number" class="fc" id="mVa"></div></div>
+        <div class="fg"><label>Motivo</label><input type="text" class="fc" id="mVr"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sVlM()">Registrar</button></div>`
+    }else if(type==='goal'){h=`<div class="mh"><h3>🎯 Meta</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="mGb">${D.barbers.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Mês</label><input type="month" class="fc" id="mGm" value="${MK()}"></div>
+        <div class="fg"><label>Meta R$</label><input type="number" class="fc" id="mGv"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sGlM()">Salvar</button></div>`
+    }else if(type==='stock'){h=`<div class="mh"><h3>📦 Produto</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="mSkn"></div>
+        <div class="fr"><div class="fg"><label>Qtd</label><input type="number" class="fc" id="mSkq" value="10"></div><div class="fg"><label>Min</label><input type="number" class="fc" id="mSkm" value="5"></div></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sSkM()">Salvar</button></div>`
+    }else if(type==='rankCfg'){const rc=D.rankConfig;
+        h=`<div class="mh"><h3>⚙️ Ranking</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd">
+        <div class="fg"><label>Premiados</label><select class="fc" id="mRcP"><option value="1" ${rc.premiados===1?'selected':''}>1</option><option value="2" ${rc.premiados===2?'selected':''}>2</option><option value="3" ${rc.premiados===3?'selected':''}>3</option></select></div>
+        <div class="fg"><label>🥇 1º R$</label><input type="number" class="fc" id="mRc1" value="${rc.prizes?.[1]||0}"></div>
+        <div class="fg"><label>🥈 2º R$</label><input type="number" class="fc" id="mRc2" value="${rc.prizes?.[2]||0}"></div>
+        <div class="fg"><label>🥉 3º R$</label><input type="number" class="fc" id="mRc3" value="${rc.prizes?.[3]||0}"></div>
+        </div><div class="mft"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sRcM()">Salvar</button></div>`
+    }else if(type==='editTrans'){
+        const s=D.completedServices.find(x=>x.id===eid);if(!s)return;
+        const currentPrice=s.price!==undefined?s.price:(GS(s.serviceId)?.price||0);
+        h=`<div class="mh"><h3>✏️ Editar Transação</h3><button class="mx" onclick="closeMod()">✕</button></div><div class="mbd"><input type="hidden" id="mTrId" value="${s.id}">
+        <div class="fr"><div class="fg"><label>Serviço</label><select class="fc" id="mTrS">${D.services.map(x=>`<option value="${x.id}" ${x.id===s.serviceId?'selected':''}>${x.name}</option>`).join('')}</select></div>
+        <div class="fg"><label>Valor R$</label><input type="number" class="fc" id="mTrV" value="${currentPrice}"></div></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="mTrD" value="${s.date}"></div>
+        <div class="fg"><label>Método</label><select class="fc" id="mTrP">
+            <option value="dinheiro" ${s.payMethod==='dinheiro'?'selected':''}>Dinheiro</option>
+            <option value="cartao" ${s.payMethod==='cartao'?'selected':''}>Cartão</option>
+            <option value="pix" ${s.payMethod==='pix'?'selected':''}>Pix</option>
+        </select></div></div>
+        <div class="mft" style="justify-content:space-between"><button class="btn btn-danger" onclick="delTr(${s.id})">🗑️ Excluir</button><div style="display:flex;gap:8px"><button class="btn btn-out" onclick="closeMod()">Cancelar</button><button class="btn btn-gold" style="width:auto" onclick="sTrM()">Salvar</button></div></div>`
+    }
+    md.innerHTML=h;ov.classList.add('active');if(type==='appt')setTimeout(uSl,100)}
+
 function closeMod(){document.getElementById('mOv').classList.remove('active')}
+
+function handlePhoto(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const photo=e.target.result;document.getElementById('mBphoto').value=photo;
+    const upload=input.closest('.photo-upload');upload.innerHTML=`<img src="${photo}"><input type="file" id="photoIn" accept="image/*" onchange="handlePhoto(this)" style="display:none">`};reader.readAsDataURL(file)}
+
+function uSl(){const bid=Number(document.getElementById('mBb')?.value),sid=Number(document.getElementById('mSv')?.value),dt=document.getElementById('mDt')?.value,grid=document.getElementById('tG');if(!grid)return;
+    const slots=getSlots(bid,dt,sid);grid.innerHTML=tOpts().map(t=>{const ok=slots.includes(t);return`<div class="time-slot ${ok?'':'blocked'}" onclick="${ok?`selTm('${t}')`:''}">${t}${ok?'':'🔒'}</div>`}).join('')}
+function selTm(t){document.querySelectorAll('.time-slot').forEach(el=>el.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('mTm').value=t}
+
+async function sAppt(){const tm=document.getElementById('mTm').value;if(!tm){toast('Horário!','error');return}const bid=Number(document.getElementById('mBb').value),sid=Number(document.getElementById('mSv').value);
+    if(!isSlotOk(bid,document.getElementById('mDt').value,tm,sid)){toast('Indisponível!','error');return}
+    D.appointments.push({id:UI(),clientId:Number(document.getElementById('mCl').value),barberId:bid,serviceId:sid,date:document.getElementById('mDt').value,time:tm,status:'pending'});await save();closeMod();renderPage(CP);toast('Agendado! 📅')}
+async function sClM(){const id=document.getElementById('mCid').value,n=document.getElementById('mCn').value.trim();if(!n){toast('Nome!','error');return}
+    if(id){const c=GC(Number(id));if(c){c.name=n;c.phone=document.getElementById('mCp').value}}else D.clients.push({id:UI(),name:n,phone:document.getElementById('mCp').value,visits:0,lastVisit:null,totalSpent:0,points:0});
+    await save();closeMod();renderPage(CP);toast('Salvo!');popLU()}
+async function sBbM(){const id=document.getElementById('mBid').value,n=document.getElementById('mBn').value.trim();if(!n){toast('Nome!','error');return}
+    const photo=document.getElementById('mBphoto')?.value||'';const active=document.getElementById('mBact')?.classList.contains('on')??true;
+    const obj={name:n,specialty:document.getElementById('mBs').value||'Corte',commission:Number(document.getElementById('mBc').value)||50,email:document.getElementById('mBe').value,avatar:document.getElementById('mBav').value,photo,active};
+    if(id){const b=GB(Number(id));if(b)Object.assign(b,obj)}else D.barbers.push({id:UI(),status:'offline',rating:5,phone:'',...obj});
+    await save();closeMod();renderPage(CP);toast('Salvo! 💈');popLU()}
+async function sSvM(){if(!isA()){toast('Somente ADM!','error');return}const id=document.getElementById('mSid').value,n=document.getElementById('mSn').value.trim(),p=parseFloat(document.getElementById('mSp').value)||0;if(!n||p<=0){toast('Preencha!','error');return}
+    const obj={name:n,price:p,duration:Number(document.getElementById('mSd').value)||30,icon:document.getElementById('mSi').value};
+    if(id){const s=GS(Number(id));if(s)Object.assign(s,obj)}else D.services.push({id:UI(),...obj});await save();closeMod();renderPage(CP);toast('Salvo! ✂️')}
+async function sVlM(){const a=parseFloat(document.getElementById('mVa').value)||0;if(a<=0){toast('Valor!','error');return}const bid=Number(document.getElementById('mVb').value);
+    D.vales.push({id:UI(),barberId:bid,type:document.getElementById('mVt').value,amount:a,reason:document.getElementById('mVr').value,date:TD(),status:'pending'});addN(`📥 Vale: ${GB(bid)?.name} ${fmt(a)}`,'warning');await save();closeMod();renderPage(CP);toast('Registrado!')}
+async function sGlM(){const bid=Number(document.getElementById('mGb').value),m=document.getElementById('mGm').value,v=parseFloat(document.getElementById('mGv').value)||0;if(v<=0){toast('Valor!','error');return}
+    const ex=(D.goals||[]).findIndex(g=>g.barberId===bid&&g.month===m);if(ex>=0)D.goals[ex].target=v;else D.goals.push({id:UI(),barberId:bid,month:m,target:v});await save();closeMod();renderPage(CP);toast('Meta! 🎯')}
+async function sSkM(){const n=document.getElementById('mSkn').value.trim();if(!n){toast('Nome!','error');return}D.stock.push({id:UI(),name:n,qty:Number(document.getElementById('mSkq').value)||0,min:Number(document.getElementById('mSkm').value)||5});await save();closeMod();renderPage(CP);toast('Adicionado!')}
+async function sRcM(){D.rankConfig={premiados:Number(document.getElementById('mRcP').value),prizes:{1:parseFloat(document.getElementById('mRc1').value)||0,2:parseFloat(document.getElementById('mRc2').value)||0,3:parseFloat(document.getElementById('mRc3').value)||0}};await save();closeMod();renderPage(CP);toast('Ranking OK! 🏆')}
+async function sTrM(){const id=Number(document.getElementById('mTrId').value),s=D.completedServices.find(x=>x.id===id);
+    if(s){s.serviceId=Number(document.getElementById('mTrS').value);s.date=document.getElementById('mTrD').value;s.payMethod=document.getElementById('mTrP').value;
+    s.price=parseFloat(document.getElementById('mTrV').value)||0;
+    await save();closeMod();renderPage(CP);toast('Transação Editada!')}}
+async function delTr(id){if(!confirm('Excluir este lançamento?'))return;D.completedServices=D.completedServices.filter(x=>x.id!==id);await save();closeMod();renderPage(CP);toast('Excluído!','info')}
+
+function initBk(){document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('bookingPage').classList.remove('hidden');rBk()}
+function rBk(step=1,bd={}){const bc=document.getElementById('bookingContent');
+    if(step===1){bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>MR Barbearia</h2><p>Agende online</p></div>
+        <div class="fg"><label>Nome</label><input type="text" class="fc" id="bkN"></div><div class="fg"><label>Telefone</label><input type="text" class="fc" id="bkP"></div>
+        <div class="fg"><label>Serviço</label><select class="fc" id="bkS">${D.services.map(s=>`<option value="${s.id}">${s.icon} ${esc(s.name)} ${fmt(s.price)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Barbeiro</label><select class="fc" id="bkB"><option value="">Sem preferência</option>${D.barbers.filter(b=>b.active!==false).map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div>
+        <div class="fg"><label>Data</label><input type="date" class="fc" id="bkD" value="${TD()}" min="${TD()}"></div>
+        <button class="btn btn-gold full mt" onclick="bk2()">Ver Horários →</button>`
+    }else if(step===2){const slots=getSlots(bd.bid,bd.date,bd.sid);
+        bc.innerHTML=`<div class="b-logo"><span class="logo">💈</span><h2>Horários</h2><p>${fDt(bd.date)}</p></div>
+        <div class="time-grid">${slots.length?slots.map(t=>`<div class="time-slot" onclick="bk3('${t}')">${t}</div>`).join(''):'<p class="tm tc" style="grid-column:1/-1;padding:20px">Sem horários</p>'}</div>
+        <button class="btn btn-out full mt" onclick="rBk()">← Voltar</button>`;window._bd=bd
+    }else if(step===3){bc.innerHTML=`<div class="b-logo"><span class="logo">✅</span><h2 class="tg">Solicitado!</h2><p class="tm">Aguarde confirmação</p></div>
+        <button class="btn btn-gold full mt" onclick="rBk()">Novo</button>`}}
+function bk2(){const n=document.getElementById('bkN')?.value?.trim();if(!n){toast('Nome!','error');return}rBk(2,{name:n,phone:document.getElementById('bkP')?.value,sid:Number(document.getElementById('bkS').value),bid:Number(document.getElementById('bkB').value)||D.barbers.filter(b=>b.active!==false)[0]?.id,date:document.getElementById('bkD').value})}
+async function bk3(time){const d=window._bd;if(!d)return;let cl=D.clients.find(c=>c.phone===d.phone);if(!cl){cl={id:UI(),name:d.name,phone:d.phone,visits:0,lastVisit:null,totalSpent:0,points:0};D.clients.push(cl)}
+    D.appointments.push({id:UI(),clientId:cl.id,barberId:d.bid,serviceId:d.sid,date:d.date,time,status:'pending',source:'online'});addN(`📱 Online: ${d.name} · ${GS(d.sid)?.name} · ${fDt(d.date)} ${time}`);await save();rBk(3,d)}
 
 async function init(){
     if(window.location.search.includes('booking=1')){try{await loadData();initBk();listen()}catch(e){document.getElementById('loadingText').textContent='Erro: '+e.message}return}
-    try{await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){console.log(e)}
-}
+    setTimeout(()=>{const ls=document.getElementById('loadingScreen');if(!ls.classList.contains('hidden')){ls.classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');if(!D)D=JSON.parse(JSON.stringify(DEF));popLU()}},4000);
+    try{await loadData();popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');listen()}catch(e){console.log("Auth wait");if(!D)D=JSON.parse(JSON.stringify(DEF));popLU();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden')}}
 init();
 </script>
 </body>
